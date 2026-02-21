@@ -25,6 +25,7 @@
 2. Multi-seed randomized dataflow programs for broader state exploration.
 3. Reference-model comparison for robust end-state checking.
 4. Lightweight functional coverage counters with threshold checks.
+5. CI workflow on GitHub Actions for automated regression on push/PR.
 
 ## Current tests
 
@@ -68,6 +69,7 @@ Implementation note:
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
 2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
+4. CI workflow is in `.github/workflows/ci.yml` and runs Ubuntu-based checks plus sample assembled program runs.
 
 Formal properties currently checked:
 

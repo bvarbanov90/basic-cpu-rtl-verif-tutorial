@@ -29,6 +29,9 @@ Use Python 3.13 for the cocotb flow in this tutorial setup.
 basic-cpu-rlt--verif-tutorial/
 |- rtl/
 |  |- simple_cpu.sv
+|- .github/
+|  |- workflows/
+|     |- ci.yml
 |- formal/
 |  |- simple_cpu.sby
 |  |- simple_cpu_formal.sv
@@ -45,6 +48,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- install-tools.ps1
 |  |  |- run.ps1
 |  |  |- run-asm.ps1
+|  |  |- check-all.ps1
 |  |  |- lint.ps1
 |  |  |- run-formal.ps1
 |  |  |- open-waves.ps1
@@ -54,12 +58,14 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- install-tools-ubuntu.sh
 |  |  |- run.sh
 |  |  |- run-asm.sh
+|  |  |- check-all.sh
 |  |  |- lint.sh
 |  |  |- run-formal.sh
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
+|  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
 |- docs/
 |  |- verification-plan.md
@@ -204,21 +210,23 @@ cd C:\Users\bvarb\vscode_ws\basic-cpu-rlt--verif-tutorial
 
 ```powershell
 cd C:\Users\bvarb\vscode_ws\basic-cpu-rlt--verif-tutorial
-.\scripts\run.ps1 -NoWaves
-.\scripts\lint.ps1
-.\scripts\run-formal.ps1
-.\scripts\show-coverage.ps1
+.\scripts\check-all.ps1
 ```
 
 WSL/bash equivalent:
 
 ```bash
 cd /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial
-bash scripts/run.sh --no-waves
-bash scripts/lint.sh
-bash scripts/run-formal.sh
-bash scripts/show-coverage.sh
+bash scripts/check-all.sh
 ```
+
+## CI
+
+GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.yml` and run:
+
+1. Simulator regression + coverage gate (`bash scripts/check-all.sh`)
+2. Assembled sample program checks (`logic_flags.asm`, `counter_loop.asm`)
+3. Coverage artifact upload (`sim_build/coverage.json`, `sim_build/coverage.csv`)
 
 ## If tools are not installed yet
 
@@ -303,13 +311,9 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 2. Run both sanity flows before first push:
 
 ```powershell
-.\scripts\run.ps1 -NoWaves
-.\scripts\lint.ps1
-.\scripts\run-formal.ps1
+.\scripts\check-all.ps1
 ```
 
 ```bash
-bash scripts/run.sh --no-waves
-bash scripts/lint.sh
-bash scripts/run-formal.sh
+bash scripts/check-all.sh
 ```

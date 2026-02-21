@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ubuntu-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Run core sanity checks
+        run: bash scripts/check-all.sh
+
+      - name: Run assembled sample programs
+        run: |
+          bash scripts/run-asm.sh --source programs/logic_flags.asm --no-waves
+          bash scripts/run-asm.sh --source programs/counter_loop.asm --no-waves
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            sim_build/coverage.json
+            sim_build/coverage.csv
