@@ -69,7 +69,6 @@ basic-cpu-rlt--verif-tutorial/
 |  |- ... (compat wrappers for old paths)
 |- docs/
 |  |- verification-plan.md
-|  |- github-publish-checklist.md
 |- Makefile
 |- requirements.txt
 |- README.md
@@ -307,8 +306,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 ## Publish To GitHub
 
-1. Follow `docs/github-publish-checklist.md` for clean init/push steps.
-2. Run both sanity flows before first push:
+1. Run both sanity flows before first push:
 
 ```powershell
 .\scripts\check-all.ps1
@@ -316,4 +314,15 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 ```bash
 bash scripts/check-all.sh
+```
+
+2. Initialize and push:
+
+```powershell
+git init
+git checkout -b main
+git add .
+git commit -m "Initial commit: basic CPU RTL verification tutorial"
+git remote add origin git@github.com:<user-or-org>/<repo-name>.git
+git push -u origin main
 ```
