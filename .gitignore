@@ -1,0 +1,12 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+sim_build/
+results.xml
+*.vcd
+*.fst
+*.log
+formal/simple_cpu*/
+formal/*.tmp.sby

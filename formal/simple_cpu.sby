@@ -1,0 +1,14 @@
+[options]
+mode bmc
+depth 20
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal simple_cpu.sv simple_cpu_formal.sv
+prep -top simple_cpu_formal
+
+[files]
+rtl/simple_cpu.sv
+formal/simple_cpu_formal.sv

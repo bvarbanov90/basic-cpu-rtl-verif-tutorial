@@ -1,0 +1,15 @@
+* text=auto
+.gitattributes text eol=lf
+
+# Keep Linux/WSL scripts executable-friendly and shell-safe.
+*.sh text eol=lf
+
+# Keep source/docs consistent across platforms.
+*.py text eol=lf
+*.sv text eol=lf
+*.md text eol=lf
+Makefile text eol=lf
+
+# Windows command/powershell scripts are fine with CRLF.
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
