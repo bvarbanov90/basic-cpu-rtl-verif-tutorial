@@ -10,8 +10,9 @@ Common entrypoints:
 
 1. `run` (`run.ps1` / `run.sh`)
 2. `run-asm` (`run-asm.ps1` / `run-asm.sh`)
-3. `check-all` (`check-all.ps1` / `check-all.sh`)
-4. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
+3. `run-uvm` (`run-uvm.ps1` / `run-uvm.sh`)
+4. `check-all` (`check-all.ps1` / `check-all.sh`)
+5. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
 
 When adding a new automation flow:
 

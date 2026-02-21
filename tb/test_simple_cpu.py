@@ -176,7 +176,7 @@ async def run_until_halt(dut, max_cycles: int = 128) -> int:
 
 async def read_mem(dut, addr: int) -> int:
     dut.dbg_mem_addr.value = addr
-    await Timer(1, units="ns")
+    await Timer(1, unit="ns")
     return int(dut.dbg_mem_data.value)
 
 
@@ -195,7 +195,7 @@ def build_random_dataflow_program(seed: int, length: int = 12):
 
 @cocotb.test()
 async def directed_arithmetic_and_branch(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     await reset_dut(dut)
 
     program = [
@@ -226,7 +226,7 @@ async def directed_arithmetic_and_branch(dut):
 
 @cocotb.test()
 async def randomized_program_matches_reference_model(dut):
-    cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     await reset_dut(dut)
 
     program = build_random_dataflow_program(seed=20260221, length=12)

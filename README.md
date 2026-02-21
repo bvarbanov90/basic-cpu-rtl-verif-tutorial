@@ -8,7 +8,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 2. A simulator-native self-checking testbench (`tb/simple_cpu_tb.sv`).
 3. Directed and randomized tests, including a reference-model comparison.
 4. Waveform debug flow with open-source tools.
-5. Optional cocotb/Python verification extension.
+5. Optional cocotb/pyuvm Python verification extensions.
 
 ## Core tooling (all open source)
 
@@ -18,7 +18,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 
 ## Optional tooling (advanced step)
 
-1. Python + cocotb
+1. Python + cocotb + pyuvm
 2. GNU Make
 
 Use Python 3.13 for the cocotb flow in this tutorial setup.
@@ -41,6 +41,7 @@ basic-cpu-rlt--verif-tutorial/
 |- tb/
 |  |- simple_cpu_tb.sv
 |  |- test_simple_cpu.py
+|  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
 |  |- README.md
@@ -48,6 +49,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- install-tools.ps1
 |  |  |- run.ps1
 |  |  |- run-asm.ps1
+|  |  |- run-uvm.ps1
 |  |  |- check-all.ps1
 |  |  |- lint.ps1
 |  |  |- run-formal.ps1
@@ -58,6 +60,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- install-tools-ubuntu.sh
 |  |  |- run.sh
 |  |  |- run-asm.sh
+|  |  |- run-uvm.sh
 |  |  |- check-all.sh
 |  |  |- lint.sh
 |  |  |- run-formal.sh
@@ -65,6 +68,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-coverage.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
+|  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
 |- docs/
@@ -178,6 +182,12 @@ Run formal:
 bash scripts/run-formal.sh
 ```
 
+Run minimal pyuvm tests:
+
+```bash
+bash scripts/run-uvm.sh --no-waves
+```
+
 Notes:
 
 1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`.
@@ -225,7 +235,8 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 
 1. Simulator regression + coverage gate (`bash scripts/check-all.sh`)
 2. Assembled sample program checks (`logic_flags.asm`, `counter_loop.asm`)
-3. Coverage artifact upload (`sim_build/coverage.json`, `sim_build/coverage.csv`)
+3. Minimal pyuvm smoke/random checks (`bash scripts/run-uvm.sh --no-waves`)
+4. Coverage artifact upload (`sim_build/coverage.json`, `sim_build/coverage.csv`)
 
 ## If tools are not installed yet
 
@@ -252,6 +263,18 @@ py -3.13 -m venv .venv
 python -m pip install -r requirements.txt
 make SIM=icarus WAVES=1
 ```
+
+Run the minimal pyuvm/UVM-style example:
+
+```powershell
+.\scripts\run-uvm.ps1 -NoWaves
+```
+
+```bash
+bash scripts/run-uvm.sh --no-waves
+```
+
+The pyuvm example lives in `tb/test_simple_cpu_pyuvm.py` and includes a minimal sequence/driver/monitor/scoreboard environment.
 
 ## Suggested learning path
 

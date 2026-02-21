@@ -1,2 +1,4 @@
 cocotb==2.0.1; python_version < "3.14"
+pyuvm>=4.0,<5.0; python_version < "3.14"
 pytest>=8.0; python_version < "3.14"
+click>=8.0

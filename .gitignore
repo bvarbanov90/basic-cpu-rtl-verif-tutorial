@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+.venv*/
 sim_build/
 results.xml
 *.vcd

@@ -16,8 +16,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install open-source EDA toolchain
         run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Install Python verification dependencies
+        run: |
+          python3 -m venv .venv_ci
+          source .venv_ci/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          echo "$PWD/.venv_ci/bin" >> "$GITHUB_PATH"
 
       - name: Run core sanity checks
         run: bash scripts/check-all.sh
@@ -26,6 +39,9 @@ jobs:
         run: |
           bash scripts/run-asm.sh --source programs/logic_flags.asm --no-waves
           bash scripts/run-asm.sh --source programs/counter_loop.asm --no-waves
+
+      - name: Run minimal pyuvm checks
+        run: bash scripts/run-uvm.sh --no-waves
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4

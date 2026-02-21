@@ -18,6 +18,7 @@
 5. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
 6. `bash scripts/lint.sh` (WSL Ubuntu): PASS
 7. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
+8. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
 
 ## Test strategy
 
@@ -44,6 +45,8 @@
 | `report_and_check_coverage` | `tb/simple_cpu_tb.sv` | Coverage thresholds for opcode hits, branch outcomes, and flag transitions. |
 | `directed_arithmetic_and_branch` | `tb/test_simple_cpu.py` | Optional cocotb directed test mirroring simulator-native checks. |
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
+| `SimpleCpuUvmSmokeTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm (UVM-style) sequence/driver/monitor/scoreboard smoke check. |
+| `SimpleCpuUvmRandomizedTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm randomized program check against reference model. |
 
 ## Coverage model (simple functional coverage)
 
@@ -69,7 +72,7 @@ Implementation note:
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
 2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
-4. CI workflow is in `.github/workflows/ci.yml` and runs Ubuntu-based checks plus sample assembled program runs.
+4. CI workflow is in `.github/workflows/ci.yml` and runs Ubuntu-based checks, sample assembled program runs, and pyuvm checks.
 
 Formal properties currently checked:
 

@@ -7,7 +7,7 @@ export PYTHONPATH
 
 VERILOG_SOURCES := $(PWD)/rtl/simple_cpu.sv
 TOPLEVEL := simple_cpu
-MODULE := tb.test_simple_cpu
+COCOTB_TEST_MODULES ?= tb.test_simple_cpu
 
 WAVES ?= 1
 

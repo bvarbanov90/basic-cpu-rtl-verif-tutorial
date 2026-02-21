@@ -22,6 +22,8 @@ ${SUDO} apt-get install -y \
     make \
     python3 \
     python3-pip \
+    python3-click \
+    python3-venv \
     git
 
 if ! command -v sby >/dev/null 2>&1; then
