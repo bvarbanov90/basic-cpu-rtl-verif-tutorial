@@ -20,6 +20,12 @@ path = sys.argv[1]
 with open(path, "r", encoding="utf-8") as f:
     cov = json.load(f)
 
+def format_notes(reachability_row):
+    if not reachability_row:
+        return ""
+    notes = [f"{name} unreachable" for name, value in reachability_row.items() if int(value) == 0]
+    return f" [{', '.join(notes)}]" if notes else ""
+
 print("Coverage Summary")
 print(f"  pass:               {cov.get('coverage_pass')}")
 print(f"  opcode_hit_bitmap:  {cov.get('opcode_hit_bitmap')}")
@@ -52,23 +58,27 @@ if "opcode_zero_cross" in cov:
     print("\nOpcode x ZERO Cross (post-instruction ZERO)")
     for key in sorted(cov["opcode_zero_cross"], key=lambda k: int(k)):
         row = cov["opcode_zero_cross"][key]
-        print(f"  opcode_{key}: zero0={row['zero0']} zero1={row['zero1']}")
+        notes = format_notes(cov.get("opcode_zero_cross_reachability", {}).get(key))
+        print(f"  opcode_{key}: zero0={row['zero0']} zero1={row['zero1']}{notes}")
 
 if "opcode_carry_cross" in cov:
     print("\nOpcode x CARRY Cross (post-instruction CARRY)")
     for key in sorted(cov["opcode_carry_cross"], key=lambda k: int(k)):
         row = cov["opcode_carry_cross"][key]
-        print(f"  opcode_{key}: carry0={row['carry0']} carry1={row['carry1']}")
+        notes = format_notes(cov.get("opcode_carry_cross_reachability", {}).get(key))
+        print(f"  opcode_{key}: carry0={row['carry0']} carry1={row['carry1']}{notes}")
 
 if "opcode_neg_cross" in cov:
     print("\nOpcode x NEG Cross (post-instruction NEG)")
     for key in sorted(cov["opcode_neg_cross"], key=lambda k: int(k)):
         row = cov["opcode_neg_cross"][key]
-        print(f"  opcode_{key}: neg0={row['neg0']} neg1={row['neg1']}")
+        notes = format_notes(cov.get("opcode_neg_cross_reachability", {}).get(key))
+        print(f"  opcode_{key}: neg0={row['neg0']} neg1={row['neg1']}{notes}")
 
 if "opcode_overflow_cross" in cov:
     print("\nOpcode x OVERFLOW Cross (post-instruction OVERFLOW)")
     for key in sorted(cov["opcode_overflow_cross"], key=lambda k: int(k)):
         row = cov["opcode_overflow_cross"][key]
-        print(f"  opcode_{key}: overflow0={row['overflow0']} overflow1={row['overflow1']}")
+        notes = format_notes(cov.get("opcode_overflow_cross_reachability", {}).get(key))
+        print(f"  opcode_{key}: overflow0={row['overflow0']} overflow1={row['overflow1']}{notes}")
 PY

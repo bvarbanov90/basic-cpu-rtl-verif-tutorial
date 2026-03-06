@@ -4,6 +4,29 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Format-CrossNotes {
+    param(
+        [psobject]$ReachabilityRow
+    )
+
+    if (-not $ReachabilityRow) {
+        return ""
+    }
+
+    $notes = @()
+    foreach ($prop in $ReachabilityRow.PSObject.Properties) {
+        if ([int]$prop.Value -eq 0) {
+            $notes += "$($prop.Name) unreachable"
+        }
+    }
+
+    if ($notes.Count -eq 0) {
+        return ""
+    }
+
+    return " [" + ($notes -join ", ") + "]"
+}
+
 if (-not (Test-Path $CoverageFile)) {
     throw "Coverage file not found: $CoverageFile. Run .\\scripts\\run.ps1 first."
 }
@@ -56,7 +79,8 @@ if ($cov.opcode_zero_cross) {
             $name = $_.Name
             $zero0 = $_.Value.zero0
             $zero1 = $_.Value.zero1
-            Write-Host ("  opcode_{0}: zero0={1} zero1={2}" -f $name, $zero0, $zero1)
+            $notes = Format-CrossNotes -ReachabilityRow $cov.opcode_zero_cross_reachability.$name
+            Write-Host ("  opcode_{0}: zero0={1} zero1={2}{3}" -f $name, $zero0, $zero1, $notes)
         }
 }
 
@@ -69,7 +93,8 @@ if ($cov.opcode_carry_cross) {
             $name = $_.Name
             $carry0 = $_.Value.carry0
             $carry1 = $_.Value.carry1
-            Write-Host ("  opcode_{0}: carry0={1} carry1={2}" -f $name, $carry0, $carry1)
+            $notes = Format-CrossNotes -ReachabilityRow $cov.opcode_carry_cross_reachability.$name
+            Write-Host ("  opcode_{0}: carry0={1} carry1={2}{3}" -f $name, $carry0, $carry1, $notes)
         }
 }
 
@@ -82,7 +107,8 @@ if ($cov.opcode_neg_cross) {
             $name = $_.Name
             $neg0 = $_.Value.neg0
             $neg1 = $_.Value.neg1
-            Write-Host ("  opcode_{0}: neg0={1} neg1={2}" -f $name, $neg0, $neg1)
+            $notes = Format-CrossNotes -ReachabilityRow $cov.opcode_neg_cross_reachability.$name
+            Write-Host ("  opcode_{0}: neg0={1} neg1={2}{3}" -f $name, $neg0, $neg1, $notes)
         }
 }
 
@@ -95,6 +121,7 @@ if ($cov.opcode_overflow_cross) {
             $name = $_.Name
             $overflow0 = $_.Value.overflow0
             $overflow1 = $_.Value.overflow1
-            Write-Host ("  opcode_{0}: overflow0={1} overflow1={2}" -f $name, $overflow0, $overflow1)
+            $notes = Format-CrossNotes -ReachabilityRow $cov.opcode_overflow_cross_reachability.$name
+            Write-Host ("  opcode_{0}: overflow0={1} overflow1={2}{3}" -f $name, $overflow0, $overflow1, $notes)
         }
 }

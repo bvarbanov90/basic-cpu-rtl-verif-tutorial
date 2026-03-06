@@ -296,7 +296,8 @@ The SystemVerilog testbench includes sampled functional coverage implemented in 
 4. `ZERO` transition bins (`00`, `01`, `10`, `11`).
 5. Cross bins: `opcode x post-instruction ZERO/CARRY/NEG/OVERFLOW`.
 6. Flag bins (`CARRY/NEG/OVERFLOW` each observed as 0 and 1).
-7. Program-run and total-cycle counters.
+7. Reachability annotations for ISA-impossible opcode/flag bins.
+8. Program-run and total-cycle counters.
 
 Coverage thresholds are checked at end-of-run; unmet goals fail the simulation.
 
@@ -304,6 +305,8 @@ Coverage artifacts written on each run:
 
 1. `sim_build/coverage.json`
 2. `sim_build/coverage.csv`
+
+The coverage reports label ISA-unreachable bins explicitly so a zero count does not look like a verification gap when the combination cannot occur by construction.
 
 Quick summary command:
 
@@ -322,10 +325,10 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 ## Next extensions
 
-1. Add reachability notes for impossible opcode/flag combinations in the coverage report.
-2. Add a tiny assembler regression corpus and compare coverage drift over time.
-3. Split CI into separate simulation and formal jobs with coverage-history artifacts.
-4. Add a richer pyuvm subscriber layer that mirrors the native SV functional coverage model.
+1. Add a tiny assembler regression corpus and compare coverage drift over time.
+2. Split CI into separate simulation and formal jobs with coverage-history artifacts.
+3. Add a richer pyuvm subscriber layer that mirrors the native SV functional coverage model.
+4. Add coverage-delta checks so regressions are flagged before absolute thresholds fail.
 
 ## Publish To GitHub
 

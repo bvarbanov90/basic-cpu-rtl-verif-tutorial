@@ -106,6 +106,80 @@ module simple_cpu_tb;
         end
     endfunction
 
+    function integer cov_zero_cross_reachable;
+        input [3:0] opcode;
+        input integer zero_state;
+        begin
+            if ((zero_state != 0) && (zero_state != 1)) begin
+                cov_zero_cross_reachable = 0;
+            end else begin
+                case (opcode)
+                    OPC_NOP, OPC_LDI, OPC_ADD, OPC_SUB, OPC_STA, OPC_LDA, OPC_JMP, OPC_JZ, OPC_HLT,
+                    OPC_AND, OPC_OR, OPC_XOR, OPC_SHL, OPC_SHR, OPC_CMP: cov_zero_cross_reachable = 1;
+                    default: cov_zero_cross_reachable = 0;
+                endcase
+            end
+        end
+    endfunction
+
+    function integer cov_carry_cross_reachable;
+        input [3:0] opcode;
+        input integer carry_state;
+        begin
+            if ((carry_state != 0) && (carry_state != 1)) begin
+                cov_carry_cross_reachable = 0;
+            end else begin
+                case (opcode)
+                    OPC_LDI, OPC_LDA, OPC_AND, OPC_OR, OPC_XOR:
+                        cov_carry_cross_reachable = (carry_state == 0);
+                    OPC_NOP, OPC_ADD, OPC_SUB, OPC_STA, OPC_JMP, OPC_JZ, OPC_HLT, OPC_SHL, OPC_SHR, OPC_CMP:
+                        cov_carry_cross_reachable = 1;
+                    default:
+                        cov_carry_cross_reachable = 0;
+                endcase
+            end
+        end
+    endfunction
+
+    function integer cov_neg_cross_reachable;
+        input [3:0] opcode;
+        input integer neg_state;
+        begin
+            if ((neg_state != 0) && (neg_state != 1)) begin
+                cov_neg_cross_reachable = 0;
+            end else begin
+                case (opcode)
+                    OPC_LDI, OPC_SHR:
+                        cov_neg_cross_reachable = (neg_state == 0);
+                    OPC_NOP, OPC_ADD, OPC_SUB, OPC_STA, OPC_LDA, OPC_JMP, OPC_JZ, OPC_HLT,
+                    OPC_AND, OPC_OR, OPC_XOR, OPC_SHL, OPC_CMP:
+                        cov_neg_cross_reachable = 1;
+                    default:
+                        cov_neg_cross_reachable = 0;
+                endcase
+            end
+        end
+    endfunction
+
+    function integer cov_overflow_cross_reachable;
+        input [3:0] opcode;
+        input integer overflow_state;
+        begin
+            if ((overflow_state != 0) && (overflow_state != 1)) begin
+                cov_overflow_cross_reachable = 0;
+            end else begin
+                case (opcode)
+                    OPC_LDI, OPC_LDA, OPC_AND, OPC_OR, OPC_XOR, OPC_SHR:
+                        cov_overflow_cross_reachable = (overflow_state == 0);
+                    OPC_NOP, OPC_ADD, OPC_SUB, OPC_STA, OPC_JMP, OPC_JZ, OPC_HLT, OPC_SHL, OPC_CMP:
+                        cov_overflow_cross_reachable = 1;
+                    default:
+                        cov_overflow_cross_reachable = 0;
+                endcase
+            end
+        end
+    endfunction
+
     task automatic cov_init;
         integer opcode;
         integer z;
@@ -815,10 +889,32 @@ module simple_cpu_tb;
                 end
             end
             $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_zero_cross_reachability\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"zero0\": %0d, \"zero1\": %0d}",
+                    opcode, cov_zero_cross_reachable(opcode[3:0], 0), cov_zero_cross_reachable(opcode[3:0], 1));
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
             $fwrite(fd_json, "  \"opcode_carry_cross\": {\n");
             for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
                 $fwrite(fd_json, "    \"%0d\": {\"carry0\": %0d, \"carry1\": %0d}",
                     opcode, cov_opcode_carry_cross[opcode][0], cov_opcode_carry_cross[opcode][1]);
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_carry_cross_reachability\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"carry0\": %0d, \"carry1\": %0d}",
+                    opcode, cov_carry_cross_reachable(opcode[3:0], 0), cov_carry_cross_reachable(opcode[3:0], 1));
                 if (opcode < MAX_VALID_OPCODE) begin
                     $fwrite(fd_json, ",\n");
                 end else begin
@@ -837,10 +933,32 @@ module simple_cpu_tb;
                 end
             end
             $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_neg_cross_reachability\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"neg0\": %0d, \"neg1\": %0d}",
+                    opcode, cov_neg_cross_reachable(opcode[3:0], 0), cov_neg_cross_reachable(opcode[3:0], 1));
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
             $fwrite(fd_json, "  \"opcode_overflow_cross\": {\n");
             for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
                 $fwrite(fd_json, "    \"%0d\": {\"overflow0\": %0d, \"overflow1\": %0d}",
                     opcode, cov_opcode_overflow_cross[opcode][0], cov_opcode_overflow_cross[opcode][1]);
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_overflow_cross_reachability\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"overflow0\": %0d, \"overflow1\": %0d}",
+                    opcode, cov_overflow_cross_reachable(opcode[3:0], 0), cov_overflow_cross_reachable(opcode[3:0], 1));
                 if (opcode < MAX_VALID_OPCODE) begin
                     $fwrite(fd_json, ",\n");
                 end else begin
@@ -888,6 +1006,7 @@ module simple_cpu_tb;
             $fwrite(fd_json, "    \"cmp_x_neg1\": 1,\n");
             $fwrite(fd_json, "    \"shl_x_overflow0\": 1,\n");
             $fwrite(fd_json, "    \"shl_x_overflow1\": 1,\n");
+            $fwrite(fd_json, "    \"reachability_annotations\": 1,\n");
             $fwrite(fd_json, "    \"min_program_runs\": %0d\n", COV_MIN_PROGRAM_RUNS);
             $fwrite(fd_json, "  }\n");
             $fwrite(fd_json, "}\n");
@@ -904,9 +1023,13 @@ module simple_cpu_tb;
                 $fwrite(fd_csv, "opcode_%0d_count,%0d\n", opcode, cov_opcode_count[opcode]);
                 for (z = 0; z <= 1; z = z + 1) begin
                     $fwrite(fd_csv, "opcode_%0d_x_zero%0d,%0d\n", opcode, z, cov_opcode_zero_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_zero%0d_reachable,%0d\n", opcode, z, cov_zero_cross_reachable(opcode[3:0], z));
                     $fwrite(fd_csv, "opcode_%0d_x_carry%0d,%0d\n", opcode, z, cov_opcode_carry_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_carry%0d_reachable,%0d\n", opcode, z, cov_carry_cross_reachable(opcode[3:0], z));
                     $fwrite(fd_csv, "opcode_%0d_x_neg%0d,%0d\n", opcode, z, cov_opcode_neg_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_neg%0d_reachable,%0d\n", opcode, z, cov_neg_cross_reachable(opcode[3:0], z));
                     $fwrite(fd_csv, "opcode_%0d_x_overflow%0d,%0d\n", opcode, z, cov_opcode_overflow_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_overflow%0d_reachable,%0d\n", opcode, z, cov_overflow_cross_reachable(opcode[3:0], z));
                 end
             end
             $fwrite(fd_csv, "illegal_opcode_hit,%0d\n", cov_illegal_opcode_hit);
@@ -973,6 +1096,31 @@ module simple_cpu_tb;
             if (cov_opcode_neg_cross[OPC_CMP][1] == 0) begin
                 coverage_pass = 1'b0;
                 $display("[COVERAGE][MISS] CMP x NEG=1");
+            end
+
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                for (z = 0; z <= 1; z = z + 1) begin
+                    if (!cov_zero_cross_reachable(opcode[3:0], z) && (cov_opcode_zero_cross[opcode][z] != 0)) begin
+                        coverage_pass = 1'b0;
+                        $display("[COVERAGE][MODEL] Impossible ZERO bin observed: opcode 0x%0h x ZERO=%0d count=%0d",
+                            opcode, z, cov_opcode_zero_cross[opcode][z]);
+                    end
+                    if (!cov_carry_cross_reachable(opcode[3:0], z) && (cov_opcode_carry_cross[opcode][z] != 0)) begin
+                        coverage_pass = 1'b0;
+                        $display("[COVERAGE][MODEL] Impossible CARRY bin observed: opcode 0x%0h x CARRY=%0d count=%0d",
+                            opcode, z, cov_opcode_carry_cross[opcode][z]);
+                    end
+                    if (!cov_neg_cross_reachable(opcode[3:0], z) && (cov_opcode_neg_cross[opcode][z] != 0)) begin
+                        coverage_pass = 1'b0;
+                        $display("[COVERAGE][MODEL] Impossible NEG bin observed: opcode 0x%0h x NEG=%0d count=%0d",
+                            opcode, z, cov_opcode_neg_cross[opcode][z]);
+                    end
+                    if (!cov_overflow_cross_reachable(opcode[3:0], z) && (cov_opcode_overflow_cross[opcode][z] != 0)) begin
+                        coverage_pass = 1'b0;
+                        $display("[COVERAGE][MODEL] Impossible OVERFLOW bin observed: opcode 0x%0h x OVERFLOW=%0d count=%0d",
+                            opcode, z, cov_opcode_overflow_cross[opcode][z]);
+                    end
+                end
             end
 
             if (!cov_illegal_opcode_hit) coverage_pass = 1'b0;

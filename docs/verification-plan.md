@@ -59,12 +59,13 @@
 3. `JZ` taken and not-taken counters.
 4. `ZERO` transition bins (`00`, `01`, `10`, `11`).
 5. Cross bins: `opcode x post-instruction ZERO/CARRY/NEG/OVERFLOW`.
-6. Flag bins for `CARRY`, `NEG`, `OVERFLOW` (0 and 1 observed).
-7. Program-run and executed-cycle counters.
+6. Reachability metadata for ISA-impossible cross bins.
+7. Flag bins for `CARRY`, `NEG`, `OVERFLOW` (0 and 1 observed).
+8. Program-run and executed-cycle counters.
 
 Coverage artifacts:
 
-1. `sim_build/coverage.json` (machine-readable summary + goals)
+1. `sim_build/coverage.json` (machine-readable summary + goals + reachability metadata)
 2. `sim_build/coverage.csv` (flat metrics for spreadsheets/CI parsing)
 
 Additional outputs:
@@ -91,6 +92,6 @@ Known toolchain notes (non-fatal when runs pass):
 
 ## Remaining exercises
 
-1. Add reachability annotations for impossible opcode/flag bins in coverage output.
-2. Add CI thresholds on coverage deltas instead of only absolute pass/fail gates.
-3. Add a richer pyuvm subscriber/coverage collector that mirrors the native SV coverage report.
+1. Add CI thresholds on coverage deltas instead of only absolute pass/fail gates.
+2. Add a richer pyuvm subscriber/coverage collector that mirrors the native SV coverage report.
+3. Add an assembler regression corpus with expected coverage signatures.
