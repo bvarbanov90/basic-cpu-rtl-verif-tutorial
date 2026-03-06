@@ -69,9 +69,12 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
+|  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
+|  |- update-coverage-baseline.ps1 / update-coverage-baseline.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
 |- docs/
+|  |- coverage-baseline.json
 |  |- verification-plan.md
 |- Makefile
 |- requirements.txt
@@ -234,9 +237,10 @@ bash scripts/check-all.sh
 GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.yml` and run:
 
 1. Simulator regression + coverage gate (`bash scripts/check-all.sh`)
-2. Assembled sample program checks (`logic_flags.asm`, `counter_loop.asm`)
-3. Minimal pyuvm smoke/random checks (`bash scripts/run-uvm.sh --no-waves`)
-4. Coverage artifact upload (`sim_build/coverage.json`, `sim_build/coverage.csv`)
+2. Coverage delta check against repo baseline (`bash scripts/check-coverage-delta.sh`)
+3. Assembled sample program checks (`logic_flags.asm`, `counter_loop.asm`)
+4. Minimal pyuvm smoke/random checks (`bash scripts/run-uvm.sh --no-waves`)
+5. Coverage artifact upload (`sim_build/coverage.json`, `sim_build/coverage.csv`)
 
 ## If tools are not installed yet
 
@@ -307,6 +311,27 @@ Coverage artifacts written on each run:
 2. `sim_build/coverage.csv`
 
 The coverage reports label ISA-unreachable bins explicitly so a zero count does not look like a verification gap when the combination cannot occur by construction.
+The repo also tracks a non-regression baseline in `docs/coverage-baseline.json`.
+
+Coverage delta commands:
+
+```powershell
+.\scripts\check-coverage-delta.ps1
+```
+
+```bash
+bash scripts/check-coverage-delta.sh
+```
+
+If you intentionally change the regression mix or improve coverage, regenerate the baseline after a clean passing run:
+
+```powershell
+.\scripts\update-coverage-baseline.ps1
+```
+
+```bash
+bash scripts/update-coverage-baseline.sh
+```
 
 Quick summary command:
 
@@ -328,7 +353,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 1. Add a tiny assembler regression corpus and compare coverage drift over time.
 2. Split CI into separate simulation and formal jobs with coverage-history artifacts.
 3. Add a richer pyuvm subscriber layer that mirrors the native SV functional coverage model.
-4. Add coverage-delta checks so regressions are flagged before absolute thresholds fail.
+4. Add trend/history reporting on top of the new coverage baseline checks.
 
 ## Publish To GitHub
 

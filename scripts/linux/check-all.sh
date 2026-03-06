@@ -9,5 +9,6 @@ bash scripts/run.sh --no-waves
 bash scripts/lint.sh
 bash scripts/run-formal.sh
 bash scripts/show-coverage.sh
+bash scripts/check-coverage-delta.sh
 
 echo "All checks passed."

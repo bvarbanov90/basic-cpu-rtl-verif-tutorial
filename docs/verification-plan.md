@@ -16,10 +16,12 @@
 3. `.\scripts\run-formal.ps1`: PASS
 4. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
 5. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-6. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-7. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-8. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
-9. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+6. `.\scripts\check-coverage-delta.ps1`: PASS
+7. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+8. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+9. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
+10. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+11. `bash scripts/check-coverage-delta.sh`: PASS
 
 ## Test strategy
 
@@ -27,7 +29,8 @@
 2. Multi-seed randomized dataflow and branch-stress programs for broader state exploration.
 3. Reference-model comparison for robust end-state checking.
 4. Lightweight functional coverage counters with threshold checks.
-5. CI workflow on GitHub Actions for automated regression on push/PR.
+5. Repo-tracked coverage baseline with delta checks for non-regression.
+6. CI workflow on GitHub Actions for automated regression on push/PR.
 
 ## Current tests
 
@@ -67,6 +70,7 @@ Coverage artifacts:
 
 1. `sim_build/coverage.json` (machine-readable summary + goals + reachability metadata)
 2. `sim_build/coverage.csv` (flat metrics for spreadsheets/CI parsing)
+3. `docs/coverage-baseline.json` (repo-tracked lower-bound baseline for regression checks)
 
 Additional outputs:
 
@@ -77,7 +81,8 @@ Implementation note:
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
 2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
-4. CI workflow is in `.github/workflows/ci.yml` and runs Ubuntu-based checks, sample assembled program runs, and pyuvm checks.
+4. CI workflow is in `.github/workflows/ci.yml` and runs Ubuntu-based checks, coverage delta checks, sample assembled program runs, and pyuvm checks.
+5. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 
 Formal properties currently checked:
 
@@ -92,6 +97,6 @@ Known toolchain notes (non-fatal when runs pass):
 
 ## Remaining exercises
 
-1. Add CI thresholds on coverage deltas instead of only absolute pass/fail gates.
+1. Add historical/trend reporting on top of the baseline delta checks.
 2. Add a richer pyuvm subscriber/coverage collector that mirrors the native SV coverage report.
 3. Add an assembler regression corpus with expected coverage signatures.

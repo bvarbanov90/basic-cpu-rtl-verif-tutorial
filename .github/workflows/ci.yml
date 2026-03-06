@@ -35,6 +35,9 @@ jobs:
       - name: Run core sanity checks
         run: bash scripts/check-all.sh
 
+      - name: Check coverage delta against baseline
+        run: bash scripts/check-coverage-delta.sh
+
       - name: Run assembled sample programs
         run: |
           bash scripts/run-asm.sh --source programs/logic_flags.asm --no-waves

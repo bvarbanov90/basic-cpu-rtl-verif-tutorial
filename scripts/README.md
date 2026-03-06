@@ -12,7 +12,9 @@ Common entrypoints:
 2. `run-asm` (`run-asm.ps1` / `run-asm.sh`)
 3. `run-uvm` (`run-uvm.ps1` / `run-uvm.sh`)
 4. `check-all` (`check-all.ps1` / `check-all.sh`)
-5. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
+5. `check-coverage-delta` (`check-coverage-delta.ps1` / `check-coverage-delta.sh`)
+6. `update-coverage-baseline` (`update-coverage-baseline.ps1` / `update-coverage-baseline.sh`)
+7. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
 
 When adding a new automation flow:
 
