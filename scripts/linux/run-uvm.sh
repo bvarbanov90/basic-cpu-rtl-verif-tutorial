@@ -36,12 +36,19 @@ if ! command -v make >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! command -v python3 >/dev/null 2>&1; then
+PYTHON_BIN=""
+if [[ -x ".venv/bin/python" ]]; then
+    PYTHON_BIN=".venv/bin/python"
+elif [[ -x ".venv_pyuvm_probe/bin/python" ]]; then
+    PYTHON_BIN=".venv_pyuvm_probe/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="python3"
+else
     echo "python3 is required for cocotb/pyuvm runs." >&2
     exit 1
 fi
 
-if ! python3 - <<'PY' >/dev/null 2>&1
+if ! "${PYTHON_BIN}" - <<'PY' >/dev/null 2>&1
 import sys
 assert sys.version_info < (3, 14)
 import cocotb
@@ -60,6 +67,9 @@ else
     export PYTHONPATH="${PROJECT_ROOT}"
 fi
 
+PYTHON_BIN_DIR="$(cd -- "$(dirname -- "${PYTHON_BIN}")" && pwd)"
+export PATH="${PYTHON_BIN_DIR}:${PATH}"
+
 WAVES_VALUE=1
 if [[ "${NO_WAVES}" -eq 1 ]]; then
     WAVES_VALUE=0
@@ -67,7 +77,7 @@ fi
 
 make -f Makefile \
     SIM=icarus \
-    PYTHON_BIN=python3 \
+    PYTHON_BIN="${PYTHON_BIN}" \
     COCOTB_TEST_MODULES=tb.test_simple_cpu_pyuvm \
     WAVES="${WAVES_VALUE}" \
     SIM_BUILD=sim_build/pyuvm \

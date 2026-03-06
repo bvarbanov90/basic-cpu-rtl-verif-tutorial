@@ -17,6 +17,7 @@ from tb.test_simple_cpu import (
     OPC_LDI,
     OPC_STA,
     ReferenceCPU,
+    build_branch_stress_program,
     build_random_dataflow_program,
     ins,
 )
@@ -70,6 +71,18 @@ class RandomProgramSequence(uvm_sequence):
     async def body(self):
         program = build_random_dataflow_program(seed=self.seed, length=12)
         item = ProgramItem("random_item", program=program, max_cycles=96)
+        await self.start_item(item)
+        await self.finish_item(item)
+
+
+class BranchStressSequence(uvm_sequence):
+    def __init__(self, name="branch_stress_sequence", seed=0xBADC0DE0):
+        super().__init__(name)
+        self.seed = int(seed)
+
+    async def body(self):
+        program = build_branch_stress_program(seed=self.seed)
+        item = ProgramItem("branch_item", program=program, max_cycles=128)
         await self.start_item(item)
         await self.finish_item(item)
 
@@ -243,6 +256,21 @@ class SimpleCpuUvmRandomizedTest(uvm_test):
     async def run_phase(self):
         self.raise_objection()
         seq = RandomProgramSequence("random_seq", seed=20260221)
+        await seq.start(self.env.agent.sequencer)
+        await self.env.wait_for_scoreboard()
+        self.drop_objection()
+
+
+@test()
+class SimpleCpuUvmBranchStressTest(uvm_test):
+    def build_phase(self):
+        bfm = SimpleCpuBfm(dut=cocotb.top)
+        ConfigDB().set(None, "*", "CPU_BFM", bfm)
+        self.env = SimpleCpuEnv("env", self)
+
+    async def run_phase(self):
+        self.raise_objection()
+        seq = BranchStressSequence("branch_seq", seed=0xBADC0DE0)
         await seq.start(self.env.agent.sequencer)
         await self.env.wait_for_scoreboard()
         self.drop_objection()

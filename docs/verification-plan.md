@@ -9,21 +9,22 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (February 21, 2026)
+## Current status (March 6, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
 3. `.\scripts\run-formal.ps1`: PASS
 4. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
-5. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-6. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-7. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
-8. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+5. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+6. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+7. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+8. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
+9. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
 
 ## Test strategy
 
 1. Directed tests for fast, readable intent checks.
-2. Multi-seed randomized dataflow programs for broader state exploration.
+2. Multi-seed randomized dataflow and branch-stress programs for broader state exploration.
 3. Reference-model comparison for robust end-state checking.
 4. Lightweight functional coverage counters with threshold checks.
 5. CI workflow on GitHub Actions for automated regression on push/PR.
@@ -41,12 +42,15 @@
 | `test_cmp_negative` | `tb/simple_cpu_tb.sv` | Negative compare result flag checks (`NEG`, `CARRY`). |
 | `test_illegal_opcode` | `tb/simple_cpu_tb.sv` | Illegal opcode handling path should halt safely. |
 | `test_randomized_suite` | `tb/simple_cpu_tb.sv` | 20 deterministic randomized programs, full DUT vs model state compare. |
+| `test_branch_randomized_suite` | `tb/simple_cpu_tb.sv` | Bounded-loop branch-heavy randomized programs stressing `JZ/JMP` control flow. |
 | `test_external_program` | `tb/simple_cpu_tb.sv` | Optional plusarg-driven external `.hex` program check vs model. |
 | `report_and_check_coverage` | `tb/simple_cpu_tb.sv` | Coverage thresholds for opcode hits, branch outcomes, and flag transitions. |
 | `directed_arithmetic_and_branch` | `tb/test_simple_cpu.py` | Optional cocotb directed test mirroring simulator-native checks. |
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
+| `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
 | `SimpleCpuUvmSmokeTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm (UVM-style) sequence/driver/monitor/scoreboard smoke check. |
 | `SimpleCpuUvmRandomizedTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm randomized program check against reference model. |
+| `SimpleCpuUvmBranchStressTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm branch-stress program check against reference model. |
 
 ## Coverage model (simple functional coverage)
 
@@ -54,7 +58,7 @@
 2. Illegal opcode path hit.
 3. `JZ` taken and not-taken counters.
 4. `ZERO` transition bins (`00`, `01`, `10`, `11`).
-5. Cross bins: `opcode x post-instruction ZERO`.
+5. Cross bins: `opcode x post-instruction ZERO/CARRY/NEG/OVERFLOW`.
 6. Flag bins for `CARRY`, `NEG`, `OVERFLOW` (0 and 1 observed).
 7. Program-run and executed-cycle counters.
 
@@ -87,6 +91,6 @@ Known toolchain notes (non-fatal when runs pass):
 
 ## Remaining exercises
 
-1. Add full opcode x (`ZERO`,`CARRY`,`NEG`,`OVERFLOW`) cross coverage.
-2. Add branch-heavy random generator with loop bounds and jump constraints.
-3. Add CI thresholds on coverage deltas and formal pass/fail.
+1. Add reachability annotations for impossible opcode/flag bins in coverage output.
+2. Add CI thresholds on coverage deltas instead of only absolute pass/fail gates.
+3. Add a richer pyuvm subscriber/coverage collector that mirrors the native SV coverage report.

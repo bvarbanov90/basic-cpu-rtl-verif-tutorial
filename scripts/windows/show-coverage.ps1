@@ -59,3 +59,42 @@ if ($cov.opcode_zero_cross) {
             Write-Host ("  opcode_{0}: zero0={1} zero1={2}" -f $name, $zero0, $zero1)
         }
 }
+
+if ($cov.opcode_carry_cross) {
+    Write-Host ""
+    Write-Host "Opcode x CARRY Cross (post-instruction CARRY)"
+    $cov.opcode_carry_cross.PSObject.Properties |
+        Sort-Object { [int]$_.Name } |
+        ForEach-Object {
+            $name = $_.Name
+            $carry0 = $_.Value.carry0
+            $carry1 = $_.Value.carry1
+            Write-Host ("  opcode_{0}: carry0={1} carry1={2}" -f $name, $carry0, $carry1)
+        }
+}
+
+if ($cov.opcode_neg_cross) {
+    Write-Host ""
+    Write-Host "Opcode x NEG Cross (post-instruction NEG)"
+    $cov.opcode_neg_cross.PSObject.Properties |
+        Sort-Object { [int]$_.Name } |
+        ForEach-Object {
+            $name = $_.Name
+            $neg0 = $_.Value.neg0
+            $neg1 = $_.Value.neg1
+            Write-Host ("  opcode_{0}: neg0={1} neg1={2}" -f $name, $neg0, $neg1)
+        }
+}
+
+if ($cov.opcode_overflow_cross) {
+    Write-Host ""
+    Write-Host "Opcode x OVERFLOW Cross (post-instruction OVERFLOW)"
+    $cov.opcode_overflow_cross.PSObject.Properties |
+        Sort-Object { [int]$_.Name } |
+        ForEach-Object {
+            $name = $_.Name
+            $overflow0 = $_.Value.overflow0
+            $overflow1 = $_.Value.overflow1
+            Write-Host ("  opcode_{0}: overflow0={1} overflow1={2}" -f $name, $overflow0, $overflow1)
+        }
+}

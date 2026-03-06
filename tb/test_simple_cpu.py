@@ -193,6 +193,34 @@ def build_random_dataflow_program(seed: int, length: int = 12):
     return program[:16]
 
 
+def build_branch_stress_program(seed: int):
+    rng = random.Random(seed)
+    loop_count = 2 + rng.randrange(4)
+    data_value = rng.randrange(16)
+    aux_value = rng.randrange(16)
+    loop_opcode = rng.choice([OPC_ADD, OPC_SUB, OPC_AND, OPC_OR, OPC_XOR, OPC_CMP, OPC_SHL, OPC_SHR, OPC_NOP])
+    loop_operand = rng.choice([0, 3])
+
+    return [
+        ins(OPC_LDI, loop_count),
+        ins(OPC_STA, 0),
+        ins(OPC_LDI, 1),
+        ins(OPC_STA, 1),
+        ins(OPC_LDI, data_value),
+        ins(OPC_STA, 2),
+        ins(OPC_LDI, aux_value),
+        ins(OPC_STA, 3),
+        ins(OPC_LDA, 0),
+        ins(OPC_SUB, 1),
+        ins(OPC_STA, 0),
+        ins(OPC_JZ, 15),
+        ins(OPC_LDA, 2),
+        ins(loop_opcode, loop_operand),
+        ins(OPC_JMP, 8),
+        ins(OPC_HLT, 0),
+    ]
+
+
 @cocotb.test()
 async def directed_arithmetic_and_branch(dut):
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
@@ -236,6 +264,33 @@ async def randomized_program_matches_reference_model(dut):
 
     await load_program(dut, program)
     await run_until_halt(dut, max_cycles=64)
+
+    assert int(dut.dbg_halted.value) == model.halted
+    assert int(dut.dbg_acc.value) == model.acc
+    assert int(dut.dbg_pc.value) == model.pc
+    assert int(dut.dbg_zero.value) == model.zero
+    assert int(dut.dbg_carry.value) == model.carry
+    assert int(dut.dbg_neg.value) == model.neg
+    assert int(dut.dbg_overflow.value) == model.overflow
+
+    for addr in range(16):
+        observed = await read_mem(dut, addr)
+        expected = model.dmem[addr]
+        assert observed == expected, f"Mismatch at dmem[{addr}]: got {observed}, expected {expected}"
+
+
+@cocotb.test()
+async def branch_stress_program_matches_reference_model(dut):
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    await reset_dut(dut)
+
+    program = build_branch_stress_program(seed=0xBADC0DE0)
+    model = ReferenceCPU()
+    model.load_program(program)
+    model.run(max_cycles=128)
+
+    await load_program(dut, program)
+    await run_until_halt(dut, max_cycles=128)
 
     assert int(dut.dbg_halted.value) == model.halted
     assert int(dut.dbg_acc.value) == model.acc

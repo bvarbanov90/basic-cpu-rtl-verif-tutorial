@@ -53,4 +53,22 @@ if "opcode_zero_cross" in cov:
     for key in sorted(cov["opcode_zero_cross"], key=lambda k: int(k)):
         row = cov["opcode_zero_cross"][key]
         print(f"  opcode_{key}: zero0={row['zero0']} zero1={row['zero1']}")
+
+if "opcode_carry_cross" in cov:
+    print("\nOpcode x CARRY Cross (post-instruction CARRY)")
+    for key in sorted(cov["opcode_carry_cross"], key=lambda k: int(k)):
+        row = cov["opcode_carry_cross"][key]
+        print(f"  opcode_{key}: carry0={row['carry0']} carry1={row['carry1']}")
+
+if "opcode_neg_cross" in cov:
+    print("\nOpcode x NEG Cross (post-instruction NEG)")
+    for key in sorted(cov["opcode_neg_cross"], key=lambda k: int(k)):
+        row = cov["opcode_neg_cross"][key]
+        print(f"  opcode_{key}: neg0={row['neg0']} neg1={row['neg1']}")
+
+if "opcode_overflow_cross" in cov:
+    print("\nOpcode x OVERFLOW Cross (post-instruction OVERFLOW)")
+    for key in sorted(cov["opcode_overflow_cross"], key=lambda k: int(k)):
+        row = cov["opcode_overflow_cross"][key]
+        print(f"  opcode_{key}: overflow0={row['overflow0']} overflow1={row['overflow1']}")
 PY

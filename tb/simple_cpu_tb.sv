@@ -43,6 +43,9 @@ module simple_cpu_tb;
     integer cov_overflow_1;
     integer cov_opcode_count [0:14];
     integer cov_opcode_zero_cross [0:14][0:1];
+    integer cov_opcode_carry_cross [0:14][0:1];
+    integer cov_opcode_neg_cross [0:14][0:1];
+    integer cov_opcode_overflow_cross [0:14][0:1];
     integer cov_total_cycles;
     integer cov_program_runs;
 
@@ -66,6 +69,7 @@ module simple_cpu_tb;
 
     localparam integer MAX_VALID_OPCODE = 14;
     localparam integer RANDOM_SUITE_ITERATIONS = 20;
+    localparam integer BRANCH_RANDOM_SUITE_ITERATIONS = 12;
     localparam integer COV_MIN_PROGRAM_RUNS = 10;
 
     simple_cpu dut (
@@ -124,6 +128,9 @@ module simple_cpu_tb;
                 cov_opcode_count[opcode] = 0;
                 for (z = 0; z <= 1; z = z + 1) begin
                     cov_opcode_zero_cross[opcode][z] = 0;
+                    cov_opcode_carry_cross[opcode][z] = 0;
+                    cov_opcode_neg_cross[opcode][z] = 0;
+                    cov_opcode_overflow_cross[opcode][z] = 0;
                 end
             end
             cov_total_cycles = 0;
@@ -146,6 +153,9 @@ module simple_cpu_tb;
                 cov_opcode_hit[opcode] = 1'b1;
                 cov_opcode_count[opcode] = cov_opcode_count[opcode] + 1;
                 cov_opcode_zero_cross[opcode][zero_after] = cov_opcode_zero_cross[opcode][zero_after] + 1;
+                cov_opcode_carry_cross[opcode][carry_after] = cov_opcode_carry_cross[opcode][carry_after] + 1;
+                cov_opcode_neg_cross[opcode][neg_after] = cov_opcode_neg_cross[opcode][neg_after] + 1;
+                cov_opcode_overflow_cross[opcode][overflow_after] = cov_opcode_overflow_cross[opcode][overflow_after] + 1;
             end else begin
                 cov_illegal_opcode_hit = 1'b1;
             end
@@ -273,6 +283,63 @@ module simple_cpu_tb;
                 program_mem[idx] = ins(opcode, operand);
             end
             program_mem[11] = ins(OPC_HLT, 4'h0);
+        end
+    endtask
+
+    task automatic build_branch_random_program;
+        input [31:0] seed;
+        reg [31:0] rng;
+        reg [3:0] loop_count;
+        reg [3:0] data_value;
+        reg [3:0] aux_value;
+        reg [3:0] loop_opcode;
+        reg [3:0] loop_operand;
+        begin
+            clear_program();
+            rng = seed;
+
+            rng = lcg_next(rng);
+            loop_count = 4'd2 + {2'b00, rng[1:0]};
+            rng = lcg_next(rng);
+            data_value = rng[3:0];
+            rng = lcg_next(rng);
+            aux_value = rng[3:0];
+            rng = lcg_next(rng);
+
+            case (rng[3:0])
+                4'd0: loop_opcode = OPC_ADD;
+                4'd1: loop_opcode = OPC_SUB;
+                4'd2: loop_opcode = OPC_AND;
+                4'd3: loop_opcode = OPC_OR;
+                4'd4: loop_opcode = OPC_XOR;
+                4'd5: loop_opcode = OPC_CMP;
+                4'd6: loop_opcode = OPC_SHL;
+                4'd7: loop_opcode = OPC_SHR;
+                default: loop_opcode = OPC_NOP;
+            endcase
+
+            if (rng[4]) begin
+                loop_operand = 4'd0;
+            end else begin
+                loop_operand = 4'd3;
+            end
+
+            program_mem[0] = ins(OPC_LDI, loop_count);
+            program_mem[1] = ins(OPC_STA, 4'd0);
+            program_mem[2] = ins(OPC_LDI, 4'd1);
+            program_mem[3] = ins(OPC_STA, 4'd1);
+            program_mem[4] = ins(OPC_LDI, data_value);
+            program_mem[5] = ins(OPC_STA, 4'd2);
+            program_mem[6] = ins(OPC_LDI, aux_value);
+            program_mem[7] = ins(OPC_STA, 4'd3);
+            program_mem[8] = ins(OPC_LDA, 4'd0);
+            program_mem[9] = ins(OPC_SUB, 4'd1);
+            program_mem[10] = ins(OPC_STA, 4'd0);
+            program_mem[11] = ins(OPC_JZ, 4'd15);
+            program_mem[12] = ins(OPC_LDA, 4'd2);
+            program_mem[13] = ins(loop_opcode, loop_operand);
+            program_mem[14] = ins(OPC_JMP, 4'd8);
+            program_mem[15] = ins(OPC_HLT, 4'd0);
         end
     endtask
 
@@ -673,6 +740,23 @@ module simple_cpu_tb;
         end
     endtask
 
+    task automatic test_branch_randomized_suite;
+        integer iteration;
+        reg [31:0] seed;
+        begin
+            for (iteration = 0; iteration < BRANCH_RANDOM_SUITE_ITERATIONS; iteration = iteration + 1) begin
+                seed = lcg_next(32'hBADC0DE0 + iteration);
+                build_branch_random_program(seed);
+                run_reference_model(128);
+                reset_dut();
+                load_program(16);
+                run_until_halt(128);
+                check_against_reference(seed);
+            end
+            $display("[PASS] branch_stress_reference_regression (%0d seeds)", BRANCH_RANDOM_SUITE_ITERATIONS);
+        end
+    endtask
+
     task automatic test_external_program;
         input [8*260-1:0] hex_path;
         begin
@@ -731,6 +815,39 @@ module simple_cpu_tb;
                 end
             end
             $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_carry_cross\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"carry0\": %0d, \"carry1\": %0d}",
+                    opcode, cov_opcode_carry_cross[opcode][0], cov_opcode_carry_cross[opcode][1]);
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_neg_cross\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"neg0\": %0d, \"neg1\": %0d}",
+                    opcode, cov_opcode_neg_cross[opcode][0], cov_opcode_neg_cross[opcode][1]);
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
+            $fwrite(fd_json, "  \"opcode_overflow_cross\": {\n");
+            for (opcode = 0; opcode <= MAX_VALID_OPCODE; opcode = opcode + 1) begin
+                $fwrite(fd_json, "    \"%0d\": {\"overflow0\": %0d, \"overflow1\": %0d}",
+                    opcode, cov_opcode_overflow_cross[opcode][0], cov_opcode_overflow_cross[opcode][1]);
+                if (opcode < MAX_VALID_OPCODE) begin
+                    $fwrite(fd_json, ",\n");
+                end else begin
+                    $fwrite(fd_json, "\n");
+                end
+            end
+            $fwrite(fd_json, "  },\n");
             $fwrite(fd_json, "  \"illegal_opcode_hit\": %0d,\n", cov_illegal_opcode_hit);
             $fwrite(fd_json, "  \"jz_taken\": %0d,\n", cov_jz_taken);
             $fwrite(fd_json, "  \"jz_not_taken\": %0d,\n", cov_jz_not_taken);
@@ -747,6 +864,7 @@ module simple_cpu_tb;
             $fwrite(fd_json, "  \"program_runs\": %0d,\n", cov_program_runs);
             $fwrite(fd_json, "  \"total_cycles\": %0d,\n", cov_total_cycles);
             $fwrite(fd_json, "  \"random_suite_iterations\": %0d,\n", RANDOM_SUITE_ITERATIONS);
+            $fwrite(fd_json, "  \"branch_random_suite_iterations\": %0d,\n", BRANCH_RANDOM_SUITE_ITERATIONS);
             $fwrite(fd_json, "  \"coverage_goals\": {\n");
             $fwrite(fd_json, "    \"opcode_coverage\": 1,\n");
             $fwrite(fd_json, "    \"illegal_opcode_hit\": 1,\n");
@@ -762,6 +880,14 @@ module simple_cpu_tb;
             $fwrite(fd_json, "    \"overflow_1\": 1,\n");
             $fwrite(fd_json, "    \"jz_x_zero0\": 1,\n");
             $fwrite(fd_json, "    \"jz_x_zero1\": 1,\n");
+            $fwrite(fd_json, "    \"add_x_carry0\": 1,\n");
+            $fwrite(fd_json, "    \"add_x_carry1\": 1,\n");
+            $fwrite(fd_json, "    \"sub_x_carry0\": 1,\n");
+            $fwrite(fd_json, "    \"sub_x_carry1\": 1,\n");
+            $fwrite(fd_json, "    \"sub_x_neg1\": 1,\n");
+            $fwrite(fd_json, "    \"cmp_x_neg1\": 1,\n");
+            $fwrite(fd_json, "    \"shl_x_overflow0\": 1,\n");
+            $fwrite(fd_json, "    \"shl_x_overflow1\": 1,\n");
             $fwrite(fd_json, "    \"min_program_runs\": %0d\n", COV_MIN_PROGRAM_RUNS);
             $fwrite(fd_json, "  }\n");
             $fwrite(fd_json, "}\n");
@@ -778,6 +904,9 @@ module simple_cpu_tb;
                 $fwrite(fd_csv, "opcode_%0d_count,%0d\n", opcode, cov_opcode_count[opcode]);
                 for (z = 0; z <= 1; z = z + 1) begin
                     $fwrite(fd_csv, "opcode_%0d_x_zero%0d,%0d\n", opcode, z, cov_opcode_zero_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_carry%0d,%0d\n", opcode, z, cov_opcode_carry_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_neg%0d,%0d\n", opcode, z, cov_opcode_neg_cross[opcode][z]);
+                    $fwrite(fd_csv, "opcode_%0d_x_overflow%0d,%0d\n", opcode, z, cov_opcode_overflow_cross[opcode][z]);
                 end
             end
             $fwrite(fd_csv, "illegal_opcode_hit,%0d\n", cov_illegal_opcode_hit);
@@ -796,6 +925,7 @@ module simple_cpu_tb;
             $fwrite(fd_csv, "program_runs,%0d\n", cov_program_runs);
             $fwrite(fd_csv, "total_cycles,%0d\n", cov_total_cycles);
             $fwrite(fd_csv, "random_suite_iterations,%0d\n", RANDOM_SUITE_ITERATIONS);
+            $fwrite(fd_csv, "branch_random_suite_iterations,%0d\n", BRANCH_RANDOM_SUITE_ITERATIONS);
             $fclose(fd_csv);
         end
     endtask
@@ -819,6 +949,30 @@ module simple_cpu_tb;
                     coverage_pass = 1'b0;
                     $display("[COVERAGE][MISS] JZ x ZERO=%0d", z);
                 end
+            end
+
+            for (z = 0; z <= 1; z = z + 1) begin
+                if (cov_opcode_carry_cross[OPC_ADD][z] == 0) begin
+                    coverage_pass = 1'b0;
+                    $display("[COVERAGE][MISS] ADD x CARRY=%0d", z);
+                end
+                if (cov_opcode_carry_cross[OPC_SUB][z] == 0) begin
+                    coverage_pass = 1'b0;
+                    $display("[COVERAGE][MISS] SUB x CARRY=%0d", z);
+                end
+                if (cov_opcode_overflow_cross[OPC_SHL][z] == 0) begin
+                    coverage_pass = 1'b0;
+                    $display("[COVERAGE][MISS] SHL x OVERFLOW=%0d", z);
+                end
+            end
+
+            if (cov_opcode_neg_cross[OPC_SUB][1] == 0) begin
+                coverage_pass = 1'b0;
+                $display("[COVERAGE][MISS] SUB x NEG=1");
+            end
+            if (cov_opcode_neg_cross[OPC_CMP][1] == 0) begin
+                coverage_pass = 1'b0;
+                $display("[COVERAGE][MISS] CMP x NEG=1");
             end
 
             if (!cov_illegal_opcode_hit) coverage_pass = 1'b0;
@@ -852,6 +1006,7 @@ module simple_cpu_tb;
         test_cmp_negative();
         test_illegal_opcode();
         test_randomized_suite();
+        test_branch_randomized_suite();
 
         if ($value$plusargs("PROGRAM_HEX=%s", external_program_hex)) begin
             $display("[INFO] Running external program from %0s", external_program_hex);

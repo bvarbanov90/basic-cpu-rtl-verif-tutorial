@@ -6,7 +6,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 
 1. A tiny 8-bit CPU in SystemVerilog.
 2. A simulator-native self-checking testbench (`tb/simple_cpu_tb.sv`).
-3. Directed and randomized tests, including a reference-model comparison.
+3. Directed tests plus dataflow and branch-stress randomized regressions with reference-model comparison.
 4. Waveform debug flow with open-source tools.
 5. Optional cocotb/pyuvm Python verification extensions.
 
@@ -19,9 +19,9 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 ## Optional tooling (advanced step)
 
 1. Python + cocotb + pyuvm
-2. GNU Make
+2. GNU Make (or WSL Ubuntu for the pyuvm flow)
 
-Use Python 3.13 for the cocotb flow in this tutorial setup.
+Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1` falls back to WSL automatically if native `make` is not installed.
 
 ## Project layout
 
@@ -274,7 +274,7 @@ Run the minimal pyuvm/UVM-style example:
 bash scripts/run-uvm.sh --no-waves
 ```
 
-The pyuvm example lives in `tb/test_simple_cpu_pyuvm.py` and includes a minimal sequence/driver/monitor/scoreboard environment.
+The pyuvm example lives in `tb/test_simple_cpu_pyuvm.py` and includes smoke, randomized dataflow, and branch-stress sequence/driver/monitor/scoreboard tests.
 
 ## Suggested learning path
 
@@ -282,9 +282,9 @@ The pyuvm example lives in `tb/test_simple_cpu_pyuvm.py` and includes a minimal 
 2. Read `rtl/simple_cpu.sv` and trace opcode decode logic.
 3. Read `tb/simple_cpu_tb.sv` and follow helper tasks (`reset_dut`, `load_program`, `run_until_halt`).
 4. Study directed tests for branch-taken, branch-not-taken, jump loops, wraparound arithmetic, and illegal opcode handling.
-5. Study how `test_randomized_suite` compares DUT state to a reference model over 20 seeds.
-6. Review `report_and_check_coverage` to understand coverage thresholds and failures.
-7. Break the RTL intentionally (for example, change `ADD`) and confirm tests/coverage gates fail.
+5. Study how `test_randomized_suite` and `test_branch_randomized_suite` compare DUT state to a reference model over multiple seeds.
+6. Review `report_and_check_coverage` and the generated `sim_build/coverage.json` cross-bins.
+7. Break the RTL intentionally (for example, change `ADD` or `JZ`) and confirm tests/coverage gates fail.
 
 ## Functional coverage (simple model)
 
@@ -294,7 +294,7 @@ The SystemVerilog testbench includes sampled functional coverage implemented in 
 2. Illegal opcode path hit.
 3. `JZ` taken and not-taken counters.
 4. `ZERO` transition bins (`00`, `01`, `10`, `11`).
-5. Cross bins: `opcode x post-instruction ZERO`.
+5. Cross bins: `opcode x post-instruction ZERO/CARRY/NEG/OVERFLOW`.
 6. Flag bins (`CARRY/NEG/OVERFLOW` each observed as 0 and 1).
 7. Program-run and total-cycle counters.
 
@@ -322,10 +322,10 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 ## Next extensions
 
-1. Add branch-heavy constrained-random generation with bounded loops.
-2. Add full opcode x flag cross coverage for all flag states.
-3. Add CI jobs for simulation + coverage + formal.
-4. Add a tiny assembler regression corpus and compare coverage drift over time.
+1. Add reachability notes for impossible opcode/flag combinations in the coverage report.
+2. Add a tiny assembler regression corpus and compare coverage drift over time.
+3. Split CI into separate simulation and formal jobs with coverage-history artifacts.
+4. Add a richer pyuvm subscriber layer that mirrors the native SV functional coverage model.
 
 ## Publish To GitHub
 
