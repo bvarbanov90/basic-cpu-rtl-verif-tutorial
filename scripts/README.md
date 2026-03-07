@@ -24,6 +24,8 @@ Common entrypoints:
 14. `record-coverage-history` (`record-coverage-history.ps1` / `record-coverage-history.sh`)
 15. `show-coverage-trend` (`show-coverage-trend.ps1` / `show-coverage-trend.sh`)
 16. `show-mutations` (`show-mutations.ps1` / `show-mutations.sh`)
+17. `show-formal-status` (`show-formal-status.ps1` / `show-formal-status.sh`)
+18. `export-status` (`export-status.ps1` / `export-status.sh`)
 
 When adding a new automation flow:
 

@@ -13,7 +13,7 @@
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
-3. `.\scripts\run-formal.ps1`: PASS
+3. `.\scripts\run-formal.ps1`: PASS (auto-selected `cvc5`)
 4. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
 5. `.\scripts\show-mmio-coverage.ps1`: PASS
 6. `.\scripts\record-coverage-history.ps1`: PASS
@@ -38,6 +38,10 @@
 25. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
 26. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
 27. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
+28. `.\scripts\show-formal-status.ps1`: PASS
+29. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
+30. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
+31. `bash scripts/export-status.sh --label tutorial-regression` (WSL Ubuntu): PASS
 
 ## Test strategy
 
@@ -103,10 +107,12 @@ Coverage artifacts:
 2. `sim_build/coverage.csv` (flat metrics for spreadsheets/CI parsing)
 3. `docs/coverage-baseline.json` (repo-tracked lower-bound baseline for regression checks)
 4. `docs/coverage-history.json` / `docs/coverage-history.md` (tracked history and rendered trend report)
-5. `sim_build/pyuvm_coverage.json` (pyuvm coverage subscriber output)
-6. `sim_build/asm_corpus/*.hex` (assembler corpus outputs)
-7. `sim_build/mutations/mutation_summary.json` / `sim_build/mutations/mutation_summary.md` (mutation-campaign summaries)
-8. `sim_build/mmio_coverage.json` / `sim_build/mmio_coverage.csv` (wrapper transaction coverage)
+5. `docs/status/status.json` / `docs/status/status.md` (repo-tracked verification snapshot)
+6. `docs/status/badges/*.json` (shields-compatible endpoint payloads)
+7. `sim_build/pyuvm_coverage.json` (pyuvm coverage subscriber output)
+8. `sim_build/asm_corpus/*.hex` (assembler corpus outputs)
+9. `sim_build/mutations/mutation_summary.json` / `sim_build/mutations/mutation_summary.md` (mutation-campaign summaries)
+10. `sim_build/mmio_coverage.json` / `sim_build/mmio_coverage.csv` (wrapper transaction coverage)
 
 Additional outputs:
 
@@ -115,7 +121,7 @@ Additional outputs:
 Implementation note:
 
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
-2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`) in bounded mode.
+2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby` and `formal/simple_cpu_mmio.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
 4. The Python `CoverageModel` mirrors the native SV coverage pass/fail conditions, including reachability checks for impossible bins.
 5. `rtl/simple_cpu_mmio.sv` adds a tiny wrapper state machine that loads a shadow program image into the core over the existing programming interface before releasing execution.
@@ -123,22 +129,31 @@ Implementation note:
 7. `tb/simple_cpu_mmio_tb.sv` now includes protocol assertions (`bus_ready` always high during requests) plus sampled transaction/state coverage.
 8. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the wrapper coverage report without opening JSON manually.
 9. `scripts/coverage_history.py` plus wrapper commands track coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, pyuvm, and mutation jobs.
+10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, pyuvm, mutations, and summary jobs.
 11. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
+12. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata.
+13. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads.
 
 Formal properties currently checked:
 
-1. Halted state is sticky (`HALTED` stays high and `PC` stops advancing once halted).
-2. Programming interface stalls execution state updates while `prog_we` is asserted.
+1. Core halted state is sticky (`HALTED` stays high and `PC` stops advancing once halted).
+2. Core programming interface stalls execution state updates while `prog_we` is asserted.
+3. MMIO `bus_ready` stays asserted for every request.
+4. MMIO status, `ACC`, `PC`, control, and representative shadow-window reads return the expected encoded values.
+5. MMIO `HOLD`, `LOAD`, and `RUN` transitions follow the intended control-register protocol.
+6. MMIO loader signals (`core_rst_n`, `prog_we`, `prog_addr`) stay aligned with wrapper state.
+7. Representative shadow-image slots update only on addressed writes and otherwise remain stable across hold/load/run operation.
 
 Known toolchain notes (non-fatal when runs pass):
 
 1. Icarus may emit `always_*` constant-select warnings.
 2. Yosys may emit `$global_clock` and memory-lowering warnings during formal prep.
 3. On some WSL setups, formal with `z3` can be unstable; the bash flow defaults to `cvc5`.
+4. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
 
 ## Remaining exercises
 
-1. Export the tracked coverage history into badge-friendly or dashboard-friendly artifacts.
-2. Add formal properties for the MMIO wrapper loader/control state machine.
+1. Publish `docs/status/badges/*.json` through GitHub Pages or another static endpoint and wire them into the README.
+2. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
 3. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
+4. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.

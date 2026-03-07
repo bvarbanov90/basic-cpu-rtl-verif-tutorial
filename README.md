@@ -12,6 +12,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 6. An MMIO wrapper flow that verifies interface-level programming and observability on top of the core.
 7. Optional cocotb/pyuvm Python verification extensions.
 8. A mutation campaign that proves the regressions kill representative RTL bugs.
+9. A repo-tracked verification status export with Markdown, JSON, and badge-ready endpoints.
 
 ## Core tooling (all open source)
 
@@ -39,6 +40,8 @@ basic-cpu-rlt--verif-tutorial/
 |- formal/
 |  |- simple_cpu.sby
 |  |- simple_cpu_formal.sv
+|  |- simple_cpu_mmio.sby
+|  |- simple_cpu_mmio_formal.sv
 |- programs/
 |  |- branch_taken.asm
 |  |- counter_loop.asm
@@ -57,7 +60,10 @@ basic-cpu-rlt--verif-tutorial/
 |  |- asm.py
 |  |- README.md
 |  |- check_asm_corpus.py
+|  |- export_status.py
 |  |- run_mutation_campaign.py
+|  |- show_formal_status.py
+|  |- status_lib.py
 |  |- windows/
 |  |  |- install-tools.ps1
 |  |  |- run.ps1
@@ -69,9 +75,11 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- check-all.ps1
 |  |  |- lint.ps1
 |  |  |- run-formal.ps1
+|  |  |- export-status.ps1
 |  |  |- open-waves.ps1
 |  |  |- open-waves.cmd
 |  |  |- show-coverage.ps1
+|  |  |- show-formal-status.ps1
 |  |- linux/
 |  |  |- install-tools-ubuntu.sh
 |  |  |- run.sh
@@ -83,8 +91,10 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- check-all.sh
 |  |  |- lint.sh
 |  |  |- run-formal.sh
+|  |  |- export-status.sh
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
+|  |  |- show-formal-status.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
 |  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
@@ -95,10 +105,16 @@ basic-cpu-rlt--verif-tutorial/
 |  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
 |  |- update-coverage-baseline.ps1 / update-coverage-baseline.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
+|  |- export-status.ps1 / export-status.sh (wrappers)
+|  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
 |- docs/
 |  |- assembler-regressions.json
 |  |- coverage-baseline.json
+|  |- status/
+|  |  |- status.json
+|  |  |- status.md
+|  |  |- badges/*.json
 |  |- verification-plan.md
 |- Makefile
 |- requirements.txt
@@ -188,6 +204,18 @@ To replay the tracked assembler corpus through the MMIO wrapper:
 .\scripts\run-asm-corpus.ps1 -Runner mmio
 ```
 
+To summarize the formal targets:
+
+```powershell
+.\scripts\show-formal-status.ps1
+```
+
+To export a repo-tracked status snapshot:
+
+```powershell
+.\scripts\export-status.ps1 -Label tutorial-regression
+```
+
 To open the generated waveform:
 
 ```powershell
@@ -257,10 +285,22 @@ Show the wrapper coverage report:
 bash scripts/show-mmio-coverage.sh
 ```
 
+Show the formal target summary:
+
+```bash
+bash scripts/show-formal-status.sh
+```
+
+Export the repo-tracked status snapshot:
+
+```bash
+bash scripts/export-status.sh --label tutorial-regression
+```
+
 Notes:
 
 1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`.
-2. Override solver if needed: `bash scripts/run-formal.sh --solver z3`.
+2. `.\scripts\run-formal.ps1` now follows the same rule and accepts `-Solver z3` or `-Solver cvc5`.
 3. Open waves in WSLg with: `bash scripts/open-waves.sh`.
 4. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
 5. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
@@ -285,6 +325,31 @@ cd C:\Users\bvarb\vscode_ws\basic-cpu-rlt--verif-tutorial
 cd C:\Users\bvarb\vscode_ws\basic-cpu-rlt--verif-tutorial
 .\scripts\run-formal.ps1
 ```
+
+Override the solver on Windows if needed:
+
+```powershell
+.\scripts\run-formal.ps1 -Solver z3
+```
+
+Show the target-level formal summary:
+
+```powershell
+.\scripts\show-formal-status.ps1
+```
+
+The formal flow now runs both:
+
+1. `formal/simple_cpu.sby`
+2. `formal/simple_cpu_mmio.sby`
+
+Current formal properties cover:
+
+1. core halted-state stickiness and programming-interface execution stalling,
+2. MMIO `bus_ready` always-ready behavior,
+3. MMIO address-map readback for status, `ACC`, `PC`, control, and boundary shadow slots,
+4. MMIO `HOLD/LOAD/RUN` state transitions and loader sequencing,
+5. representative shadow-image update/stability rules during hold, load, and run phases.
 
 ## Full project sanity check
 
@@ -319,6 +384,7 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 3. `formal`: `bash scripts/run-formal.sh`
 4. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`
 5. `mutations`: `bash scripts/run-mutations.sh`
+6. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
 
 Uploaded artifacts include:
 
@@ -457,7 +523,6 @@ The replay target can be either:
 Artifacts:
 
 1. `sim_build/asm_corpus/*.hex`
-2. `sim_build/pyuvm_coverage.json` from the pyuvm coverage regression
 
 ## Mutation campaign
 
@@ -597,19 +662,50 @@ Tracked history files:
 1. `docs/coverage-history.json`
 2. `docs/coverage-history.md`
 
+## Verification status export
+
+After a passing run, export a repo-tracked verification snapshot:
+
+```powershell
+.\scripts\export-status.ps1 -Label tutorial-regression
+```
+
+```bash
+bash scripts/export-status.sh --label tutorial-regression
+```
+
+Inspect the formal status without opening `formal/*` manually:
+
+```powershell
+.\scripts\show-formal-status.ps1
+```
+
+```bash
+bash scripts/show-formal-status.sh
+```
+
+Generated status files:
+
+1. `docs/status/status.json`
+2. `docs/status/status.md`
+3. `docs/status/badges/*.json`
+
+The badge JSON files are compatible with shields.io endpoint badges when served from GitHub raw or GitHub Pages.
+
 ## Known benign warnings
 
 1. Icarus can print `constant selects in always_* processes are not fully supported`.
 2. SymbiYosys/Yosys can print warnings around `$global_clock` in the formal harness.
 3. Yosys can print memory lowering notes (`Replacing memory ... with list of registers`).
 4. On some WSL setups, `z3` can be unstable; use `bash scripts/run-formal.sh` (defaults to `cvc5`).
+5. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
 
 These warnings are expected for this toolchain/tutorial and are non-fatal when all checks pass.
 
 ## Next extensions
 
-1. Add a commit-by-commit coverage badge or dashboard export on top of `docs/coverage-history.json`.
-2. Add formal properties for the MMIO wrapper state machine and address-map behavior.
+1. Publish `docs/status/badges/*.json` via GitHub Pages or raw endpoints and wire them into the README.
+2. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
 3. Auto-generate larger mutation sets from operator/control-flow templates instead of hand-authored snippet replacements.
 4. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.
 

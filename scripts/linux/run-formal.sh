@@ -57,9 +57,19 @@ if ! command -v "${SOLVER}" >/dev/null 2>&1; then
 fi
 
 TMP_SBY="formal/simple_cpu.${SOLVER}.tmp.sby"
-trap 'rm -f "${TMP_SBY}"' EXIT
+TMP_SBY_MMIO="formal/simple_cpu_mmio.${SOLVER}.tmp.sby"
+trap 'rm -f "${TMP_SBY}" "${TMP_SBY_MMIO}"' EXIT
 
-sed "s/^smtbmc z3$/smtbmc ${SOLVER}/" formal/simple_cpu.sby > "${TMP_SBY}"
-sby -f -d formal/simple_cpu "${TMP_SBY}"
+run_sby() {
+    local source_sby="$1"
+    local output_dir="$2"
+    local tmp_sby="$3"
 
-echo "Formal run complete. Artifacts are in formal/simple_cpu/"
+    sed "s/^smtbmc z3$/smtbmc ${SOLVER}/" "${source_sby}" > "${tmp_sby}"
+    sby -f -d "${output_dir}" "${tmp_sby}"
+}
+
+run_sby formal/simple_cpu.sby formal/simple_cpu "${TMP_SBY}"
+run_sby formal/simple_cpu_mmio.sby formal/simple_cpu_mmio "${TMP_SBY_MMIO}"
+
+echo "Formal run complete with solver '${SOLVER}'. Artifacts are in formal/simple_cpu/ and formal/simple_cpu_mmio/"

@@ -68,6 +68,7 @@ jobs:
           name: formal-artifacts
           path: |
             formal/simple_cpu
+            formal/simple_cpu_mmio
 
   pyuvm:
     runs-on: ubuntu-latest
@@ -127,3 +128,37 @@ jobs:
           name: mutation-artifacts
           path: |
             sim_build/mutations
+
+  summary:
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - native-sim
+      - lint
+      - formal
+      - pyuvm
+      - mutations
+
+    steps:
+      - name: Publish workflow summary
+        run: |
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          # CI Summary
+
+          | Job | Result |
+          |---|---|
+          | native-sim | ${{ needs.native-sim.result }} |
+          | lint | ${{ needs.lint.result }} |
+          | formal | ${{ needs.formal.result }} |
+          | pyuvm | ${{ needs.pyuvm.result }} |
+          | mutations | ${{ needs.mutations.result }} |
+          EOF
+
+      - name: Fail summary if any required job failed
+        run: |
+          results="${{ needs.native-sim.result }},${{ needs.lint.result }},${{ needs.formal.result }},${{ needs.pyuvm.result }},${{ needs.mutations.result }}"
+          case "${results}" in
+            *failure*|*cancelled*)
+              exit 1
+              ;;
+          esac

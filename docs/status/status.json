@@ -1,0 +1,150 @@
+{
+  "generated_utc": "2026-03-07T10:34:13Z",
+  "label": "tutorial-regression",
+  "git_branch": "main",
+  "git_commit": "8412de9",
+  "git_dirty": 1,
+  "overall_required_status": "PASS",
+  "core_coverage": {
+    "path": "sim_build/coverage.json",
+    "status": "PASS",
+    "required": true,
+    "program_runs": 40,
+    "total_cycles": 676,
+    "opcode_hits": 15,
+    "coverage_pass": 1
+  },
+  "mmio_coverage": {
+    "path": "sim_build/mmio_coverage.json",
+    "status": "PASS",
+    "required": true,
+    "program_runs": 5,
+    "shadow_writes": 80,
+    "shadow_reads": 80,
+    "status_reads": 116,
+    "coverage_pass": 1
+  },
+  "pyuvm_coverage": {
+    "path": "sim_build/pyuvm_coverage.json",
+    "status": "PASS",
+    "required": false,
+    "program_runs": 11,
+    "total_cycles": 131,
+    "opcode_hits": 15,
+    "coverage_pass": 1
+  },
+  "formal": {
+    "status": "PASS",
+    "passed": 2,
+    "total": 2,
+    "targets": [
+      {
+        "name": "simple_cpu",
+        "path": "formal/simple_cpu",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:03",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_mmio",
+        "path": "formal/simple_cpu_mmio",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:01:22",
+        "raw_status": "PASS 0 0"
+      }
+    ],
+    "required": true
+  },
+  "mutations": {
+    "path": "sim_build/mutations/mutation_summary.json",
+    "status": "PASS",
+    "required": false,
+    "campaign_pass": 1,
+    "total_mutations": 9,
+    "killed_mutations": 9
+  },
+  "latest_history": {
+    "timestamp_utc": "2026-03-07T10:27:53Z",
+    "label": "tutorial-regression",
+    "git_commit": "8412de9",
+    "git_branch": "main",
+    "git_dirty": 1,
+    "core": {
+      "coverage_pass": 1,
+      "opcode_hits": 15,
+      "program_runs": 40,
+      "total_cycles": 676,
+      "jz_taken": 14,
+      "jz_not_taken": 33,
+      "illegal_opcode_hit": 1,
+      "carry_1": 281,
+      "neg_1": 6,
+      "overflow_1": 3
+    },
+    "mmio": {
+      "coverage_pass": 1,
+      "program_runs": 5,
+      "external_program_runs": 0,
+      "shadow_writes": 80,
+      "shadow_reads": 80,
+      "dmem_reads": 80,
+      "status_reads": 116,
+      "acc_reads": 5,
+      "pc_reads": 5,
+      "control_start_writes": 5,
+      "control_stop_writes": 5
+    }
+  },
+  "badges": {
+    "overall": {
+      "path": "docs/status/badges/overall.json",
+      "label": "required suite",
+      "message": "PASS",
+      "status": "PASS"
+    },
+    "core-coverage": {
+      "path": "docs/status/badges/core-coverage.json",
+      "label": "core coverage",
+      "message": "PASS 40 runs",
+      "status": "PASS"
+    },
+    "mmio-coverage": {
+      "path": "docs/status/badges/mmio-coverage.json",
+      "label": "mmio coverage",
+      "message": "PASS 5 runs",
+      "status": "PASS"
+    },
+    "formal": {
+      "path": "docs/status/badges/formal.json",
+      "label": "formal",
+      "message": "2/2 PASS",
+      "status": "PASS"
+    },
+    "pyuvm": {
+      "path": "docs/status/badges/pyuvm.json",
+      "label": "pyuvm",
+      "message": "PASS 11 runs",
+      "status": "PASS"
+    },
+    "mutations": {
+      "path": "docs/status/badges/mutations.json",
+      "label": "mutations",
+      "message": "9/9 killed",
+      "status": "PASS"
+    },
+    "formal-simple_cpu": {
+      "path": "docs/status/badges/formal-simple_cpu.json",
+      "label": "formal simple_cpu",
+      "message": "PASS cvc5 0:00:03",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_mmio": {
+      "path": "docs/status/badges/formal-simple_cpu_mmio.json",
+      "label": "formal simple_cpu_mmio",
+      "message": "PASS cvc5 0:01:22",
+      "status": "PASS"
+    }
+  }
+}

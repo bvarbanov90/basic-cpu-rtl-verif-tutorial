@@ -7,6 +7,24 @@ module simple_cpu_mmio (
     input  logic [7:0] bus_wdata,
     output logic       bus_ready,
     output logic [7:0] bus_rdata
+`ifdef FORMAL
+    ,
+    output logic [1:0]   formal_state,
+    output logic [3:0]   formal_load_index,
+    output logic         formal_core_rst_n,
+    output logic         formal_prog_we,
+    output logic [3:0]   formal_prog_addr,
+    output logic [7:0]   formal_prog_data,
+    output logic [127:0] formal_shadow_flat,
+    output logic [7:0]   formal_dbg_mem_data,
+    output logic [7:0]   formal_dbg_acc,
+    output logic [3:0]   formal_dbg_pc,
+    output logic         formal_dbg_zero,
+    output logic         formal_dbg_carry,
+    output logic         formal_dbg_neg,
+    output logic         formal_dbg_overflow,
+    output logic         formal_dbg_halted
+`endif
 );
     localparam logic [1:0] STATE_HOLD = 2'd0;
     localparam logic [1:0] STATE_LOAD = 2'd1;
@@ -34,6 +52,9 @@ module simple_cpu_mmio (
     logic       dbg_overflow;
     logic       dbg_halted;
     integer     idx;
+`ifdef FORMAL
+    genvar      formal_idx;
+`endif
 
     assign bus_ready = 1'b1;
     assign core_rst_n = rst_n && (state != STATE_HOLD);
@@ -41,6 +62,28 @@ module simple_cpu_mmio (
     assign prog_addr = load_index;
     assign prog_data = shadow_imem[load_index];
     assign dbg_mem_addr = bus_addr[3:0];
+`ifdef FORMAL
+    assign formal_state = state;
+    assign formal_load_index = load_index;
+    assign formal_core_rst_n = core_rst_n;
+    assign formal_prog_we = prog_we;
+    assign formal_prog_addr = prog_addr;
+    assign formal_prog_data = prog_data;
+    assign formal_dbg_mem_data = dbg_mem_data;
+    assign formal_dbg_acc = dbg_acc;
+    assign formal_dbg_pc = dbg_pc;
+    assign formal_dbg_zero = dbg_zero;
+    assign formal_dbg_carry = dbg_carry;
+    assign formal_dbg_neg = dbg_neg;
+    assign formal_dbg_overflow = dbg_overflow;
+    assign formal_dbg_halted = dbg_halted;
+
+    generate
+        for (formal_idx = 0; formal_idx < 16; formal_idx = formal_idx + 1) begin : gen_formal_shadow
+            assign formal_shadow_flat[(formal_idx * 8) +: 8] = shadow_imem[formal_idx];
+        end
+    endgenerate
+`endif
 
     always_comb begin
         bus_rdata = 8'h00;
