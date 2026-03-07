@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-03-07T11:43:24Z",
+  "generated_utc": "2026-03-07T11:44:40Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "b30fe1e",
-  "git_dirty": 1,
+  "git_commit": "a8eda27",
+  "git_dirty": 0,
   "overall_required_status": "PASS",
   "core_coverage": {
     "path": "sim_build/coverage.json",
