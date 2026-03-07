@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "timestamp_utc": "2026-03-06T21:52:33Z",
+      "label": "tutorial-all-out",
+      "git_commit": "1e44d0c",
+      "git_branch": "main",
+      "git_dirty": 1,
+      "core": {
+        "coverage_pass": 1,
+        "opcode_hits": 15,
+        "program_runs": 40,
+        "total_cycles": 676,
+        "jz_taken": 14,
+        "jz_not_taken": 33,
+        "illegal_opcode_hit": 1,
+        "carry_1": 281,
+        "neg_1": 6,
+        "overflow_1": 3
+      },
+      "mmio": {
+        "coverage_pass": 1,
+        "program_runs": 4,
+        "external_program_runs": 0,
+        "shadow_writes": 64,
+        "shadow_reads": 64,
+        "dmem_reads": 64,
+        "status_reads": 92,
+        "acc_reads": 4,
+        "pc_reads": 4,
+        "control_start_writes": 4,
+        "control_stop_writes": 4
+      }
+    },
+    {
+      "timestamp_utc": "2026-03-07T07:28:56Z",
+      "label": "tutorial-all-out",
+      "git_commit": "1e44d0c",
+      "git_branch": "main",
+      "git_dirty": 1,
+      "core": {
+        "coverage_pass": 1,
+        "opcode_hits": 15,
+        "program_runs": 40,
+        "total_cycles": 676,
+        "jz_taken": 14,
+        "jz_not_taken": 33,
+        "illegal_opcode_hit": 1,
+        "carry_1": 281,
+        "neg_1": 6,
+        "overflow_1": 3
+      },
+      "mmio": {
+        "coverage_pass": 1,
+        "program_runs": 5,
+        "external_program_runs": 0,
+        "shadow_writes": 80,
+        "shadow_reads": 80,
+        "dmem_reads": 80,
+        "status_reads": 116,
+        "acc_reads": 5,
+        "pc_reads": 5,
+        "control_start_writes": 5,
+        "control_stop_writes": 5
+      }
+    }
+  ]
+}

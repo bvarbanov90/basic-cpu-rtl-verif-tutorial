@@ -8,7 +8,10 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 2. A simulator-native self-checking testbench (`tb/simple_cpu_tb.sv`).
 3. Directed tests plus dataflow and branch-stress randomized regressions with reference-model comparison.
 4. Waveform debug flow with open-source tools.
-5. Optional cocotb/pyuvm Python verification extensions.
+5. Assembler-corpus regressions with expected machine code, final state, and coverage signatures.
+6. An MMIO wrapper flow that verifies interface-level programming and observability on top of the core.
+7. Optional cocotb/pyuvm Python verification extensions.
+8. A mutation campaign that proves the regressions kill representative RTL bugs.
 
 ## Core tooling (all open source)
 
@@ -29,6 +32,7 @@ Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scrip
 basic-cpu-rlt--verif-tutorial/
 |- rtl/
 |  |- simple_cpu.sv
+|  |- simple_cpu_mmio.sv
 |- .github/
 |  |- workflows/
 |     |- ci.yml
@@ -36,19 +40,31 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu.sby
 |  |- simple_cpu_formal.sv
 |- programs/
+|  |- branch_taken.asm
 |  |- counter_loop.asm
 |  |- logic_flags.asm
+|  |- memory_roundtrip.asm
+|  |- raw_illegal.asm
+|  |- sparse_jump.asm
 |- tb/
+|  |- coverage_utils.py
+|  |- cpu_lib.py
+|  |- simple_cpu_mmio_tb.sv
 |  |- simple_cpu_tb.sv
 |  |- test_simple_cpu.py
 |  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
 |  |- README.md
+|  |- check_asm_corpus.py
+|  |- run_mutation_campaign.py
 |  |- windows/
 |  |  |- install-tools.ps1
 |  |  |- run.ps1
 |  |  |- run-asm.ps1
+|  |  |- run-asm-corpus.ps1
+|  |  |- run-mmio.ps1
+|  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
 |  |  |- check-all.ps1
 |  |  |- lint.ps1
@@ -60,6 +76,9 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- install-tools-ubuntu.sh
 |  |  |- run.sh
 |  |  |- run-asm.sh
+|  |  |- run-asm-corpus.sh
+|  |  |- run-mmio.sh
+|  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
 |  |  |- check-all.sh
 |  |  |- lint.sh
@@ -68,12 +87,17 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-coverage.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
+|  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
+|  |- check-native.ps1 / check-native.sh (wrappers)
+|  |- run-mmio.ps1 / run-mmio.sh (wrappers)
+|  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
 |  |- update-coverage-baseline.ps1 / update-coverage-baseline.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
 |- docs/
+|  |- assembler-regressions.json
 |  |- coverage-baseline.json
 |  |- verification-plan.md
 |- Makefile
@@ -140,6 +164,30 @@ To assemble and run in one step:
 .\scripts\run-asm.ps1 -Source programs\logic_flags.asm
 ```
 
+To run the MMIO wrapper regression:
+
+```powershell
+.\scripts\run-mmio.ps1 -NoWaves
+```
+
+To summarize the wrapper coverage report:
+
+```powershell
+.\scripts\show-mmio-coverage.ps1
+```
+
+To run the tracked assembler corpus:
+
+```powershell
+.\scripts\run-asm-corpus.ps1
+```
+
+To replay the tracked assembler corpus through the MMIO wrapper:
+
+```powershell
+.\scripts\run-asm-corpus.ps1 -Runner mmio
+```
+
 To open the generated waveform:
 
 ```powershell
@@ -191,11 +239,31 @@ Run minimal pyuvm tests:
 bash scripts/run-uvm.sh --no-waves
 ```
 
+Run the assembler regression corpus:
+
+```bash
+bash scripts/run-asm-corpus.sh
+```
+
+Run the MMIO wrapper regression:
+
+```bash
+bash scripts/run-mmio.sh --no-waves
+```
+
+Show the wrapper coverage report:
+
+```bash
+bash scripts/show-mmio-coverage.sh
+```
+
 Notes:
 
 1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`.
 2. Override solver if needed: `bash scripts/run-formal.sh --solver z3`.
 3. Open waves in WSLg with: `bash scripts/open-waves.sh`.
+4. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
+5. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
 
 If you saw `libcairo-2.dll` or GTK `libpixbufloader-svg.dll` errors before, these launcher scripts apply a compatibility workaround automatically.
 
@@ -232,15 +300,36 @@ cd /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial
 bash scripts/check-all.sh
 ```
 
+Native simulation only, without formal:
+
+```powershell
+.\scripts\check-native.ps1
+```
+
+```bash
+bash scripts/check-native.sh
+```
+
 ## CI
 
-GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.yml` and run:
+GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.yml` and are split into focused jobs:
 
-1. Simulator regression + coverage gate (`bash scripts/check-all.sh`)
-2. Coverage delta check against repo baseline (`bash scripts/check-coverage-delta.sh`)
-3. Assembled sample program checks (`logic_flags.asm`, `counter_loop.asm`)
-4. Minimal pyuvm smoke/random checks (`bash scripts/run-uvm.sh --no-waves`)
-5. Coverage artifact upload (`sim_build/coverage.json`, `sim_build/coverage.csv`)
+1. `native-sim`: `bash scripts/check-native.sh` plus MMIO corpus replay
+2. `lint`: `bash scripts/lint.sh`
+3. `formal`: `bash scripts/run-formal.sh`
+4. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`
+5. `mutations`: `bash scripts/run-mutations.sh`
+
+Uploaded artifacts include:
+
+1. `sim_build/coverage.json`
+2. `sim_build/coverage.csv`
+3. `sim_build/mmio_coverage.json`
+4. `sim_build/mmio_coverage.csv`
+5. `sim_build/pyuvm_coverage.json`
+6. `sim_build/uvm_results.xml`
+7. `sim_build/asm_corpus/`
+8. `sim_build/mutations/`
 
 ## If tools are not installed yet
 
@@ -278,7 +367,144 @@ Run the minimal pyuvm/UVM-style example:
 bash scripts/run-uvm.sh --no-waves
 ```
 
-The pyuvm example lives in `tb/test_simple_cpu_pyuvm.py` and includes smoke, randomized dataflow, and branch-stress sequence/driver/monitor/scoreboard tests.
+The cocotb layer now also includes an assembler-corpus regression in `tb/test_simple_cpu.py`, and the pyuvm example in `tb/test_simple_cpu_pyuvm.py` now includes:
+
+1. sequence-item driven smoke/random/branch tests,
+2. deterministic corner-case sequences for `ADD/SUB/SHL/CMP` coverage closure,
+3. a subscriber-based coverage collector that writes `sim_build/pyuvm_coverage.json`.
+
+## MMIO wrapper flow
+
+`rtl/simple_cpu_mmio.sv` wraps the core behind a tiny always-ready MMIO interface. It is intentionally simple enough to verify with the same open-source tools as the core.
+
+Address map:
+
+1. `0x00..0x0F`: shadow instruction image read/write window
+2. `0x10`: status bits `{HALTED, OVERFLOW, NEG, CARRY, ZERO}`
+3. `0x11`: `ACC`
+4. `0x12`: `PC`
+5. `0x20..0x2F`: data-memory read window
+6. `0x30`: control/status register
+
+Wrapper behavior:
+
+1. Writing the instruction window updates a shadow program image.
+2. Writing `0x30 = 0x01` resets the core into a 16-cycle loader phase, copies the shadow image into instruction memory, then starts execution.
+3. Writing `0x30 = 0x00` returns the wrapper to hold/reset state for reprogramming.
+
+The native wrapper testbench in `tb/simple_cpu_mmio_tb.sv` checks:
+
+1. MMIO programming and instruction-shadow readback
+2. reset/reprogram/run sequencing
+3. a focused `SUB/CMP/JMP` sequence to close the wrapper mutation gap
+4. status/data readback against the same reference-model semantics
+5. external `.hex` program replay, so the tracked assembler corpus can run through the wrapper unchanged
+
+It also writes wrapper-specific coverage artifacts:
+
+1. `sim_build/mmio_coverage.json`
+2. `sim_build/mmio_coverage.csv`
+
+Quick summary commands:
+
+```powershell
+.\scripts\show-mmio-coverage.ps1
+```
+
+```bash
+bash scripts/show-mmio-coverage.sh
+```
+
+Current MMIO coverage goals:
+
+1. at least 4 wrapper program runs
+2. shadow writes/reads cover the full 16-byte image on every run
+3. data-memory reads cover the full 16-byte window on every run
+4. status, `ACC`, and `PC` reads occur on every run
+5. start/stop control writes occur on every run
+6. `HOLD`, `LOAD`, and `RUN` wrapper states are all observed
+
+## Assembler regression corpus
+
+The project includes a small tracked corpus of assembly programs with expected outputs in `docs/assembler-regressions.json`.
+
+Run it from PowerShell:
+
+```powershell
+.\scripts\run-asm-corpus.ps1
+```
+
+Run it from bash/WSL:
+
+```bash
+bash scripts/run-asm-corpus.sh
+```
+
+Use `.\scripts\run-asm-corpus.ps1 -NoSimulate` or `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checks without overwriting the main native-regression coverage report.
+
+What it checks:
+
+1. assembler output bytes match the manifest,
+2. reference-model final state matches the manifest,
+3. reference-model coverage signature subset matches the manifest,
+4. optional RTL replay per corpus program.
+
+The replay target can be either:
+
+1. the direct core testbench (`direct`, default)
+2. the MMIO wrapper testbench (`mmio`)
+
+Artifacts:
+
+1. `sim_build/asm_corpus/*.hex`
+2. `sim_build/pyuvm_coverage.json` from the pyuvm coverage regression
+
+## Mutation campaign
+
+The project includes an optional mutation campaign that compiles temporary broken RTL variants and confirms the regressions fail.
+
+Run it from PowerShell:
+
+```powershell
+.\scripts\run-mutations.ps1
+```
+
+Run it from bash/WSL:
+
+```bash
+bash scripts/run-mutations.sh
+```
+
+Readable summary commands:
+
+```powershell
+.\scripts\show-mutations.ps1
+```
+
+```bash
+bash scripts/show-mutations.sh
+```
+
+Current mutants:
+
+1. inverted `JZ` branch condition
+2. disabled `STA` writes
+3. broken `SHL` carry-out
+4. illegal-opcode path that no longer halts
+5. `ADD` driven from the subtraction datapath
+6. `SUB` driven from the addition datapath
+7. `JMP` forced to fall through
+8. `CMP` incorrectly clobbers `ACC`
+9. `HLT` no longer stops execution
+
+Artifacts:
+
+1. `sim_build/mutations/mutation_summary.json`
+2. `sim_build/mutations/mutation_summary.md`
+3. `sim_build/mutations/<mutant>/*_compile.log`
+4. `sim_build/mutations/<mutant>/*_run.log`
+
+The current campaign is expected to be killed by both the direct-core and MMIO wrapper benches.
 
 ## Suggested learning path
 
@@ -301,7 +527,8 @@ The SystemVerilog testbench includes sampled functional coverage implemented in 
 5. Cross bins: `opcode x post-instruction ZERO/CARRY/NEG/OVERFLOW`.
 6. Flag bins (`CARRY/NEG/OVERFLOW` each observed as 0 and 1).
 7. Reachability annotations for ISA-impossible opcode/flag bins.
-8. Program-run and total-cycle counters.
+8. Specific closure bins mirrored from the native checker (`JZ x ZERO`, `ADD/SUB x CARRY`, `SUB/CMP x NEG`, `SHL x OVERFLOW`).
+9. Program-run and total-cycle counters.
 
 Coverage thresholds are checked at end-of-run; unmet goals fail the simulation.
 
@@ -339,6 +566,37 @@ Quick summary command:
 .\scripts\show-coverage.ps1
 ```
 
+```bash
+bash scripts/show-coverage.sh
+```
+
+## Coverage history and trends
+
+Snapshot the latest core/MMIO coverage into repo-tracked history files:
+
+```powershell
+.\scripts\record-coverage-history.ps1 -Label tutorial-regression
+```
+
+```bash
+bash scripts/record-coverage-history.sh
+```
+
+Show the tracked ASCII trend report:
+
+```powershell
+.\scripts\show-coverage-trend.ps1
+```
+
+```bash
+bash scripts/show-coverage-trend.sh
+```
+
+Tracked history files:
+
+1. `docs/coverage-history.json`
+2. `docs/coverage-history.md`
+
 ## Known benign warnings
 
 1. Icarus can print `constant selects in always_* processes are not fully supported`.
@@ -350,10 +608,10 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 ## Next extensions
 
-1. Add a tiny assembler regression corpus and compare coverage drift over time.
-2. Split CI into separate simulation and formal jobs with coverage-history artifacts.
-3. Add a richer pyuvm subscriber layer that mirrors the native SV functional coverage model.
-4. Add trend/history reporting on top of the new coverage baseline checks.
+1. Add a commit-by-commit coverage badge or dashboard export on top of `docs/coverage-history.json`.
+2. Add formal properties for the MMIO wrapper state machine and address-map behavior.
+3. Auto-generate larger mutation sets from operator/control-flow templates instead of hand-authored snippet replacements.
+4. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.
 
 ## Publish To GitHub
 

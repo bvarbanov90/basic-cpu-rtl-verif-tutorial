@@ -9,7 +9,67 @@ on:
       - main
 
 jobs:
-  ubuntu-checks:
+  native-sim:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Run native simulation checks
+        run: bash scripts/check-native.sh
+
+      - name: Run assembler regression corpus
+        run: bash scripts/run-asm-corpus.sh --runner mmio
+
+      - name: Upload native artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-artifacts
+          path: |
+            sim_build/coverage.json
+            sim_build/coverage.csv
+            sim_build/mmio_coverage.json
+            sim_build/mmio_coverage.csv
+            sim_build/asm_corpus
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Run lint
+        run: bash scripts/lint.sh
+
+  formal:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Run formal checks
+        run: bash scripts/run-formal.sh
+
+      - name: Upload formal artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: formal-artifacts
+          path: |
+            formal/simple_cpu
+
+  pyuvm:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,24 +92,38 @@ jobs:
           python -m pip install -r requirements.txt
           echo "$PWD/.venv_ci/bin" >> "$GITHUB_PATH"
 
-      - name: Run core sanity checks
-        run: bash scripts/check-all.sh
-
-      - name: Check coverage delta against baseline
-        run: bash scripts/check-coverage-delta.sh
-
-      - name: Run assembled sample programs
-        run: |
-          bash scripts/run-asm.sh --source programs/logic_flags.asm --no-waves
-          bash scripts/run-asm.sh --source programs/counter_loop.asm --no-waves
-
-      - name: Run minimal pyuvm checks
+      - name: Run pyuvm regression
         run: bash scripts/run-uvm.sh --no-waves
 
-      - name: Upload coverage artifacts
+      - name: Upload pyuvm artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: pyuvm-artifacts
           path: |
-            sim_build/coverage.json
-            sim_build/coverage.csv
+            sim_build/pyuvm_coverage.json
+            sim_build/uvm_results.xml
+
+  mutations:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Run mutation campaign
+        run: bash scripts/run-mutations.sh
+
+      - name: Upload mutation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-artifacts
+          path: |
+            sim_build/mutations

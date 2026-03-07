@@ -1,0 +1,176 @@
+{
+  "programs": [
+    {
+      "name": "logic_flags",
+      "source": "programs/logic_flags.asm",
+      "expected_hex": ["13", "40", "1C", "41", "50", "91", "A0", "B1", "C0", "D0", "E0", "31", "80", "00", "00", "00"],
+      "expected_final": {
+        "acc": 3,
+        "pc": 12,
+        "zero": 0,
+        "carry": 1,
+        "neg": 0,
+        "overflow": 0,
+        "halted": 1,
+        "dmem": [3, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "coverage_signature": {
+        "opcode_hit_bitmap": "111111100111010",
+        "illegal_opcode_hit": 0,
+        "jz_taken": 0,
+        "jz_not_taken": 0,
+        "total_cycles": 13,
+        "opcode_counts": {
+          "1": 2,
+          "3": 1,
+          "4": 2,
+          "5": 1,
+          "8": 1,
+          "9": 1,
+          "10": 1,
+          "11": 1,
+          "12": 1,
+          "13": 1,
+          "14": 1
+        }
+      }
+    },
+    {
+      "name": "counter_loop",
+      "source": "programs/counter_loop.asm",
+      "expected_hex": ["13", "40", "11", "41", "50", "31", "40", "79", "64", "80", "00", "00", "00", "00", "00", "00"],
+      "expected_final": {
+        "acc": 0,
+        "pc": 9,
+        "zero": 1,
+        "carry": 1,
+        "neg": 0,
+        "overflow": 0,
+        "halted": 1,
+        "dmem": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "coverage_signature": {
+        "opcode_hit_bitmap": "000000111111010",
+        "illegal_opcode_hit": 0,
+        "jz_taken": 1,
+        "jz_not_taken": 2,
+        "total_cycles": 19,
+        "opcode_counts": {
+          "1": 2,
+          "3": 3,
+          "4": 5,
+          "5": 3,
+          "6": 2,
+          "7": 3,
+          "8": 1
+        }
+      }
+    },
+    {
+      "name": "branch_taken",
+      "source": "programs/branch_taken.asm",
+      "expected_hex": ["10", "73", "1F", "40", "80", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"],
+      "expected_final": {
+        "acc": 0,
+        "pc": 4,
+        "zero": 1,
+        "carry": 0,
+        "neg": 0,
+        "overflow": 0,
+        "halted": 1,
+        "dmem": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "coverage_signature": {
+        "opcode_hit_bitmap": "000000110010010",
+        "illegal_opcode_hit": 0,
+        "jz_taken": 1,
+        "jz_not_taken": 0,
+        "total_cycles": 4,
+        "opcode_counts": {
+          "1": 1,
+          "4": 1,
+          "7": 1,
+          "8": 1
+        }
+      }
+    },
+    {
+      "name": "memory_roundtrip",
+      "source": "programs/memory_roundtrip.asm",
+      "expected_hex": ["16", "40", "50", "41", "80", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"],
+      "expected_final": {
+        "acc": 6,
+        "pc": 4,
+        "zero": 0,
+        "carry": 0,
+        "neg": 0,
+        "overflow": 0,
+        "halted": 1,
+        "dmem": [6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "coverage_signature": {
+        "opcode_hit_bitmap": "000000100110010",
+        "illegal_opcode_hit": 0,
+        "jz_taken": 0,
+        "jz_not_taken": 0,
+        "total_cycles": 5,
+        "opcode_counts": {
+          "1": 1,
+          "4": 2,
+          "5": 1,
+          "8": 1
+        }
+      }
+    },
+    {
+      "name": "raw_illegal",
+      "source": "programs/raw_illegal.asm",
+      "expected_hex": ["F0", "80", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00", "00"],
+      "expected_final": {
+        "acc": 0,
+        "pc": 0,
+        "zero": 1,
+        "carry": 0,
+        "neg": 0,
+        "overflow": 0,
+        "halted": 1,
+        "dmem": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "coverage_signature": {
+        "opcode_hit_bitmap": "000000000000000",
+        "illegal_opcode_hit": 1,
+        "jz_taken": 0,
+        "jz_not_taken": 0,
+        "total_cycles": 1
+      }
+    },
+    {
+      "name": "sparse_jump",
+      "source": "programs/sparse_jump.asm",
+      "expected_hex": ["68", "00", "00", "00", "00", "00", "00", "00", "15", "40", "80", "00", "00", "00", "00", "00"],
+      "expected_final": {
+        "acc": 5,
+        "pc": 10,
+        "zero": 0,
+        "carry": 0,
+        "neg": 0,
+        "overflow": 0,
+        "halted": 1,
+        "dmem": [5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      },
+      "coverage_signature": {
+        "opcode_hit_bitmap": "000000101010010",
+        "illegal_opcode_hit": 0,
+        "jz_taken": 0,
+        "jz_not_taken": 0,
+        "total_cycles": 4,
+        "opcode_counts": {
+          "1": 1,
+          "4": 1,
+          "6": 1,
+          "8": 1
+        }
+      }
+    }
+  ]
+}

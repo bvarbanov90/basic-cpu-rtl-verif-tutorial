@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-& .\scripts\run.ps1 -NoWaves
+& .\scripts\check-native.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
@@ -11,16 +11,6 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\run-formal.ps1
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
-
-& .\scripts\show-coverage.ps1
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
-
-& .\scripts\check-coverage-delta.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

@@ -11,10 +11,19 @@ Common entrypoints:
 1. `run` (`run.ps1` / `run.sh`)
 2. `run-asm` (`run-asm.ps1` / `run-asm.sh`)
 3. `run-uvm` (`run-uvm.ps1` / `run-uvm.sh`)
-4. `check-all` (`check-all.ps1` / `check-all.sh`)
-5. `check-coverage-delta` (`check-coverage-delta.ps1` / `check-coverage-delta.sh`)
-6. `update-coverage-baseline` (`update-coverage-baseline.ps1` / `update-coverage-baseline.sh`)
-7. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
+4. `run-asm-corpus` (`run-asm-corpus.ps1` / `run-asm-corpus.sh`)
+5. `run-mmio` (`run-mmio.ps1` / `run-mmio.sh`)
+6. `run-mutations` (`run-mutations.ps1` / `run-mutations.sh`)
+7. `check-native` (`check-native.ps1` / `check-native.sh`)
+8. `check-all` (`check-all.ps1` / `check-all.sh`)
+9. `check-coverage-delta` (`check-coverage-delta.ps1` / `check-coverage-delta.sh`)
+10. `update-coverage-baseline` (`update-coverage-baseline.ps1` / `update-coverage-baseline.sh`)
+11. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
+12. `show-coverage` (`show-coverage.ps1` / `show-coverage.sh`)
+13. `show-mmio-coverage` (`show-mmio-coverage.ps1` / `show-mmio-coverage.sh`)
+14. `record-coverage-history` (`record-coverage-history.ps1` / `record-coverage-history.sh`)
+15. `show-coverage-trend` (`show-coverage-trend.ps1` / `show-coverage-trend.sh`)
+16. `show-mutations` (`show-mutations.ps1` / `show-mutations.sh`)
 
 When adding a new automation flow:
 

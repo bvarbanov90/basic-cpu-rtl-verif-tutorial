@@ -9,19 +9,35 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (March 6, 2026)
+## Current status (March 7, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
 3. `.\scripts\run-formal.ps1`: PASS
 4. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
-5. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-6. `.\scripts\check-coverage-delta.ps1`: PASS
-7. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-8. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-9. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
-10. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
-11. `bash scripts/check-coverage-delta.sh`: PASS
+5. `.\scripts\show-mmio-coverage.ps1`: PASS
+6. `.\scripts\record-coverage-history.ps1`: PASS
+7. `.\scripts\show-coverage-trend.ps1`: PASS
+8. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+9. `.\scripts\check-coverage-delta.ps1`: PASS
+10. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
+11. `.\scripts\check-native.ps1`: PASS
+12. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
+13. `.\scripts\run-mutations.ps1`: PASS
+14. `.\scripts\show-mutations.ps1`: PASS
+15. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+16. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
+17. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
+18. `bash scripts/check-native.sh`: PASS
+19. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+20. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
+21. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+22. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
+23. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
+24. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
+25. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
+26. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
+27. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
 
 ## Test strategy
 
@@ -30,7 +46,11 @@
 3. Reference-model comparison for robust end-state checking.
 4. Lightweight functional coverage counters with threshold checks.
 5. Repo-tracked coverage baseline with delta checks for non-regression.
-6. CI workflow on GitHub Actions for automated regression on push/PR.
+6. Assembler corpus manifest checks for stable machine-code and end-state regression.
+7. Interface-level wrapper verification using the same programs/reference model.
+8. Mutation testing that confirms representative RTL bugs are detected by the regressions.
+9. Wrapper-specific protocol/transaction coverage for the MMIO shell.
+10. CI workflow on GitHub Actions for automated regression on push/PR.
 
 ## Current tests
 
@@ -48,12 +68,22 @@
 | `test_branch_randomized_suite` | `tb/simple_cpu_tb.sv` | Bounded-loop branch-heavy randomized programs stressing `JZ/JMP` control flow. |
 | `test_external_program` | `tb/simple_cpu_tb.sv` | Optional plusarg-driven external `.hex` program check vs model. |
 | `report_and_check_coverage` | `tb/simple_cpu_tb.sv` | Coverage thresholds for opcode hits, branch outcomes, and flag transitions. |
+| `test_mmio_smoke` | `tb/simple_cpu_mmio_tb.sv` | MMIO programming, shadow readback, loader start, and end-state comparison. |
+| `test_mmio_reprogram_sequence` | `tb/simple_cpu_mmio_tb.sv` | Reset/reprogram/run sequencing plus shift carry/overflow status checking. |
+| `test_mmio_illegal_opcode` | `tb/simple_cpu_mmio_tb.sv` | MMIO replay of illegal-opcode handling and safe halt behavior. |
+| `test_mmio_jump_sub_cmp_sequence` | `tb/simple_cpu_mmio_tb.sv` | Wrapper-level `SUB/CMP/JMP` replay that closes the MMIO mutation gap for ALU/control flow. |
+| `test_external_program` | `tb/simple_cpu_mmio_tb.sv` | Optional `.hex` replay through the MMIO wrapper against the reference model. |
+| `report_and_check_mmio_coverage` | `tb/simple_cpu_mmio_tb.sv` | Wrapper protocol/transaction coverage thresholds and artifact emission. |
 | `directed_arithmetic_and_branch` | `tb/test_simple_cpu.py` | Optional cocotb directed test mirroring simulator-native checks. |
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
 | `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
-| `SimpleCpuUvmSmokeTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm (UVM-style) sequence/driver/monitor/scoreboard smoke check. |
+| `assembler_corpus_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb replay of the tracked assembler corpus against the DUT and reference model. |
+| `SimpleCpuUvmSmokeTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm (UVM-style) sequence/driver/subscriber smoke check. |
 | `SimpleCpuUvmRandomizedTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm randomized program check against reference model. |
 | `SimpleCpuUvmBranchStressTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm branch-stress program check against reference model. |
+| `SimpleCpuUvmCoverageRegressionTest` | `tb/test_simple_cpu_pyuvm.py` | Deterministic + randomized pyuvm regression with subscriber-based coverage report emission. |
+| `run-asm-corpus` | `scripts/check_asm_corpus.py` + wrappers | Manifest-driven assembler regression corpus; checks bytes, final state, and coverage signatures. |
+| `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants and confirms the regressions kill them. |
 
 ## Coverage model (simple functional coverage)
 
@@ -64,13 +94,19 @@
 5. Cross bins: `opcode x post-instruction ZERO/CARRY/NEG/OVERFLOW`.
 6. Reachability metadata for ISA-impossible cross bins.
 7. Flag bins for `CARRY`, `NEG`, `OVERFLOW` (0 and 1 observed).
-8. Program-run and executed-cycle counters.
+8. Explicit closure bins mirrored from the native checker (`JZ x ZERO`, `ADD/SUB x CARRY`, `SUB/CMP x NEG`, `SHL x OVERFLOW`).
+9. Program-run and executed-cycle counters.
 
 Coverage artifacts:
 
 1. `sim_build/coverage.json` (machine-readable summary + goals + reachability metadata)
 2. `sim_build/coverage.csv` (flat metrics for spreadsheets/CI parsing)
 3. `docs/coverage-baseline.json` (repo-tracked lower-bound baseline for regression checks)
+4. `docs/coverage-history.json` / `docs/coverage-history.md` (tracked history and rendered trend report)
+5. `sim_build/pyuvm_coverage.json` (pyuvm coverage subscriber output)
+6. `sim_build/asm_corpus/*.hex` (assembler corpus outputs)
+7. `sim_build/mutations/mutation_summary.json` / `sim_build/mutations/mutation_summary.md` (mutation-campaign summaries)
+8. `sim_build/mmio_coverage.json` / `sim_build/mmio_coverage.csv` (wrapper transaction coverage)
 
 Additional outputs:
 
@@ -81,8 +117,14 @@ Implementation note:
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
 2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
-4. CI workflow is in `.github/workflows/ci.yml` and runs Ubuntu-based checks, coverage delta checks, sample assembled program runs, and pyuvm checks.
-5. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
+4. The Python `CoverageModel` mirrors the native SV coverage pass/fail conditions, including reachability checks for impossible bins.
+5. `rtl/simple_cpu_mmio.sv` adds a tiny wrapper state machine that loads a shadow program image into the core over the existing programming interface before releasing execution.
+6. The assembler corpus can replay through either the direct core testbench or the MMIO wrapper testbench.
+7. `tb/simple_cpu_mmio_tb.sv` now includes protocol assertions (`bus_ready` always high during requests) plus sampled transaction/state coverage.
+8. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the wrapper coverage report without opening JSON manually.
+9. `scripts/coverage_history.py` plus wrapper commands track coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
+10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, pyuvm, and mutation jobs.
+11. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 
 Formal properties currently checked:
 
@@ -97,6 +139,6 @@ Known toolchain notes (non-fatal when runs pass):
 
 ## Remaining exercises
 
-1. Add historical/trend reporting on top of the baseline delta checks.
-2. Add a richer pyuvm subscriber/coverage collector that mirrors the native SV coverage report.
-3. Add an assembler regression corpus with expected coverage signatures.
+1. Export the tracked coverage history into badge-friendly or dashboard-friendly artifacts.
+2. Add formal properties for the MMIO wrapper loader/control state machine.
+3. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
