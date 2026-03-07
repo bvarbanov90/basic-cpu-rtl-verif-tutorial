@@ -6,10 +6,10 @@ depth 22
 smtbmc z3
 
 [script]
-read -formal -D FORMAL simple_cpu.sv simple_cpu_mmio.sv simple_cpu_mmio_formal.sv
+read -formal -D FORMAL simple_cpu_mmio_stub.sv simple_cpu_mmio.sv simple_cpu_mmio_formal.sv
 prep -top simple_cpu_mmio_formal
 
 [files]
-rtl/simple_cpu.sv
+formal/simple_cpu_mmio_stub.sv
 rtl/simple_cpu_mmio.sv
 formal/simple_cpu_mmio_formal.sv

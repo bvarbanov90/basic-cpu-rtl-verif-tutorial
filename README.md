@@ -299,11 +299,12 @@ bash scripts/export-status.sh --label tutorial-regression
 
 Notes:
 
-1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`.
-2. `.\scripts\run-formal.ps1` now follows the same rule and accepts `-Solver z3` or `-Solver cvc5`.
+1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`, then `boolector`.
+2. `.\scripts\run-formal.ps1` follows the same rule and accepts `-Solver cvc5`, `-Solver z3`, or `-Solver boolector`.
 3. Open waves in WSLg with: `bash scripts/open-waves.sh`.
 4. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
 5. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
+6. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
 
 If you saw `libcairo-2.dll` or GTK `libpixbufloader-svg.dll` errors before, these launcher scripts apply a compatibility workaround automatically.
 
@@ -329,7 +330,7 @@ cd C:\Users\bvarb\vscode_ws\basic-cpu-rlt--verif-tutorial
 Override the solver on Windows if needed:
 
 ```powershell
-.\scripts\run-formal.ps1 -Solver z3
+.\scripts\run-formal.ps1 -Solver cvc5
 ```
 
 Show the target-level formal summary:
@@ -350,6 +351,8 @@ Current formal properties cover:
 3. MMIO address-map readback for status, `ACC`, `PC`, control, and boundary shadow slots,
 4. MMIO `HOLD/LOAD/RUN` state transitions and loader sequencing,
 5. representative shadow-image update/stability rules during hold, load, and run phases.
+
+The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
 
 ## Full project sanity check
 
@@ -697,8 +700,9 @@ The badge JSON files are compatible with shields.io endpoint badges when served 
 1. Icarus can print `constant selects in always_* processes are not fully supported`.
 2. SymbiYosys/Yosys can print warnings around `$global_clock` in the formal harness.
 3. Yosys can print memory lowering notes (`Replacing memory ... with list of registers`).
-4. On some WSL setups, `z3` can be unstable; use `bash scripts/run-formal.sh` (defaults to `cvc5`).
+4. The MMIO formal target uses an abstract core stub so the portable `cvc5` flow stays fast enough for CI without weakening the wrapper-level properties.
 5. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
+6. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
 
 These warnings are expected for this toolchain/tutorial and are non-fatal when all checks pass.
 

@@ -40,13 +40,15 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "${SOLVER}" ]]; then
-    # cvc5 is the most reliable default in Ubuntu/WSL for this tutorial setup.
+    # cvc5 is the most reliable default across Ubuntu/WSL setups for this tutorial.
     if command -v cvc5 >/dev/null 2>&1; then
         SOLVER="cvc5"
     elif command -v z3 >/dev/null 2>&1; then
         SOLVER="z3"
+    elif command -v boolector >/dev/null 2>&1; then
+        SOLVER="boolector"
     else
-        echo "No supported SMT solver found. Install cvc5 or z3." >&2
+        echo "No supported SMT solver found. Install boolector, cvc5, or z3." >&2
         exit 1
     fi
 fi

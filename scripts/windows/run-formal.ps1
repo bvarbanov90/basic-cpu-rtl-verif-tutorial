@@ -38,8 +38,10 @@ if ([string]::IsNullOrWhiteSpace($Solver)) {
         $Solver = "cvc5"
     } elseif (Get-Command z3 -ErrorAction SilentlyContinue) {
         $Solver = "z3"
+    } elseif (Get-Command boolector -ErrorAction SilentlyContinue) {
+        $Solver = "boolector"
     } else {
-        throw "No supported SMT solver found. Install cvc5 or z3."
+        throw "No supported SMT solver found. Install boolector, cvc5, or z3."
     }
 }
 

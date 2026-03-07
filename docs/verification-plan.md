@@ -133,6 +133,7 @@ Implementation note:
 11. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 12. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata.
 13. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads.
+14. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
 
 Formal properties currently checked:
 
@@ -148,8 +149,9 @@ Known toolchain notes (non-fatal when runs pass):
 
 1. Icarus may emit `always_*` constant-select warnings.
 2. Yosys may emit `$global_clock` and memory-lowering warnings during formal prep.
-3. On some WSL setups, formal with `z3` can be unstable; the bash flow defaults to `cvc5`.
+3. The MMIO formal target uses an abstract core stub so the portable `cvc5` flow remains fast enough for CI without weakening the wrapper-level claims.
 4. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
+5. WSL formal runs from `/mnt/c/...` can be much slower than GitHub Actions or native Linux because of mounted-filesystem I/O overhead.
 
 ## Remaining exercises
 
