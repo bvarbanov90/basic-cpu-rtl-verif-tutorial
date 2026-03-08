@@ -10,6 +10,7 @@ from status_lib import (
     aggregate_status,
     badge_payload,
     coverage_summary,
+    equivalence_summary,
     git_dirty,
     history_latest,
     mutation_summary,
@@ -17,6 +18,7 @@ from status_lib import (
     relpath,
     run_git,
     summarize_formal,
+    verilator_coverage_summary,
     write_json,
 )
 
@@ -30,6 +32,16 @@ def parse_args() -> argparse.Namespace:
         "--mutations",
         default="sim_build/mutations/mutation_summary.json",
         help="Mutation summary JSON path.",
+    )
+    parser.add_argument(
+        "--verilator-coverage",
+        default="sim_build/verilator_coverage/summary.json",
+        help="Verilator coverage summary JSON path.",
+    )
+    parser.add_argument(
+        "--equivalence",
+        default="equiv/simple_cpu_eqy",
+        help="EQY work directory to inspect.",
     )
     parser.add_argument(
         "--history",
@@ -95,6 +107,22 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             killed=payload.get("killed_mutations", 0),
             total=payload.get("total_mutations", 0),
         )
+    if name == "verilator":
+        if status == "MISSING":
+            return "artifact missing"
+        return "overall={overall}%, line={line}%, toggle={toggle}%, expr={expr}%".format(
+            overall=payload.get("overall_percent", "-"),
+            line=payload.get("line_percent", "-"),
+            toggle=payload.get("toggle_percent", "-"),
+            expr=payload.get("expr_percent", "-"),
+        )
+    if name == "equivalence":
+        if status == "MISSING":
+            return "artifact missing"
+        return "partitions={partitions}, elapsed={elapsed}".format(
+            partitions=payload.get("partitions", 0),
+            elapsed=payload.get("elapsed", "-"),
+        )
     if name == "formal":
         targets = payload.get("targets", [])
         if not targets:
@@ -127,7 +155,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         f"| Git dirty | `{status.get('git_dirty', 0)}` |",
         f"| Overall required-suite status | `{status['overall_required_status']}` |",
         "",
-        "Required suites are `core_coverage`, `mmio_coverage`, and `formal`. Optional suites are reported separately.",
+        "Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence`. Optional suites are reported separately.",
         "",
         "## Suite Summary",
         "",
@@ -139,7 +167,9 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("core_coverage", "core"),
         ("mmio_coverage", "mmio"),
         ("formal", "formal"),
+        ("equivalence", "equivalence"),
         ("pyuvm_coverage", "pyuvm"),
+        ("verilator_coverage", "verilator"),
         ("mutations", "mutations"),
     ]
     for key, name in suite_order:
@@ -147,7 +177,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         lines.append(
             "| {suite} | {required} | `{state}` | {details} | `{source}` |".format(
                 suite=key,
-                required="yes" if payload.get("required", key in {"core_coverage", "mmio_coverage", "formal"}) else "no",
+                required="yes" if payload.get("required", key in {"core_coverage", "mmio_coverage", "formal", "equivalence"}) else "no",
                 state=payload["status"],
                 details=format_domain_details(name, payload),
                 source=payload.get("path", "-"),
@@ -245,6 +275,20 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["pyuvm_coverage"]["status"],
             status["pyuvm_coverage"]["status"],
         ),
+        "verilator-coverage": (
+            "verilator cov",
+            "{overall}% overall".format(overall=status["verilator_coverage"].get("overall_percent", "-"))
+            if status["verilator_coverage"]["status"] == STATUS_PASS
+            else status["verilator_coverage"]["status"],
+            status["verilator_coverage"]["status"],
+        ),
+        "equivalence": (
+            "equivalence",
+            "PASS {partitions} partitions".format(partitions=status["equivalence"].get("partitions", 0))
+            if status["equivalence"]["status"] == STATUS_PASS
+            else status["equivalence"]["status"],
+            status["equivalence"]["status"],
+        ),
         "mutations": (
             "mutations",
             "{killed}/{total} killed".format(
@@ -289,16 +333,23 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
 
 def main() -> int:
     args = parse_args()
-    formal_targets = args.formal_targets or ["formal/simple_cpu", "formal/simple_cpu_mmio"]
+    formal_targets = args.formal_targets or [
+        "formal/simple_cpu",
+        "formal/simple_cpu_mmio",
+        "formal/simple_cpu_cover",
+        "formal/simple_cpu_mmio_cover",
+    ]
 
     core = coverage_summary(Path(args.core).resolve(), "core")
     mmio = coverage_summary(Path(args.mmio).resolve(), "mmio")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
     formal = summarize_formal([Path(target).resolve() for target in formal_targets])
     formal["required"] = True
+    equivalence = equivalence_summary(Path(args.equivalence).resolve())
+    verilator_coverage = verilator_coverage_summary(Path(args.verilator_coverage).resolve())
     mutations = mutation_summary(Path(args.mutations).resolve())
 
-    required_statuses = [core["status"], mmio["status"], formal["status"]]
+    required_statuses = [core["status"], mmio["status"], formal["status"], equivalence["status"]]
     overall_required_status = aggregate_status(required_statuses)
 
     status: dict[str, Any] = {
@@ -311,7 +362,9 @@ def main() -> int:
         "core_coverage": core,
         "mmio_coverage": mmio,
         "pyuvm_coverage": pyuvm,
+        "verilator_coverage": verilator_coverage,
         "formal": formal,
+        "equivalence": equivalence,
         "mutations": mutations,
     }
 

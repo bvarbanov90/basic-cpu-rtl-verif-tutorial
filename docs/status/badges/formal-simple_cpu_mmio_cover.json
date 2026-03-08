@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "label": "formal simple_cpu_mmio_cover",
+  "message": "PASS cvc5 0:00:04",
+  "color": "brightgreen"
+}

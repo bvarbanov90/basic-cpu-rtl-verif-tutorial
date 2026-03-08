@@ -9,39 +9,45 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (March 7, 2026)
+## Current status (March 8, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
 3. `.\scripts\run-formal.ps1`: PASS (auto-selected `cvc5`)
-4. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
-5. `.\scripts\show-mmio-coverage.ps1`: PASS
-6. `.\scripts\record-coverage-history.ps1`: PASS
-7. `.\scripts\show-coverage-trend.ps1`: PASS
-8. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-9. `.\scripts\check-coverage-delta.ps1`: PASS
-10. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
-11. `.\scripts\check-native.ps1`: PASS
-12. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
-13. `.\scripts\run-mutations.ps1`: PASS
-14. `.\scripts\show-mutations.ps1`: PASS
-15. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-16. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
-17. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
-18. `bash scripts/check-native.sh`: PASS
-19. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-20. `bash scripts/run-formal.sh` (WSL Ubuntu, `cvc5`): PASS
-21. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
-22. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
-23. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
-24. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
-25. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
-26. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
-27. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
-28. `.\scripts\show-formal-status.ps1`: PASS
-29. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
-30. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
-31. `bash scripts/export-status.sh --label tutorial-regression` (WSL Ubuntu): PASS
+4. `.\scripts\run-formal.ps1 -Mode cover`: PASS
+5. `.\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage`: PASS (falls back to WSL, auto-uses Linux OSS CAD Suite Verilator 5.047)
+6. `.\scripts\show-verilator-coverage.ps1`: PASS
+7. `.\scripts\run-equiv.ps1`: PASS (routes through WSL EQY)
+8. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
+9. `.\scripts\show-mmio-coverage.ps1`: PASS
+10. `.\scripts\record-coverage-history.ps1`: PASS
+11. `.\scripts\show-coverage-trend.ps1`: PASS
+12. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+13. `.\scripts\check-coverage-delta.ps1`: PASS
+14. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
+15. `.\scripts\check-native.ps1`: PASS
+16. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
+17. `.\scripts\run-mutations.ps1`: PASS
+18. `.\scripts\show-mutations.ps1`: PASS
+19. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+20. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
+21. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
+22. `bash scripts/check-native.sh`: PASS
+23. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+24. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
+25. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
+26. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
+27. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+28. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
+29. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
+30. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
+31. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
+32. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
+33. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
+34. `.\scripts\show-formal-status.ps1`: PASS
+35. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
+36. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
+37. `bash scripts/export-status.sh --label tutorial-regression` (WSL Ubuntu): PASS
 
 ## Test strategy
 
@@ -54,7 +60,10 @@
 7. Interface-level wrapper verification using the same programs/reference model.
 8. Mutation testing that confirms representative RTL bugs are detected by the regressions.
 9. Wrapper-specific protocol/transaction coverage for the MMIO shell.
-10. CI workflow on GitHub Actions for automated regression on push/PR.
+10. Simulator cross-checking with the same cocotb tests on Verilator.
+11. Formal cover witness generation for tutorial-quality traces.
+12. EQY equivalence checks for refactor-safe RTL cleanup.
+13. CI workflow on GitHub Actions for automated regression on push/PR.
 
 ## Current tests
 
@@ -82,12 +91,15 @@
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
 | `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
 | `assembler_corpus_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb replay of the tracked assembler corpus against the DUT and reference model. |
+| `run-cocotb-verilator` | `scripts/run-cocotb-verilator.*` | Runs the cocotb core regression on Verilator and emits structural coverage artifacts. |
 | `SimpleCpuUvmSmokeTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm (UVM-style) sequence/driver/subscriber smoke check. |
 | `SimpleCpuUvmRandomizedTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm randomized program check against reference model. |
 | `SimpleCpuUvmBranchStressTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm branch-stress program check against reference model. |
 | `SimpleCpuUvmCoverageRegressionTest` | `tb/test_simple_cpu_pyuvm.py` | Deterministic + randomized pyuvm regression with subscriber-based coverage report emission. |
 | `run-asm-corpus` | `scripts/check_asm_corpus.py` + wrappers | Manifest-driven assembler regression corpus; checks bytes, final state, and coverage signatures. |
 | `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants and confirms the regressions kill them. |
+| `run-formal --mode cover` | `scripts/run-formal.*` + `formal/*cover*` | Generates witness traces for representative core/MMIO reachable scenarios. |
+| `run-equiv` | `scripts/run-equiv.*` + `equiv/simple_cpu.eqy` | Proves the current core matches the tracked golden RTL snapshot. |
 
 ## Coverage model (simple functional coverage)
 
@@ -113,6 +125,9 @@ Coverage artifacts:
 8. `sim_build/asm_corpus/*.hex` (assembler corpus outputs)
 9. `sim_build/mutations/mutation_summary.json` / `sim_build/mutations/mutation_summary.md` (mutation-campaign summaries)
 10. `sim_build/mmio_coverage.json` / `sim_build/mmio_coverage.csv` (wrapper transaction coverage)
+11. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
+12. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
+13. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
 
 Additional outputs:
 
@@ -129,11 +144,14 @@ Implementation note:
 7. `tb/simple_cpu_mmio_tb.sv` now includes protocol assertions (`bus_ready` always high during requests) plus sampled transaction/state coverage.
 8. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the wrapper coverage report without opening JSON manually.
 9. `scripts/coverage_history.py` plus wrapper commands track coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, pyuvm, mutations, and summary jobs.
+10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs.
 11. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 12. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata.
 13. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads.
 14. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
+15. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
+16. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
+17. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
 
 Formal properties currently checked:
 
@@ -144,18 +162,22 @@ Formal properties currently checked:
 5. MMIO `HOLD`, `LOAD`, and `RUN` transitions follow the intended control-register protocol.
 6. MMIO loader signals (`core_rst_n`, `prog_we`, `prog_addr`) stay aligned with wrapper state.
 7. Representative shadow-image slots update only on addressed writes and otherwise remain stable across hold/load/run operation.
+8. Cover mode produces one core witness showing program-write then execute-to-halt, plus one MMIO witness showing start-to-run-to-halt.
 
 Known toolchain notes (non-fatal when runs pass):
 
 1. Icarus may emit `always_*` constant-select warnings.
 2. Yosys may emit `$global_clock` and memory-lowering warnings during formal prep.
 3. The MMIO formal target uses an abstract core stub so the portable `cvc5` flow remains fast enough for CI without weakening the wrapper-level claims.
-4. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
-5. WSL formal runs from `/mnt/c/...` can be much slower than GitHub Actions or native Linux because of mounted-filesystem I/O overhead.
+4. The Windows equivalence wrapper intentionally routes through WSL because some packaged `eqy.exe` builds are unstable.
+5. `scripts/run-cocotb-verilator.sh` may download Linux OSS CAD Suite into `~/tools/oss-cad-suite/oss-cad-suite` when the system Verilator is older than the cocotb minimum.
+6. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
+7. WSL formal runs from `/mnt/c/...` can be much slower than GitHub Actions or native Linux because of mounted-filesystem I/O overhead.
 
 ## Remaining exercises
 
 1. Publish `docs/status/badges/*.json` through GitHub Pages or another static endpoint and wire them into the README.
 2. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
-3. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
-4. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.
+3. Add a second static-analysis lane with Verible or svlint.
+4. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
+5. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.

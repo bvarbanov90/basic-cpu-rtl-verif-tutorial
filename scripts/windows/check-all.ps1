@@ -10,7 +10,22 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-& .\scripts\run-formal.ps1
+& .\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\show-verilator-coverage.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-formal.ps1 -Mode all
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-equiv.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

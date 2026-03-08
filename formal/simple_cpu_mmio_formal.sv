@@ -34,6 +34,8 @@ module simple_cpu_mmio_formal;
 
     reg [1:0] reset_counter = 2'd0;
     reg past_valid = 1'b0;
+    reg saw_start = 1'b0;
+    reg saw_stop = 1'b0;
 
     simple_cpu_mmio dut (
         .clk($global_clock),
@@ -71,12 +73,16 @@ module simple_cpu_mmio_formal;
             bus_write <= 1'b0;
             bus_addr <= 8'h00;
             bus_wdata <= 8'h00;
+            saw_start <= 1'b0;
+            saw_stop <= 1'b0;
         end else begin
             rst_n <= 1'b1;
             bus_valid <= $anyseq;
             bus_write <= $anyseq;
             bus_addr <= $anyseq;
             bus_wdata <= $anyseq;
+            saw_start <= saw_start || (bus_valid && bus_write && (bus_addr == ADDR_CONTROL) && bus_wdata[0]);
+            saw_stop <= saw_stop || (bus_valid && bus_write && (bus_addr == ADDR_CONTROL) && !bus_wdata[0]);
         end
     end
 
@@ -199,5 +205,7 @@ module simple_cpu_mmio_formal;
         cover(past_valid && (formal_state == STATE_RUN));
         cover(past_valid && $past(formal_state == STATE_RUN) && (formal_state == STATE_HOLD));
         cover(past_valid && (formal_state == STATE_HOLD) && (formal_shadow_flat[7:0] != 8'h00));
+        cover(past_valid && saw_start && (formal_state == STATE_RUN) && formal_dbg_halted);
+        cover(past_valid && saw_start && saw_stop && (formal_state == STATE_HOLD));
     end
 endmodule

@@ -1,0 +1,11 @@
+[gold]
+read -sv equiv/simple_cpu_golden.sv
+prep -top simple_cpu
+
+[gate]
+read -sv rtl/simple_cpu.sv
+prep -top simple_cpu
+
+[strategy simple]
+use sat
+depth 20

@@ -11,7 +11,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "targets",
         nargs="*",
-        default=["formal/simple_cpu", "formal/simple_cpu_mmio"],
+        default=[
+            "formal/simple_cpu",
+            "formal/simple_cpu_mmio",
+            "formal/simple_cpu_cover",
+            "formal/simple_cpu_mmio_cover",
+        ],
         help="Formal output directories to inspect.",
     )
     return parser.parse_args()

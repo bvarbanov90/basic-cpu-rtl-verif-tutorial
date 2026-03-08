@@ -10,4 +10,4 @@ if ! command -v verilator >/dev/null 2>&1; then
     exit 1
 fi
 
-verilator --lint-only -Wall rtl/simple_cpu.sv
+verilator --lint-only -Wall rtl/simple_cpu.sv rtl/simple_cpu_mmio.sv

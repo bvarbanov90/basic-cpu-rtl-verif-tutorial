@@ -60,7 +60,7 @@ jobs:
         run: bash scripts/install-tools-ubuntu.sh
 
       - name: Run formal checks
-        run: bash scripts/run-formal.sh
+        run: bash scripts/run-formal.sh --mode all
 
       - name: Upload formal artifacts
         uses: actions/upload-artifact@v4
@@ -69,6 +69,62 @@ jobs:
           path: |
             formal/simple_cpu
             formal/simple_cpu_mmio
+            formal/simple_cpu_cover
+            formal/simple_cpu_mmio_cover
+
+  cocotb-verilator:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Install Python verification dependencies
+        run: |
+          python3 -m venv .venv_ci
+          source .venv_ci/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          echo "$PWD/.venv_ci/bin" >> "$GITHUB_PATH"
+
+      - name: Run cocotb + Verilator regression with coverage
+        run: bash scripts/run-cocotb-verilator.sh --no-waves --coverage
+
+      - name: Upload Verilator artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verilator-artifacts
+          path: |
+            sim_build/verilator_results.xml
+            sim_build/verilator_coverage
+
+  equivalence:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install open-source EDA toolchain
+        run: bash scripts/install-tools-ubuntu.sh
+
+      - name: Run EQY equivalence checks
+        run: bash scripts/run-equiv.sh
+
+      - name: Upload equivalence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: equivalence-artifacts
+          path: |
+            equiv/simple_cpu_eqy
 
   pyuvm:
     runs-on: ubuntu-latest
@@ -136,6 +192,8 @@ jobs:
       - native-sim
       - lint
       - formal
+      - cocotb-verilator
+      - equivalence
       - pyuvm
       - mutations
 
@@ -150,13 +208,15 @@ jobs:
           | native-sim | ${{ needs.native-sim.result }} |
           | lint | ${{ needs.lint.result }} |
           | formal | ${{ needs.formal.result }} |
+          | cocotb-verilator | ${{ needs.cocotb-verilator.result }} |
+          | equivalence | ${{ needs.equivalence.result }} |
           | pyuvm | ${{ needs.pyuvm.result }} |
           | mutations | ${{ needs.mutations.result }} |
           EOF
 
       - name: Fail summary if any required job failed
         run: |
-          results="${{ needs.native-sim.result }},${{ needs.lint.result }},${{ needs.formal.result }},${{ needs.pyuvm.result }},${{ needs.mutations.result }}"
+          results="${{ needs.native-sim.result }},${{ needs.lint.result }},${{ needs.formal.result }},${{ needs.cocotb-verilator.result }},${{ needs.equivalence.result }},${{ needs.pyuvm.result }},${{ needs.mutations.result }}"
           case "${results}" in
             *failure*|*cancelled*)
               exit 1

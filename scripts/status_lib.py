@@ -249,6 +249,66 @@ def mutation_summary(path: Path) -> dict[str, Any]:
     return payload
 
 
+def verilator_coverage_summary(path: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": relpath(path),
+        "status": STATUS_MISSING,
+        "required": False,
+    }
+    if not path.exists():
+        return payload
+
+    report = load_json(path)
+    overall = report.get("categories", {}).get("overall", {})
+    line = report.get("categories", {}).get("line", {})
+    toggle = report.get("categories", {}).get("toggle", {})
+    expr = report.get("categories", {}).get("expr", {})
+    payload.update(
+        {
+            "status": STATUS_PASS if report.get("status") == STATUS_PASS else STATUS_FAIL,
+            "overall_percent": overall.get("percent"),
+            "line_percent": line.get("percent"),
+            "toggle_percent": toggle.get("percent"),
+            "expr_percent": expr.get("percent"),
+        }
+    )
+    return payload
+
+
+def equivalence_summary(target_dir: Path) -> dict[str, Any]:
+    target_dir = target_dir.resolve()
+    payload: dict[str, Any] = {
+        "path": relpath(target_dir),
+        "status": STATUS_MISSING,
+        "required": True,
+    }
+    if not target_dir.exists():
+        return payload
+
+    if (target_dir / "PASS").exists():
+        payload["status"] = STATUS_PASS
+    elif (target_dir / "FAIL").exists():
+        payload["status"] = STATUS_FAIL
+    else:
+        payload["status"] = STATUS_PARTIAL
+
+    log_text = read_first_existing([target_dir / "logfile.txt"])
+    if log_text:
+        payload["elapsed"] = format_elapsed(parse_elapsed_seconds(log_text))
+        if payload["status"] == STATUS_MISSING:
+            if "DONE (PASS" in log_text:
+                payload["status"] = STATUS_PASS
+            elif "DONE (FAIL" in log_text:
+                payload["status"] = STATUS_FAIL
+
+    summary_targets = target_dir / "summary_targets.list"
+    if summary_targets.exists():
+        targets = [line.strip() for line in summary_targets.read_text(encoding="utf-8").splitlines() if line.strip()]
+        payload["partitions"] = len(targets)
+
+    return payload
+
+
 def history_latest(path: Path) -> dict[str, Any] | None:
     if not path.exists():
         return None

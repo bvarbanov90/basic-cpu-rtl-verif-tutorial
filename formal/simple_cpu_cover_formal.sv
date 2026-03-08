@@ -1,4 +1,4 @@
-module simple_cpu_formal;
+module simple_cpu_cover_formal;
     reg rst_n = 1'b0;
     reg prog_we = 1'b0;
     reg [3:0] prog_addr = 4'h0;
@@ -36,7 +36,6 @@ module simple_cpu_formal;
         .dbg_halted(dbg_halted)
     );
 
-    // Drive reset for two cycles, then leave programming/debug inputs unconstrained.
     always @(posedge $global_clock) begin
         past_valid <= 1'b1;
 
@@ -61,24 +60,6 @@ module simple_cpu_formal;
     end
 
     always @(posedge $global_clock) begin
-        if (past_valid && $past(rst_n)) begin
-            if ($past(dbg_halted)) begin
-                assert(dbg_halted);
-                assert(dbg_pc == $past(dbg_pc));
-            end
-
-            if ($past(prog_we) && !$past(dbg_halted)) begin
-                assert(dbg_pc == $past(dbg_pc));
-                assert(dbg_acc == $past(dbg_acc));
-            end
-        end
-    end
-
-    always @(posedge $global_clock) begin
-        cover(past_valid && dbg_halted);
-        cover(past_valid && dbg_carry);
-        cover(past_valid && dbg_overflow);
-        cover(past_valid && dbg_neg);
         cover(past_valid && saw_prog_write && saw_execute && dbg_halted);
     end
 endmodule

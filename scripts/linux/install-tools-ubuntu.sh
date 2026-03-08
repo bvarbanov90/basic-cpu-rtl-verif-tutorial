@@ -13,6 +13,7 @@ fi
 
 ${SUDO} apt-get update
 ${SUDO} apt-get install -y \
+    g++ \
     iverilog \
     verilator \
     gtkwave \
@@ -34,4 +35,5 @@ if ! command -v sby >/dev/null 2>&1; then
 fi
 
 echo "Installed tools for Ubuntu/WSL:"
-echo "  iverilog, vvp, verilator, gtkwave, yosys, cvc5, z3, sby"
+echo "  g++, iverilog, vvp, verilator, gtkwave, yosys, cvc5, z3, sby"
+echo "  eqy is resolved by scripts/run-equiv.sh via system PATH or Linux OSS CAD Suite."

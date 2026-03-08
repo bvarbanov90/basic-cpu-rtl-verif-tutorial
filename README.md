@@ -18,14 +18,16 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 
 1. Icarus Verilog (`iverilog` + `vvp`)
 2. GTKWave (optional waveform viewer)
-3. Verilator (optional lint)
+3. Verilator (lint plus cocotb cross-simulator regression)
+4. SymbiYosys (`sby`) for bounded proofs and witness traces
+5. EQY for RTL equivalence checks against a golden snapshot
 
 ## Optional tooling (advanced step)
 
 1. Python + cocotb + pyuvm
-2. GNU Make (or WSL Ubuntu for the pyuvm flow)
+2. GNU Make (or WSL Ubuntu for Python simulator flows)
 
-Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1` falls back to WSL automatically if native `make` is not installed.
+Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1` and `.\scripts\run-cocotb-verilator.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
 
 ## Project layout
 
@@ -39,9 +41,16 @@ basic-cpu-rlt--verif-tutorial/
 |     |- ci.yml
 |- formal/
 |  |- simple_cpu.sby
+|  |- simple_cpu_cover.sby
 |  |- simple_cpu_formal.sv
 |  |- simple_cpu_mmio.sby
+|  |- simple_cpu_mmio_cover.sby
 |  |- simple_cpu_mmio_formal.sv
+|  |- simple_cpu_cover_formal.sv
+|  |- simple_cpu_mmio_cover_formal.sv
+|- equiv/
+|  |- simple_cpu.eqy
+|  |- simple_cpu_golden.sv
 |- programs/
 |  |- branch_taken.asm
 |  |- counter_loop.asm
@@ -64,6 +73,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run_mutation_campaign.py
 |  |- show_formal_status.py
 |  |- status_lib.py
+|  |- verilator_coverage_report.py
 |  |- windows/
 |  |  |- install-tools.ps1
 |  |  |- run.ps1
@@ -72,6 +82,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
+|  |  |- run-cocotb-verilator.ps1
+|  |  |- run-equiv.ps1
 |  |  |- check-all.ps1
 |  |  |- lint.ps1
 |  |  |- run-formal.ps1
@@ -79,6 +91,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.ps1
 |  |  |- open-waves.cmd
 |  |  |- show-coverage.ps1
+|  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
 |  |- linux/
 |  |  |- install-tools-ubuntu.sh
@@ -88,12 +101,15 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
+|  |  |- run-cocotb-verilator.sh
+|  |  |- run-equiv.sh
 |  |  |- check-all.sh
 |  |  |- lint.sh
 |  |  |- run-formal.sh
 |  |  |- export-status.sh
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
+|  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
@@ -102,7 +118,10 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
+|  |- run-cocotb-verilator.ps1 / run-cocotb-verilator.sh (wrappers)
+|  |- run-equiv.ps1 / run-equiv.sh (wrappers)
 |  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
+|  |- update-equivalence-golden.ps1 / update-equivalence-golden.sh (wrappers)
 |  |- update-coverage-baseline.ps1 / update-coverage-baseline.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
@@ -204,10 +223,28 @@ To replay the tracked assembler corpus through the MMIO wrapper:
 .\scripts\run-asm-corpus.ps1 -Runner mmio
 ```
 
+To run the cocotb regression on Verilator and collect structural coverage:
+
+```powershell
+.\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage
+```
+
+To summarize the Verilator coverage report:
+
+```powershell
+.\scripts\show-verilator-coverage.ps1
+```
+
 To summarize the formal targets:
 
 ```powershell
 .\scripts\show-formal-status.ps1
+```
+
+To run the RTL equivalence check against the tracked golden snapshot:
+
+```powershell
+.\scripts\run-equiv.ps1
 ```
 
 To export a repo-tracked status snapshot:
@@ -261,6 +298,12 @@ Run formal:
 bash scripts/run-formal.sh
 ```
 
+Run formal proof plus cover-witness targets:
+
+```bash
+bash scripts/run-formal.sh --mode all
+```
+
 Run minimal pyuvm tests:
 
 ```bash
@@ -277,6 +320,24 @@ Run the MMIO wrapper regression:
 
 ```bash
 bash scripts/run-mmio.sh --no-waves
+```
+
+Run the cocotb regression on Verilator and collect structural coverage:
+
+```bash
+bash scripts/run-cocotb-verilator.sh --no-waves --coverage
+```
+
+Show the Verilator coverage summary:
+
+```bash
+bash scripts/show-verilator-coverage.sh
+```
+
+Run the RTL equivalence check:
+
+```bash
+bash scripts/run-equiv.sh
 ```
 
 Show the wrapper coverage report:
@@ -301,10 +362,12 @@ Notes:
 
 1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`, then `boolector`.
 2. `.\scripts\run-formal.ps1` follows the same rule and accepts `-Solver cvc5`, `-Solver z3`, or `-Solver boolector`.
-3. Open waves in WSLg with: `bash scripts/open-waves.sh`.
-4. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
-5. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
-6. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
+3. `scripts/run-cocotb-verilator.sh` auto-installs and uses a Linux OSS CAD Suite Verilator under `~/tools/oss-cad-suite/oss-cad-suite` when the distro package is older than the cocotb minimum.
+4. `.\scripts\run-equiv.ps1` routes the EQY flow through WSL for stability; the native Windows `eqy.exe` shipped in some OSS CAD Suite builds is unreliable.
+5. Open waves in WSLg with: `bash scripts/open-waves.sh`.
+6. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
+7. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
+8. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
 
 If you saw `libcairo-2.dll` or GTK `libpixbufloader-svg.dll` errors before, these launcher scripts apply a compatibility workaround automatically.
 
@@ -333,16 +396,27 @@ Override the solver on Windows if needed:
 .\scripts\run-formal.ps1 -Solver cvc5
 ```
 
+Run both proof and cover-witness targets:
+
+```powershell
+.\scripts\run-formal.ps1 -Mode all
+```
+
 Show the target-level formal summary:
 
 ```powershell
 .\scripts\show-formal-status.ps1
 ```
 
-The formal flow now runs both:
+The formal proof flow now runs:
 
 1. `formal/simple_cpu.sby`
 2. `formal/simple_cpu_mmio.sby`
+
+The formal cover flow runs:
+
+1. `formal/simple_cpu_cover.sby`
+2. `formal/simple_cpu_mmio_cover.sby`
 
 Current formal properties cover:
 
@@ -353,6 +427,8 @@ Current formal properties cover:
 5. representative shadow-image update/stability rules during hold, load, and run phases.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
+
+The cover targets use dedicated witness harnesses so `sby cover` produces fast, readable example traces instead of spending time trying to satisfy every proof-harness cover statement in one run.
 
 ## Full project sanity check
 
@@ -384,10 +460,12 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 
 1. `native-sim`: `bash scripts/check-native.sh` plus MMIO corpus replay
 2. `lint`: `bash scripts/lint.sh`
-3. `formal`: `bash scripts/run-formal.sh`
-4. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`
-5. `mutations`: `bash scripts/run-mutations.sh`
-6. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
+3. `formal`: `bash scripts/run-formal.sh --mode all`
+4. `cocotb-verilator`: `bash scripts/run-cocotb-verilator.sh --no-waves --coverage`
+5. `equivalence`: `bash scripts/run-equiv.sh`
+6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`
+7. `mutations`: `bash scripts/run-mutations.sh`
+8. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
 
 Uploaded artifacts include:
 
@@ -397,8 +475,13 @@ Uploaded artifacts include:
 4. `sim_build/mmio_coverage.csv`
 5. `sim_build/pyuvm_coverage.json`
 6. `sim_build/uvm_results.xml`
-7. `sim_build/asm_corpus/`
-8. `sim_build/mutations/`
+7. `sim_build/verilator_results.xml`
+8. `sim_build/verilator_coverage/`
+9. `sim_build/asm_corpus/`
+10. `sim_build/mutations/`
+11. `formal/simple_cpu_cover/`
+12. `formal/simple_cpu_mmio_cover/`
+13. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -441,6 +524,35 @@ The cocotb layer now also includes an assembler-corpus regression in `tb/test_si
 1. sequence-item driven smoke/random/branch tests,
 2. deterministic corner-case sequences for `ADD/SUB/SHL/CMP` coverage closure,
 3. a subscriber-based coverage collector that writes `sim_build/pyuvm_coverage.json`.
+
+The same cocotb tests can now run on Verilator:
+
+```powershell
+.\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage
+```
+
+```bash
+bash scripts/run-cocotb-verilator.sh --no-waves --coverage
+```
+
+Generated Verilator artifacts:
+
+1. `sim_build/verilator_results.xml`
+2. `sim_build/verilator_coverage/merged.dat`
+3. `sim_build/verilator_coverage/*.info`
+4. `sim_build/verilator_coverage/annotated/`
+5. `sim_build/verilator_coverage/summary.json`
+6. `sim_build/verilator_coverage/summary.md`
+
+Quick summary commands:
+
+```powershell
+.\scripts\show-verilator-coverage.ps1
+```
+
+```bash
+bash scripts/show-verilator-coverage.sh
+```
 
 ## MMIO wrapper flow
 
@@ -695,14 +807,22 @@ Generated status files:
 
 The badge JSON files are compatible with shields.io endpoint badges when served from GitHub raw or GitHub Pages.
 
+The status export now includes:
+
+1. proof plus cover formal targets,
+2. the EQY equivalence workdir status,
+3. the optional Verilator coverage summary.
+
 ## Known benign warnings
 
 1. Icarus can print `constant selects in always_* processes are not fully supported`.
 2. SymbiYosys/Yosys can print warnings around `$global_clock` in the formal harness.
 3. Yosys can print memory lowering notes (`Replacing memory ... with list of registers`).
 4. The MMIO formal target uses an abstract core stub so the portable `cvc5` flow stays fast enough for CI without weakening the wrapper-level properties.
-5. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
-6. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
+5. Verilator structural coverage can report a lower overall percentage than the functional coverage gate because it measures line/toggle/expression activity, not intent-level bins.
+6. The Windows equivalence wrapper intentionally prefers WSL because some OSS CAD Suite `eqy.exe` builds are unstable.
+7. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
+8. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
 
 These warnings are expected for this toolchain/tutorial and are non-fatal when all checks pass.
 
@@ -710,7 +830,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 1. Publish `docs/status/badges/*.json` via GitHub Pages or raw endpoints and wire them into the README.
 2. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
-3. Auto-generate larger mutation sets from operator/control-flow templates instead of hand-authored snippet replacements.
+3. Add Verible or svlint as an additional open-source static-analysis lane.
 4. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.
 
 ## Publish To GitHub

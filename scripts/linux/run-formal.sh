@@ -12,11 +12,12 @@ fi
 
 usage() {
     cat <<'EOF'
-Usage: bash scripts/run-formal.sh [--solver <cvc5|z3|boolector|...>]
+Usage: bash scripts/run-formal.sh [--solver <cvc5|z3|boolector|...>] [--mode <prove|cover|all>]
 EOF
 }
 
 SOLVER=""
+MODE="prove"
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --solver)
@@ -25,6 +26,14 @@ while [[ $# -gt 0 ]]; do
                 exit 2
             fi
             SOLVER="$2"
+            shift 2
+            ;;
+        --mode)
+            if [[ $# -lt 2 ]]; then
+                usage
+                exit 2
+            fi
+            MODE="$2"
             shift 2
             ;;
         -h|--help)
@@ -38,6 +47,15 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+case "${MODE}" in
+    prove|cover|all)
+        ;;
+    *)
+        echo "Unsupported mode '${MODE}'. Use prove, cover, or all." >&2
+        exit 2
+        ;;
+esac
 
 if [[ -z "${SOLVER}" ]]; then
     # cvc5 is the most reliable default across Ubuntu/WSL setups for this tutorial.
@@ -58,20 +76,37 @@ if ! command -v "${SOLVER}" >/dev/null 2>&1; then
     exit 1
 fi
 
-TMP_SBY="formal/simple_cpu.${SOLVER}.tmp.sby"
-TMP_SBY_MMIO="formal/simple_cpu_mmio.${SOLVER}.tmp.sby"
-trap 'rm -f "${TMP_SBY}" "${TMP_SBY_MMIO}"' EXIT
+TEMP_FILES=()
+cleanup() {
+    if [[ "${#TEMP_FILES[@]}" -gt 0 ]]; then
+        rm -f "${TEMP_FILES[@]}"
+    fi
+}
+trap cleanup EXIT
 
 run_sby() {
     local source_sby="$1"
     local output_dir="$2"
-    local tmp_sby="$3"
+    local base_name
+    local tmp_sby
+
+    base_name="$(basename "${source_sby%.sby}")"
+    tmp_sby="formal/${base_name}.${SOLVER}.tmp.sby"
+    TEMP_FILES+=("${tmp_sby}")
 
     sed "s/^smtbmc z3$/smtbmc ${SOLVER}/" "${source_sby}" > "${tmp_sby}"
+    rm -rf "${output_dir}"
     sby -f -d "${output_dir}" "${tmp_sby}"
 }
 
-run_sby formal/simple_cpu.sby formal/simple_cpu "${TMP_SBY}"
-run_sby formal/simple_cpu_mmio.sby formal/simple_cpu_mmio "${TMP_SBY_MMIO}"
+if [[ "${MODE}" == "prove" || "${MODE}" == "all" ]]; then
+    run_sby formal/simple_cpu.sby formal/simple_cpu
+    run_sby formal/simple_cpu_mmio.sby formal/simple_cpu_mmio
+fi
 
-echo "Formal run complete with solver '${SOLVER}'. Artifacts are in formal/simple_cpu/ and formal/simple_cpu_mmio/"
+if [[ "${MODE}" == "cover" || "${MODE}" == "all" ]]; then
+    run_sby formal/simple_cpu_cover.sby formal/simple_cpu_cover
+    run_sby formal/simple_cpu_mmio_cover.sby formal/simple_cpu_mmio_cover
+fi
+
+echo "Formal run complete with solver '${SOLVER}' in mode '${MODE}'."

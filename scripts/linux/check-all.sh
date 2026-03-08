@@ -3,6 +3,9 @@ set -euo pipefail
 
 bash scripts/check-native.sh
 bash scripts/lint.sh
-bash scripts/run-formal.sh
+bash scripts/run-cocotb-verilator.sh --no-waves --coverage
+bash scripts/show-verilator-coverage.sh
+bash scripts/run-formal.sh --mode all
+bash scripts/run-equiv.sh
 
 echo "All checks passed."

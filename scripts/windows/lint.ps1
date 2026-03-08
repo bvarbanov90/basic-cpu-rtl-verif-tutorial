@@ -29,4 +29,4 @@ if (-not (Get-Command verilator -ErrorAction SilentlyContinue)) {
     throw "verilator is required for linting."
 }
 
-verilator --lint-only -Wall rtl/simple_cpu.sv
+verilator --lint-only -Wall rtl/simple_cpu.sv rtl/simple_cpu_mmio.sv

@@ -9,5 +9,7 @@ results.xml
 *.vcd
 *.fst
 *.log
+coverage.dat
 formal/simple_cpu*/
 formal/*.tmp.sby
+equiv/*_eqy/
