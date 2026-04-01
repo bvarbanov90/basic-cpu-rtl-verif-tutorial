@@ -14,23 +14,23 @@ module simple_cpu (
     output logic       dbg_overflow,
     output logic       dbg_halted
 );
-    (* anyconst *) logic [7:0] any_dbg_mem_seed;
-    (* anyconst *) logic [7:0] any_dbg_acc;
-    (* anyconst *) logic [3:0] any_dbg_pc;
-    (* anyconst *) logic       any_dbg_zero;
-    (* anyconst *) logic       any_dbg_carry;
-    (* anyconst *) logic       any_dbg_neg;
-    (* anyconst *) logic       any_dbg_overflow;
-    (* anyconst *) logic       any_dbg_halted;
+  (* anyconst *)logic [7:0] any_dbg_mem_seed;
+  (* anyconst *)logic [7:0] any_dbg_acc;
+  (* anyconst *)logic [3:0] any_dbg_pc;
+  (* anyconst *)logic       any_dbg_zero;
+  (* anyconst *)logic       any_dbg_carry;
+  (* anyconst *)logic       any_dbg_neg;
+  (* anyconst *)logic       any_dbg_overflow;
+  (* anyconst *)logic       any_dbg_halted;
 
-    always_comb begin
-        dbg_mem_data = any_dbg_mem_seed ^ {4'h0, dbg_mem_addr};
-        dbg_acc = any_dbg_acc;
-        dbg_pc = any_dbg_pc;
-        dbg_zero = any_dbg_zero;
-        dbg_carry = any_dbg_carry;
-        dbg_neg = any_dbg_neg;
-        dbg_overflow = any_dbg_overflow;
-        dbg_halted = any_dbg_halted;
-    end
+  always_comb begin
+    dbg_mem_data = any_dbg_mem_seed ^ {4'h0, dbg_mem_addr};
+    dbg_acc = any_dbg_acc;
+    dbg_pc = any_dbg_pc;
+    dbg_zero = any_dbg_zero;
+    dbg_carry = any_dbg_carry;
+    dbg_neg = any_dbg_neg;
+    dbg_overflow = any_dbg_overflow;
+    dbg_halted = any_dbg_halted;
+  end
 endmodule

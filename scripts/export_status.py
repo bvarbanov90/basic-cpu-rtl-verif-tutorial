@@ -18,6 +18,7 @@ from status_lib import (
     relpath,
     run_git,
     summarize_formal,
+    static_analysis_summary,
     verilator_coverage_summary,
     write_json,
 )
@@ -42,6 +43,11 @@ def parse_args() -> argparse.Namespace:
         "--equivalence",
         default="equiv/simple_cpu_eqy",
         help="EQY work directory to inspect.",
+    )
+    parser.add_argument(
+        "--static-analysis",
+        default="sim_build/static_analysis/summary.json",
+        help="Static-analysis summary JSON path.",
     )
     parser.add_argument(
         "--history",
@@ -123,6 +129,13 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             partitions=payload.get("partitions", 0),
             elapsed=payload.get("elapsed", "-"),
         )
+    if name == "static_analysis":
+        if status == "MISSING":
+            return "artifact missing"
+        return "tools={passed}/{count}".format(
+            passed=payload.get("passed_tools", 0),
+            count=payload.get("tool_count", 0),
+        )
     if name == "formal":
         targets = payload.get("targets", [])
         if not targets:
@@ -168,6 +181,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("mmio_coverage", "mmio"),
         ("formal", "formal"),
         ("equivalence", "equivalence"),
+        ("static_analysis", "static_analysis"),
         ("pyuvm_coverage", "pyuvm"),
         ("verilator_coverage", "verilator"),
         ("mutations", "mutations"),
@@ -289,6 +303,16 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["equivalence"]["status"],
             status["equivalence"]["status"],
         ),
+        "static-analysis": (
+            "static analysis",
+            "{passed}/{count} PASS".format(
+                passed=status["static_analysis"].get("passed_tools", 0),
+                count=status["static_analysis"].get("tool_count", 0),
+            )
+            if status["static_analysis"]["status"] == STATUS_PASS
+            else status["static_analysis"]["status"],
+            status["static_analysis"]["status"],
+        ),
         "mutations": (
             "mutations",
             "{killed}/{total} killed".format(
@@ -346,6 +370,7 @@ def main() -> int:
     formal = summarize_formal([Path(target).resolve() for target in formal_targets])
     formal["required"] = True
     equivalence = equivalence_summary(Path(args.equivalence).resolve())
+    static_analysis = static_analysis_summary(Path(args.static_analysis).resolve())
     verilator_coverage = verilator_coverage_summary(Path(args.verilator_coverage).resolve())
     mutations = mutation_summary(Path(args.mutations).resolve())
 
@@ -365,6 +390,7 @@ def main() -> int:
         "verilator_coverage": verilator_coverage,
         "formal": formal,
         "equivalence": equivalence,
+        "static_analysis": static_analysis,
         "mutations": mutations,
     }
 

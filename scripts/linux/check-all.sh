@@ -3,6 +3,7 @@ set -euo pipefail
 
 bash scripts/check-native.sh
 bash scripts/lint.sh
+bash scripts/show-static-analysis.sh
 bash scripts/run-cocotb-verilator.sh --no-waves --coverage
 bash scripts/show-verilator-coverage.sh
 bash scripts/run-formal.sh --mode all

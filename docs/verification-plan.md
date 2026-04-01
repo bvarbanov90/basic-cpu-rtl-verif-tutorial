@@ -9,45 +9,47 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (March 8, 2026)
+## Current status (April 1, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
-3. `.\scripts\run-formal.ps1`: PASS (auto-selected `cvc5`)
-4. `.\scripts\run-formal.ps1 -Mode cover`: PASS
-5. `.\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage`: PASS (falls back to WSL, auto-uses Linux OSS CAD Suite Verilator 5.047)
-6. `.\scripts\show-verilator-coverage.ps1`: PASS
-7. `.\scripts\run-equiv.ps1`: PASS (routes through WSL EQY)
-8. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
-9. `.\scripts\show-mmio-coverage.ps1`: PASS
-10. `.\scripts\record-coverage-history.ps1`: PASS
-11. `.\scripts\show-coverage-trend.ps1`: PASS
-12. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-13. `.\scripts\check-coverage-delta.ps1`: PASS
-14. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
-15. `.\scripts\check-native.ps1`: PASS
-16. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
-17. `.\scripts\run-mutations.ps1`: PASS
-18. `.\scripts\show-mutations.ps1`: PASS
-19. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-20. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
-21. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
-22. `bash scripts/check-native.sh`: PASS
-23. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-24. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
-25. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
-26. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
-27. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
-28. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
-29. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
-30. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
-31. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
-32. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
-33. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
-34. `.\scripts\show-formal-status.ps1`: PASS
-35. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
-36. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
-37. `bash scripts/export-status.sh --label tutorial-regression` (WSL Ubuntu): PASS
+3. `.\scripts\show-static-analysis.ps1`: PASS
+4. `.\scripts\run-formal.ps1`: PASS (auto-selected `cvc5`)
+5. `.\scripts\run-formal.ps1 -Mode cover`: PASS
+6. `.\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage`: PASS (falls back to WSL, auto-uses Linux OSS CAD Suite Verilator 5.047)
+7. `.\scripts\show-verilator-coverage.ps1`: PASS
+8. `.\scripts\run-equiv.ps1`: PASS (routes through WSL EQY)
+9. `.\scripts\show-coverage.ps1`: PASS (`opcode_hit_bitmap=111111111111111`)
+10. `.\scripts\show-mmio-coverage.ps1`: PASS
+11. `.\scripts\record-coverage-history.ps1`: PASS
+12. `.\scripts\show-coverage-trend.ps1`: PASS
+13. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+14. `.\scripts\check-coverage-delta.ps1`: PASS
+15. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
+16. `.\scripts\check-native.ps1`: PASS
+17. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
+18. `.\scripts\run-mutations.ps1`: PASS
+19. `.\scripts\show-mutations.ps1`: PASS
+20. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+21. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
+22. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
+23. `bash scripts/check-native.sh`: PASS
+24. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+25. `bash scripts/show-static-analysis.sh` (WSL Ubuntu): PASS
+26. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
+27. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
+28. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
+29. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+30. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
+31. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
+32. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
+33. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
+34. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
+35. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
+36. `.\scripts\show-formal-status.ps1`: PASS
+37. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
+38. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
+39. `bash scripts/export-status.sh --label tutorial-regression` (WSL Ubuntu): PASS
 
 ## Test strategy
 
@@ -63,7 +65,8 @@
 10. Simulator cross-checking with the same cocotb tests on Verilator.
 11. Formal cover witness generation for tutorial-quality traces.
 12. EQY equivalence checks for refactor-safe RTL cleanup.
-13. CI workflow on GitHub Actions for automated regression on push/PR.
+13. Multi-tool static analysis with Verilator, Verible lint/format, and svlint.
+14. CI workflow on GitHub Actions for automated regression on push/PR.
 
 ## Current tests
 
@@ -85,8 +88,10 @@
 | `test_mmio_reprogram_sequence` | `tb/simple_cpu_mmio_tb.sv` | Reset/reprogram/run sequencing plus shift carry/overflow status checking. |
 | `test_mmio_illegal_opcode` | `tb/simple_cpu_mmio_tb.sv` | MMIO replay of illegal-opcode handling and safe halt behavior. |
 | `test_mmio_jump_sub_cmp_sequence` | `tb/simple_cpu_mmio_tb.sv` | Wrapper-level `SUB/CMP/JMP` replay that closes the MMIO mutation gap for ALU/control flow. |
+| `test_mmio_shadow_fault_injection` | `tb/simple_cpu_mmio_tb.sv` | Writes a modified shadow image while the wrapper is already running, then proves the current run stays on the original program and only the next reload observes the injected change. |
 | `test_external_program` | `tb/simple_cpu_mmio_tb.sv` | Optional `.hex` replay through the MMIO wrapper against the reference model. |
 | `report_and_check_mmio_coverage` | `tb/simple_cpu_mmio_tb.sv` | Wrapper protocol/transaction coverage thresholds and artifact emission. |
+| `simple_cpu_mmio_assertions` | `tb/simple_cpu_mmio_assertions.sv` | Assertion-based checker for `bus_ready`, control-state encoding, and loader/reset signal alignment. |
 | `directed_arithmetic_and_branch` | `tb/test_simple_cpu.py` | Optional cocotb directed test mirroring simulator-native checks. |
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
 | `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
@@ -100,6 +105,7 @@
 | `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants and confirms the regressions kill them. |
 | `run-formal --mode cover` | `scripts/run-formal.*` + `formal/*cover*` | Generates witness traces for representative core/MMIO reachable scenarios. |
 | `run-equiv` | `scripts/run-equiv.*` + `equiv/simple_cpu.eqy` | Proves the current core matches the tracked golden RTL snapshot. |
+| `lint` / `show-static-analysis` | `scripts/static_analysis.py` + wrappers | Aggregates Verilator, Verible lint, Verible format verification, and svlint into repo-friendly logs plus JSON/Markdown summaries. |
 
 ## Coverage model (simple functional coverage)
 
@@ -127,7 +133,8 @@ Coverage artifacts:
 10. `sim_build/mmio_coverage.json` / `sim_build/mmio_coverage.csv` (wrapper transaction coverage)
 11. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
 12. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
-13. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
+13. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
+14. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
 
 Additional outputs:
 
@@ -141,7 +148,7 @@ Implementation note:
 4. The Python `CoverageModel` mirrors the native SV coverage pass/fail conditions, including reachability checks for impossible bins.
 5. `rtl/simple_cpu_mmio.sv` adds a tiny wrapper state machine that loads a shadow program image into the core over the existing programming interface before releasing execution.
 6. The assembler corpus can replay through either the direct core testbench or the MMIO wrapper testbench.
-7. `tb/simple_cpu_mmio_tb.sv` now includes protocol assertions (`bus_ready` always high during requests) plus sampled transaction/state coverage.
+7. `tb/simple_cpu_mmio_assertions.sv` adds reusable interface assertions around `bus_ready`, control readback, and loader/reset signal alignment.
 8. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the wrapper coverage report without opening JSON manually.
 9. `scripts/coverage_history.py` plus wrapper commands track coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
 10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs.
@@ -151,7 +158,9 @@ Implementation note:
 14. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
 15. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
 16. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
-17. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
+17. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
+18. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
+19. Verible intentionally excludes `rtl/simple_cpu_mmio.sv` because the current release used here does not parse that module's `FORMAL`-guarded extra port list cleanly; that file remains covered by Verilator lint and svlint.
 
 Formal properties currently checked:
 
@@ -173,11 +182,12 @@ Known toolchain notes (non-fatal when runs pass):
 5. `scripts/run-cocotb-verilator.sh` may download Linux OSS CAD Suite into `~/tools/oss-cad-suite/oss-cad-suite` when the system Verilator is older than the cocotb minimum.
 6. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
 7. WSL formal runs from `/mnt/c/...` can be much slower than GitHub Actions or native Linux because of mounted-filesystem I/O overhead.
+8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`; that file is still covered by Verilator lint and svlint.
 
 ## Remaining exercises
 
 1. Publish `docs/status/badges/*.json` through GitHub Pages or another static endpoint and wire them into the README.
 2. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
-3. Add a second static-analysis lane with Verible or svlint.
+3. Extend the static-analysis lane to additional hand-written SV files or future interfaces as the project grows.
 4. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
 5. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.

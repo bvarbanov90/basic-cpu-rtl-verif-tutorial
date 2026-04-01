@@ -5,6 +5,7 @@ param(
     [string]$Mutations = "sim_build/mutations/mutation_summary.json",
     [string]$VerilatorCoverage = "sim_build/verilator_coverage/summary.json",
     [string]$Equivalence = "equiv/simple_cpu_eqy",
+    [string]$StaticAnalysis = "sim_build/static_analysis/summary.json",
     [string]$History = "docs/coverage-history.json",
     [string[]]$FormalTargets = @(
         "formal/simple_cpu",
@@ -45,6 +46,7 @@ $args += @(
     "--mutations", $Mutations,
     "--verilator-coverage", $VerilatorCoverage,
     "--equivalence", $Equivalence,
+    "--static-analysis", $StaticAnalysis,
     "--history", $History,
     "--status-json", $StatusJson,
     "--status-markdown", $StatusMarkdown,

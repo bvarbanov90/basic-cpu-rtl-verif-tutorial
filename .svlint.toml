@@ -1,0 +1,20 @@
+[option]
+exclude_paths = []
+textwidth = 100
+indent = 4
+
+[textrules]
+header_copyright = false
+style_directives = false
+style_semicolon = false
+style_textwidth = false
+
+[syntaxrules]
+blocking_assignment_in_always_ff = true
+case_default = true
+function_with_automatic = true
+keyword_forbidden_always = true
+keyword_forbidden_wire_reg = true
+localparam_explicit_type = true
+non_blocking_assignment_in_always_comb = true
+parameter_explicit_type = true

@@ -10,6 +10,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\show-static-analysis.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\run-cocotb-verilator.ps1 -NoWaves -Coverage
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE

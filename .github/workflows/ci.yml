@@ -49,6 +49,13 @@ jobs:
       - name: Run lint
         run: bash scripts/lint.sh
 
+      - name: Upload lint artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-artifacts
+          path: |
+            sim_build/static_analysis
+
   formal:
     runs-on: ubuntu-latest
 

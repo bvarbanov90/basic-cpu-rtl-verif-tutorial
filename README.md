@@ -13,6 +13,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 7. Optional cocotb/pyuvm Python verification extensions.
 8. A mutation campaign that proves the regressions kill representative RTL bugs.
 9. A repo-tracked verification status export with Markdown, JSON, and badge-ready endpoints.
+10. A multi-tool static-analysis lane with Verilator, Verible lint/format, and svlint.
 
 ## Core tooling (all open source)
 
@@ -21,6 +22,8 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 3. Verilator (lint plus cocotb cross-simulator regression)
 4. SymbiYosys (`sby`) for bounded proofs and witness traces
 5. EQY for RTL equivalence checks against a golden snapshot
+6. Verible for SystemVerilog lint and formatting
+7. svlint as a second open-source RTL checker
 
 ## Optional tooling (advanced step)
 
@@ -39,6 +42,8 @@ basic-cpu-rlt--verif-tutorial/
 |- .github/
 |  |- workflows/
 |     |- ci.yml
+|- .rules.verible_lint
+|- .svlint.toml
 |- formal/
 |  |- simple_cpu.sby
 |  |- simple_cpu_cover.sby
@@ -61,6 +66,7 @@ basic-cpu-rlt--verif-tutorial/
 |- tb/
 |  |- coverage_utils.py
 |  |- cpu_lib.py
+|  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_tb.sv
 |  |- simple_cpu_tb.sv
 |  |- test_simple_cpu.py
@@ -72,6 +78,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- export_status.py
 |  |- run_mutation_campaign.py
 |  |- show_formal_status.py
+|  |- static_analysis.py
 |  |- status_lib.py
 |  |- verilator_coverage_report.py
 |  |- windows/
@@ -85,6 +92,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-cocotb-verilator.ps1
 |  |  |- run-equiv.ps1
 |  |  |- check-all.ps1
+|  |  |- format-sv.ps1
 |  |  |- lint.ps1
 |  |  |- run-formal.ps1
 |  |  |- export-status.ps1
@@ -93,6 +101,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-coverage.ps1
 |  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
+|  |  |- show-static-analysis.ps1
 |  |- linux/
 |  |  |- install-tools-ubuntu.sh
 |  |  |- run.sh
@@ -104,6 +113,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-cocotb-verilator.sh
 |  |  |- run-equiv.sh
 |  |  |- check-all.sh
+|  |  |- format-sv.sh
 |  |  |- lint.sh
 |  |  |- run-formal.sh
 |  |  |- export-status.sh
@@ -111,6 +121,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-coverage.sh
 |  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
+|  |  |- show-static-analysis.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
 |  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
@@ -120,12 +131,14 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-cocotb-verilator.ps1 / run-cocotb-verilator.sh (wrappers)
 |  |- run-equiv.ps1 / run-equiv.sh (wrappers)
+|  |- format-sv.ps1 / format-sv.sh (wrappers)
 |  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
 |  |- update-equivalence-golden.ps1 / update-equivalence-golden.sh (wrappers)
 |  |- update-coverage-baseline.ps1 / update-coverage-baseline.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
 |  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
+|  |- show-static-analysis.ps1 / show-static-analysis.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
 |- docs/
 |  |- assembler-regressions.json
@@ -235,6 +248,12 @@ To summarize the Verilator coverage report:
 .\scripts\show-verilator-coverage.ps1
 ```
 
+To summarize the static-analysis lane:
+
+```powershell
+.\scripts\show-static-analysis.ps1
+```
+
 To summarize the formal targets:
 
 ```powershell
@@ -334,6 +353,12 @@ Show the Verilator coverage summary:
 bash scripts/show-verilator-coverage.sh
 ```
 
+Show the static-analysis summary:
+
+```bash
+bash scripts/show-static-analysis.sh
+```
+
 Run the RTL equivalence check:
 
 ```bash
@@ -363,11 +388,12 @@ Notes:
 1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`, then `boolector`.
 2. `.\scripts\run-formal.ps1` follows the same rule and accepts `-Solver cvc5`, `-Solver z3`, or `-Solver boolector`.
 3. `scripts/run-cocotb-verilator.sh` auto-installs and uses a Linux OSS CAD Suite Verilator under `~/tools/oss-cad-suite/oss-cad-suite` when the distro package is older than the cocotb minimum.
-4. `.\scripts\run-equiv.ps1` routes the EQY flow through WSL for stability; the native Windows `eqy.exe` shipped in some OSS CAD Suite builds is unreliable.
-5. Open waves in WSLg with: `bash scripts/open-waves.sh`.
-6. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
-7. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
-8. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
+4. `scripts/lint.sh` resolves Verible from `~/tools/verible` and svlint from `~/tools/svlint` when they are not already on `PATH`.
+5. `.\scripts\run-equiv.ps1` routes the EQY flow through WSL for stability; the native Windows `eqy.exe` shipped in some OSS CAD Suite builds is unreliable.
+6. Open waves in WSLg with: `bash scripts/open-waves.sh`.
+7. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
+8. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
+9. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
 
 If you saw `libcairo-2.dll` or GTK `libpixbufloader-svg.dll` errors before, these launcher scripts apply a compatibility workaround automatically.
 
@@ -381,6 +407,36 @@ Direct implementation paths (optional):
 ```powershell
 cd C:\Users\bvarb\vscode_ws\basic-cpu-rlt--verif-tutorial
 .\scripts\lint.ps1
+```
+
+This lane now runs:
+
+1. `verilator --lint-only` on the synthesizable RTL
+2. `verible-verilog-lint` on the hand-written SV sources
+3. `verible-verilog-format --verify` on the same tracked source set
+4. `svlint` on `rtl/simple_cpu.sv` and `rtl/simple_cpu_mmio.sv`
+
+Scope notes:
+
+1. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`. The current Verible release used here does not parse that module's `FORMAL`-guarded extra port list cleanly, so that file stays covered by Verilator lint and svlint instead.
+2. `svlint` intentionally stays scoped to synthesizable RTL instead of benches/formal harnesses.
+
+Outputs:
+
+1. `sim_build/static_analysis/summary.json`
+2. `sim_build/static_analysis/summary.md`
+3. `sim_build/static_analysis/*.log`
+
+Readable summary command:
+
+```powershell
+.\scripts\show-static-analysis.ps1
+```
+
+Reformat the tracked SystemVerilog sources in place:
+
+```powershell
+.\scripts\format-sv.ps1
 ```
 
 ## Formal checks
@@ -473,15 +529,16 @@ Uploaded artifacts include:
 2. `sim_build/coverage.csv`
 3. `sim_build/mmio_coverage.json`
 4. `sim_build/mmio_coverage.csv`
-5. `sim_build/pyuvm_coverage.json`
-6. `sim_build/uvm_results.xml`
-7. `sim_build/verilator_results.xml`
-8. `sim_build/verilator_coverage/`
-9. `sim_build/asm_corpus/`
-10. `sim_build/mutations/`
-11. `formal/simple_cpu_cover/`
-12. `formal/simple_cpu_mmio_cover/`
-13. `equiv/simple_cpu_eqy/`
+5. `sim_build/static_analysis/`
+6. `sim_build/pyuvm_coverage.json`
+7. `sim_build/uvm_results.xml`
+8. `sim_build/verilator_results.xml`
+9. `sim_build/verilator_coverage/`
+10. `sim_build/asm_corpus/`
+11. `sim_build/mutations/`
+12. `formal/simple_cpu_cover/`
+13. `formal/simple_cpu_mmio_cover/`
+14. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -578,8 +635,10 @@ The native wrapper testbench in `tb/simple_cpu_mmio_tb.sv` checks:
 1. MMIO programming and instruction-shadow readback
 2. reset/reprogram/run sequencing
 3. a focused `SUB/CMP/JMP` sequence to close the wrapper mutation gap
-4. status/data readback against the same reference-model semantics
-5. external `.hex` program replay, so the tracked assembler corpus can run through the wrapper unchanged
+4. assertion-based protocol/loader readback checks via `tb/simple_cpu_mmio_assertions.sv`
+5. a shadow-image fault-injection test that proves run-time shadow writes do not perturb the in-flight program until the next explicit reload
+6. status/data readback against the same reference-model semantics
+7. external `.hex` program replay, so the tracked assembler corpus can run through the wrapper unchanged
 
 It also writes wrapper-specific coverage artifacts:
 
@@ -811,7 +870,8 @@ The status export now includes:
 
 1. proof plus cover formal targets,
 2. the EQY equivalence workdir status,
-3. the optional Verilator coverage summary.
+3. the optional Verilator coverage summary,
+4. the static-analysis summary from `sim_build/static_analysis/summary.json`.
 
 ## Known benign warnings
 
@@ -821,8 +881,10 @@ The status export now includes:
 4. The MMIO formal target uses an abstract core stub so the portable `cvc5` flow stays fast enough for CI without weakening the wrapper-level properties.
 5. Verilator structural coverage can report a lower overall percentage than the functional coverage gate because it measures line/toggle/expression activity, not intent-level bins.
 6. The Windows equivalence wrapper intentionally prefers WSL because some OSS CAD Suite `eqy.exe` builds are unstable.
-7. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
-8. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
+7. `svlint` is intentionally scoped to the synthesizable RTL so the secondary checker stays focused on real coding hazards instead of tutorial/testbench naming conventions.
+8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv` because the current release used in this tutorial does not parse that module's `FORMAL`-guarded extra port list cleanly.
+9. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
+10. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
 
 These warnings are expected for this toolchain/tutorial and are non-fatal when all checks pass.
 
@@ -830,8 +892,8 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 1. Publish `docs/status/badges/*.json` via GitHub Pages or raw endpoints and wire them into the README.
 2. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
-3. Add Verible or svlint as an additional open-source static-analysis lane.
-4. Add a bus-functional Python driver layer that can replay the assembler corpus over future wrappers or buses.
+3. Add bus-level wrappers beyond the current MMIO shell and replay the assembler corpus over them.
+4. Extend the assertion/fault-injection examples into the cocotb and pyuvm layers so the same robustness checks exist in both SV and Python benches.
 
 ## Publish To GitHub
 

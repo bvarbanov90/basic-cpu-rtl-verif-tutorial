@@ -48,6 +48,7 @@ $iverilogArgs += @(
     "-o", "sim_build/simple_cpu_mmio_tb.vvp",
     "rtl/simple_cpu.sv",
     "rtl/simple_cpu_mmio.sv",
+    "tb/simple_cpu_mmio_assertions.sv",
     "tb/simple_cpu_mmio_tb.sv"
 )
 

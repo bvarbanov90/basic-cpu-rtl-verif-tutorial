@@ -275,6 +275,29 @@ def verilator_coverage_summary(path: Path) -> dict[str, Any]:
     return payload
 
 
+def static_analysis_summary(path: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": relpath(path),
+        "status": STATUS_MISSING,
+        "required": False,
+    }
+    if not path.exists():
+        return payload
+
+    report = load_json(path)
+    tools = report.get("tools", [])
+    passed = sum(1 for tool in tools if tool.get("status") == STATUS_PASS)
+    payload.update(
+        {
+            "status": report.get("status", STATUS_MISSING),
+            "tool_count": len(tools),
+            "passed_tools": passed,
+            "tools": tools,
+        }
+    )
+    return payload
+
+
 def equivalence_summary(target_dir: Path) -> dict[str, Any]:
     target_dir = target_dir.resolve()
     payload: dict[str, Any] = {
