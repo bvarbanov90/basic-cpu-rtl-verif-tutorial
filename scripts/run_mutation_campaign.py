@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -200,7 +201,7 @@ BENCHES = (
     ),
     Bench(
         name="mmio_tb",
-        sources=("rtl/simple_cpu_mmio.sv", "tb/simple_cpu_mmio_tb.sv"),
+        sources=("rtl/simple_cpu_mmio.sv", "tb/simple_cpu_mmio_assertions.sv", "tb/simple_cpu_mmio_tb.sv"),
         binary_name="simple_cpu_mmio_tb.vvp",
     ),
 )
@@ -209,9 +210,17 @@ BENCHES = (
 def apply_mutation(base_text: str, mutation: Mutation) -> str:
     mutated = base_text
     for old, new in mutation.replacements:
-        if old not in mutated:
+        if old in mutated:
+            mutated = mutated.replace(old, new, 1)
+            continue
+
+        pattern = re.compile(
+            "".join(r"\s+" if part.isspace() else re.escape(part) for part in re.split(r"(\s+)", old)),
+            flags=re.MULTILINE,
+        )
+        mutated, replace_count = pattern.subn(lambda _: new, mutated, count=1)
+        if replace_count != 1:
             raise ValueError(f"Mutation '{mutation.name}' could not find expected snippet")
-        mutated = mutated.replace(old, new, 1)
     return mutated
 
 
