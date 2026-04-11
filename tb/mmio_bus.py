@@ -24,8 +24,9 @@ class MmioSnapshot:
 
 
 class SimpleCpuMmioBus:
-    def __init__(self, dut) -> None:
+    def __init__(self, dut, *, max_wait_cycles: int = 32) -> None:
         self.dut = dut
+        self.max_wait_cycles = int(max_wait_cycles)
 
     async def reset(self) -> None:
         self.dut.rst_n.value = 0
@@ -39,13 +40,21 @@ class SimpleCpuMmioBus:
         self.dut.rst_n.value = 1
         await Timer(1, unit="ns")
 
+    async def wait_ready(self, *, max_cycles: int | None = None) -> None:
+        wait_budget = self.max_wait_cycles if max_cycles is None else int(max_cycles)
+        for _ in range(wait_budget):
+            await Timer(1, unit="ns")
+            if int(self.dut.bus_ready.value) == 1:
+                return
+            await RisingEdge(self.dut.clk)
+        raise AssertionError(f"bus_ready did not assert within {wait_budget} cycles")
+
     async def write(self, addr: int, value: int) -> None:
         self.dut.bus_valid.value = 1
         self.dut.bus_write.value = 1
         self.dut.bus_addr.value = addr & 0xFF
         self.dut.bus_wdata.value = value & 0xFF
-        await Timer(1, unit="ns")
-        assert int(self.dut.bus_ready.value) == 1, "bus_ready must stay asserted"
+        await self.wait_ready()
         await RisingEdge(self.dut.clk)
         self.dut.bus_valid.value = 0
         self.dut.bus_write.value = 0
@@ -58,8 +67,7 @@ class SimpleCpuMmioBus:
         self.dut.bus_write.value = 0
         self.dut.bus_addr.value = addr & 0xFF
         self.dut.bus_wdata.value = 0
-        await Timer(1, unit="ns")
-        assert int(self.dut.bus_ready.value) == 1, "bus_ready must stay asserted"
+        await self.wait_ready()
         value = int(self.dut.bus_rdata.value)
         await RisingEdge(self.dut.clk)
         self.dut.bus_valid.value = 0

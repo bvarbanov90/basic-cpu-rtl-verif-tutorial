@@ -26,34 +26,38 @@
 13. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
 14. `.\scripts\run-mmio-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
 15. `.\scripts\run-cocotb-mmio.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-16. `.\scripts\check-coverage-delta.ps1`: PASS
-17. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
-18. `.\scripts\check-native.ps1`: PASS
-19. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
-20. `.\scripts\run-mutations.ps1`: PASS
-21. `.\scripts\show-mutations.ps1`: PASS
-22. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-23. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
-24. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
-25. `bash scripts/check-native.sh`: PASS
-26. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-27. `bash scripts/show-static-analysis.sh` (WSL Ubuntu): PASS
-28. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
-29. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
-30. `bash scripts/run-cocotb-mmio.sh --no-waves` (WSL Ubuntu): PASS
-31. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
-32. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
-33. `bash scripts/run-mmio-uvm.sh --no-waves` (WSL Ubuntu): PASS
-34. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
-35. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
-36. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
-37. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
-38. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
-39. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
-40. `.\scripts\show-formal-status.ps1`: PASS
-41. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
-42. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
-43. `bash scripts/export-status.sh --label tutorial-regression`: PASS
+16. `.\scripts\run-cocotb-mmio-wait.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+17. `.\scripts\run-mmio-wait-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+18. `.\scripts\check-coverage-delta.ps1`: PASS
+19. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
+20. `.\scripts\check-native.ps1`: PASS
+21. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
+22. `.\scripts\run-mutations.ps1`: PASS
+23. `.\scripts\show-mutations.ps1`: PASS
+24. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+25. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
+26. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
+27. `bash scripts/check-native.sh`: PASS
+28. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+29. `bash scripts/show-static-analysis.sh` (WSL Ubuntu): PASS
+30. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
+31. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
+32. `bash scripts/run-cocotb-mmio.sh --no-waves` (WSL Ubuntu): PASS
+33. `bash scripts/run-cocotb-mmio-wait.sh --no-waves` (WSL Ubuntu): PASS
+34. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
+35. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+36. `bash scripts/run-mmio-uvm.sh --no-waves` (WSL Ubuntu): PASS
+37. `bash scripts/run-mmio-wait-uvm.sh --no-waves` (WSL Ubuntu): PASS
+38. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
+39. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
+40. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
+41. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
+42. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
+43. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
+44. `.\scripts\show-formal-status.ps1`: PASS
+45. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
+46. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
+47. `bash scripts/export-status.sh --label tutorial-regression`: PASS
 
 ## Test strategy
 
@@ -106,11 +110,13 @@
 | `mmio_control_status_readback` | `tb/test_simple_cpu_mmio.py` | Reads `CONTROL`, `STATUS`, `ACC`, and DMEM through MMIO across `HOLD`, `LOAD`, `RUN`, and `HALT`. |
 | `run-cocotb-verilator` | `scripts/run-cocotb-verilator.*` | Runs the cocotb core regression on Verilator and emits structural coverage artifacts. |
 | `run-cocotb-mmio` | `scripts/run-cocotb-mmio.*` | Runs the dedicated MMIO cocotb regression on Icarus with bus-level programming/readback checks. |
+| `run-cocotb-mmio-wait` | `scripts/run-cocotb-mmio-wait.*` | Replays the same MMIO cocotb suite against the wait-state wrapper variant and proves the Python bus helper tolerates delayed `bus_ready`. |
 | `SimpleCpuMmioUvmSmokeTest` | `tb/test_simple_cpu_mmio_pyuvm.py` | Minimal pyuvm wrapper smoke/reference-model check over the MMIO shell. |
 | `SimpleCpuMmioUvmRandomizedTest` | `tb/test_simple_cpu_mmio_pyuvm.py` | Minimal pyuvm randomized wrapper replay against the same `ReferenceCPU`. |
 | `SimpleCpuMmioUvmControlStatusTest` | `tb/test_simple_cpu_mmio_pyuvm.py` | pyuvm wrapper sequence that explicitly observes `LOAD` then `RUN` through the MMIO control register. |
 | `SimpleCpuMmioUvmShadowFaultInjectionTest` | `tb/test_simple_cpu_mmio_pyuvm.py` | pyuvm direct-bus proof that shadow writes during `RUN` only affect the next reload. |
 | `run-mmio-uvm` | `scripts/run-mmio-uvm.*` | Runs the dedicated MMIO pyuvm regression on Icarus using the reusable Python MMIO bus helper. |
+| `run-mmio-wait-uvm` | `scripts/run-mmio-wait-uvm.*` | Runs the same MMIO pyuvm suite against the wait-state wrapper variant with delayed handshakes. |
 | `SimpleCpuUvmSmokeTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm (UVM-style) sequence/driver/subscriber smoke check. |
 | `SimpleCpuUvmRandomizedTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm randomized program check against reference model. |
 | `SimpleCpuUvmBranchStressTest` | `tb/test_simple_cpu_pyuvm.py` | Minimal pyuvm branch-stress program check against reference model. |
@@ -151,8 +157,10 @@ Coverage artifacts:
 13. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
 14. `sim_build/mmio_cocotb_results.xml` (MMIO cocotb regression results)
 15. `sim_build/mmio_uvm_results.xml` (MMIO pyuvm regression results)
-16. `sim_build/verilator_results.xml` (core cocotb-Verilator JUnit results)
-17. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
+16. `sim_build/mmio_wait_cocotb_results.xml` (MMIO wait-state cocotb regression results)
+17. `sim_build/mmio_wait_uvm_results.xml` (MMIO wait-state pyuvm regression results)
+18. `sim_build/verilator_results.xml` (core cocotb-Verilator JUnit results)
+19. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
 
 Additional outputs:
 
@@ -169,17 +177,17 @@ Implementation note:
 7. `tb/simple_cpu_mmio_assertions.sv` adds reusable interface assertions around `bus_ready`, control readback, and loader/reset signal alignment.
 8. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the wrapper coverage report without opening JSON manually.
 9. `scripts/coverage_history.py` plus wrapper commands track coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `pyuvm` job now runs the direct pyuvm, MMIO pyuvm, and MMIO cocotb regressions.
+10. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `pyuvm` job now runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, and MMIO wait-state pyuvm regressions.
 11. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 12. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata.
-13. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, and `mmio_pyuvm`.
+13. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, and `mmio_wait_pyuvm`.
 14. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
 15. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
 16. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
 17. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
 18. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
 19. Verible intentionally excludes `rtl/simple_cpu_mmio.sv` because the current release used here does not parse that module's `FORMAL`-guarded extra port list cleanly; that file remains covered by Verilator lint and svlint.
-20. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer for future wrapper tests.
+20. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
 
 Formal properties currently checked:
 
@@ -206,7 +214,7 @@ Known toolchain notes (non-fatal when runs pass):
 ## Remaining exercises
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
-2. Add bus-level wrappers beyond the current MMIO shell and replay the assembler corpus over them.
+2. Add a third wrapper protocol beyond the current always-ready and wait-state MMIO shells.
 3. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
 4. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
-5. Reuse `tb/mmio_bus.py` for a second wrapper protocol once the project grows beyond the current always-ready MMIO shell.
+5. Extend the reusable Python bus-functional layer beyond this register-mapped interface once the project grows into a distinct protocol family.

@@ -18,6 +18,7 @@ STATUS_MISSING = "MISSING"
 VERILATOR_FILES = [
     Path("rtl/simple_cpu.sv"),
     Path("rtl/simple_cpu_mmio.sv"),
+    Path("rtl/simple_cpu_mmio_wait.sv"),
 ]
 
 VERIBLE_FILES = [
@@ -36,10 +37,11 @@ VERIBLE_FILES = [
 SVLINT_FILES = [
     Path("rtl/simple_cpu.sv"),
     Path("rtl/simple_cpu_mmio.sv"),
+    Path("rtl/simple_cpu_mmio_wait.sv"),
 ]
 
 STATIC_ANALYSIS_NOTES = [
-    "Verible is intentionally scoped to the hand-written SV set that the current release parses cleanly; rtl/simple_cpu_mmio.sv remains covered by Verilator lint and svlint.",
+    "Verible is intentionally scoped to the hand-written SV set that the current release parses cleanly; rtl/simple_cpu_mmio.sv and rtl/simple_cpu_mmio_wait.sv remain covered by Verilator lint and svlint.",
     "svlint is intentionally scoped to synthesizable RTL so the secondary checker stays focused on design hazards instead of tutorial bench naming/style noise.",
 ]
 

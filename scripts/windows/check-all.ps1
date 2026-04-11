@@ -25,12 +25,22 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-cocotb-mmio-wait.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\run-uvm.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
 & .\scripts\run-mmio-uvm.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-mmio-wait-uvm.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

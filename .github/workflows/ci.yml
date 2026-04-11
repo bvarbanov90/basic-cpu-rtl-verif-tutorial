@@ -165,6 +165,12 @@ jobs:
       - name: Run cocotb MMIO regression
         run: bash scripts/run-cocotb-mmio.sh --no-waves
 
+      - name: Run cocotb MMIO wait-state regression
+        run: bash scripts/run-cocotb-mmio-wait.sh --no-waves
+
+      - name: Run MMIO wait-state pyuvm regression
+        run: bash scripts/run-mmio-wait-uvm.sh --no-waves
+
       - name: Upload pyuvm artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -174,6 +180,8 @@ jobs:
             sim_build/uvm_results.xml
             sim_build/mmio_uvm_results.xml
             sim_build/mmio_cocotb_results.xml
+            sim_build/mmio_wait_uvm_results.xml
+            sim_build/mmio_wait_cocotb_results.xml
 
   mutations:
     runs-on: ubuntu-latest
