@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-04-11T12:52:03Z",
+  "generated_utc": "2026-04-11T19:26:53Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "16607c9",
+  "git_commit": "b869f64",
   "git_dirty": 0,
   "overall_required_status": "PASS",
   "core_coverage": {
@@ -60,6 +60,24 @@
     "errors": 0,
     "skipped": 0
   },
+  "mmio_wait_cocotb": {
+    "path": "sim_build/mmio_wait_cocotb_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mmio_wait_pyuvm": {
+    "path": "sim_build/mmio_wait_uvm_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
   "verilator_coverage": {
     "path": "sim_build/verilator_coverage/summary.json",
     "status": "PASS",
@@ -87,7 +105,7 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:01:09",
+        "elapsed": "0:01:11",
         "raw_status": "PASS 0 0"
       },
       {
@@ -113,7 +131,7 @@
     "path": "equiv/simple_cpu_eqy",
     "status": "PASS",
     "required": true,
-    "elapsed": "0:00:13",
+    "elapsed": "0:00:12",
     "partitions": 93
   },
   "static_analysis": {
@@ -128,10 +146,11 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verilator.log",
-        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv'",
         "files": [
           "rtl/simple_cpu.sv",
-          "rtl/simple_cpu_mmio.sv"
+          "rtl/simple_cpu_mmio.sv",
+          "rtl/simple_cpu_mmio_wait.sv"
         ]
       },
       {
@@ -177,10 +196,11 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/svlint.log",
-        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv'",
         "files": [
           "rtl/simple_cpu.sv",
-          "rtl/simple_cpu_mmio.sv"
+          "rtl/simple_cpu_mmio.sv",
+          "rtl/simple_cpu_mmio_wait.sv"
         ]
       }
     ]
@@ -194,11 +214,11 @@
     "killed_mutations": 9
   },
   "latest_history": {
-    "timestamp_utc": "2026-04-11T12:51:54Z",
+    "timestamp_utc": "2026-04-11T19:25:46Z",
     "label": "tutorial-regression",
-    "git_commit": "ba3f314",
+    "git_commit": "e6670a4",
     "git_branch": "main",
-    "git_dirty": 0,
+    "git_dirty": 1,
     "core": {
       "coverage_pass": 1,
       "opcode_hits": 15,
@@ -274,6 +294,18 @@
       "message": "PASS 4 tests",
       "status": "PASS"
     },
+    "mmio-wait-cocotb": {
+      "path": "docs/status/badges/mmio-wait-cocotb.json",
+      "label": "mmio wait cocotb",
+      "message": "PASS 3 tests",
+      "status": "PASS"
+    },
+    "mmio-wait-pyuvm": {
+      "path": "docs/status/badges/mmio-wait-pyuvm.json",
+      "label": "mmio wait pyuvm",
+      "message": "PASS 4 tests",
+      "status": "PASS"
+    },
     "verilator-coverage": {
       "path": "docs/status/badges/verilator-coverage.json",
       "label": "verilator cov",
@@ -307,7 +339,7 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:01:09",
+      "message": "PASS cvc5 0:01:11",
       "status": "PASS"
     },
     "formal-simple_cpu_cover": {
