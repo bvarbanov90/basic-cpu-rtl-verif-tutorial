@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-04-11T12:07:06Z",
+  "generated_utc": "2026-04-11T12:50:53Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "e9aaad2",
-  "git_dirty": 0,
+  "git_commit": "a80f1db",
+  "git_dirty": 1,
   "overall_required_status": "PASS",
   "core_coverage": {
     "path": "sim_build/coverage.json",
@@ -33,11 +33,29 @@
     "opcode_hits": 15,
     "coverage_pass": 1
   },
+  "cocotb_verilator": {
+    "path": "sim_build/verilator_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
   "mmio_cocotb": {
     "path": "sim_build/mmio_cocotb_results.xml",
     "status": "PASS",
     "required": false,
     "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mmio_pyuvm": {
+    "path": "sim_build/mmio_uvm_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 4,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -69,7 +87,7 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:00:57",
+        "elapsed": "0:01:09",
         "raw_status": "PASS 0 0"
       },
       {
@@ -238,10 +256,22 @@
       "message": "PASS 11 runs",
       "status": "PASS"
     },
+    "cocotb-verilator": {
+      "path": "docs/status/badges/cocotb-verilator.json",
+      "label": "cocotb verilator",
+      "message": "PASS 5 tests",
+      "status": "PASS"
+    },
     "mmio-cocotb": {
       "path": "docs/status/badges/mmio-cocotb.json",
       "label": "mmio cocotb",
       "message": "PASS 3 tests",
+      "status": "PASS"
+    },
+    "mmio-pyuvm": {
+      "path": "docs/status/badges/mmio-pyuvm.json",
+      "label": "mmio pyuvm",
+      "message": "PASS 4 tests",
       "status": "PASS"
     },
     "verilator-coverage": {
@@ -277,7 +307,7 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:00:57",
+      "message": "PASS cvc5 0:01:09",
       "status": "PASS"
     },
     "formal-simple_cpu_cover": {

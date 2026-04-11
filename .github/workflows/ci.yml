@@ -159,6 +159,9 @@ jobs:
       - name: Run pyuvm regression
         run: bash scripts/run-uvm.sh --no-waves
 
+      - name: Run MMIO pyuvm regression
+        run: bash scripts/run-mmio-uvm.sh --no-waves
+
       - name: Run cocotb MMIO regression
         run: bash scripts/run-cocotb-mmio.sh --no-waves
 
@@ -169,6 +172,7 @@ jobs:
           path: |
             sim_build/pyuvm_coverage.json
             sim_build/uvm_results.xml
+            sim_build/mmio_uvm_results.xml
             sim_build/mmio_cocotb_results.xml
 
   mutations:

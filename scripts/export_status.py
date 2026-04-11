@@ -31,9 +31,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--mmio", default="sim_build/mmio_coverage.json", help="MMIO coverage JSON path.")
     parser.add_argument("--pyuvm", default="sim_build/pyuvm_coverage.json", help="pyuvm coverage JSON path.")
     parser.add_argument(
+        "--cocotb-verilator",
+        default="sim_build/verilator_results.xml",
+        help="Core cocotb-Verilator JUnit XML path.",
+    )
+    parser.add_argument(
         "--mmio-cocotb",
         default="sim_build/mmio_cocotb_results.xml",
         help="MMIO cocotb JUnit XML path.",
+    )
+    parser.add_argument(
+        "--mmio-pyuvm",
+        default="sim_build/mmio_uvm_results.xml",
+        help="MMIO pyuvm JUnit XML path.",
     )
     parser.add_argument(
         "--mutations",
@@ -112,7 +122,7 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             cycles=payload.get("total_cycles", 0),
             hits=payload.get("opcode_hits", 0),
         )
-    if name == "mmio_cocotb":
+    if name in {"cocotb_verilator", "mmio_cocotb", "mmio_pyuvm"}:
         if status == "MISSING":
             return "artifact missing"
         return "tests={tests}, failures={failures}, errors={errors}, skipped={skipped}".format(
@@ -198,7 +208,9 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("equivalence", "equivalence"),
         ("static_analysis", "static_analysis"),
         ("pyuvm_coverage", "pyuvm"),
+        ("cocotb_verilator", "cocotb_verilator"),
         ("mmio_cocotb", "mmio_cocotb"),
+        ("mmio_pyuvm", "mmio_pyuvm"),
         ("verilator_coverage", "verilator"),
         ("mutations", "mutations"),
     ]
@@ -305,12 +317,26 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["pyuvm_coverage"]["status"],
             status["pyuvm_coverage"]["status"],
         ),
+        "cocotb-verilator": (
+            "cocotb verilator",
+            "PASS {tests} tests".format(tests=status["cocotb_verilator"].get("tests", 0))
+            if status["cocotb_verilator"]["status"] == STATUS_PASS
+            else status["cocotb_verilator"]["status"],
+            status["cocotb_verilator"]["status"],
+        ),
         "mmio-cocotb": (
             "mmio cocotb",
             "PASS {tests} tests".format(tests=status["mmio_cocotb"].get("tests", 0))
             if status["mmio_cocotb"]["status"] == STATUS_PASS
             else status["mmio_cocotb"]["status"],
             status["mmio_cocotb"]["status"],
+        ),
+        "mmio-pyuvm": (
+            "mmio pyuvm",
+            "PASS {tests} tests".format(tests=status["mmio_pyuvm"].get("tests", 0))
+            if status["mmio_pyuvm"]["status"] == STATUS_PASS
+            else status["mmio_pyuvm"]["status"],
+            status["mmio_pyuvm"]["status"],
         ),
         "verilator-coverage": (
             "verilator cov",
@@ -390,7 +416,9 @@ def main() -> int:
     core = coverage_summary(Path(args.core).resolve(), "core")
     mmio = coverage_summary(Path(args.mmio).resolve(), "mmio")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
+    cocotb_verilator = junit_summary(Path(args.cocotb_verilator).resolve(), required=False)
     mmio_cocotb = junit_summary(Path(args.mmio_cocotb).resolve(), required=False)
+    mmio_pyuvm = junit_summary(Path(args.mmio_pyuvm).resolve(), required=False)
     formal = summarize_formal([Path(target).resolve() for target in formal_targets])
     formal["required"] = True
     equivalence = equivalence_summary(Path(args.equivalence).resolve())
@@ -411,7 +439,9 @@ def main() -> int:
         "core_coverage": core,
         "mmio_coverage": mmio,
         "pyuvm_coverage": pyuvm,
+        "cocotb_verilator": cocotb_verilator,
         "mmio_cocotb": mmio_cocotb,
+        "mmio_pyuvm": mmio_pyuvm,
         "verilator_coverage": verilator_coverage,
         "formal": formal,
         "equivalence": equivalence,

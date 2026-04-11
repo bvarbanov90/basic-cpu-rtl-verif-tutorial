@@ -9,6 +9,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![equivalence](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/equivalence.json)](docs/status/status.md)
 [![static analysis](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/static-analysis.json)](docs/status/status.md)
 [![mutations](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mutations.json)](docs/status/status.md)
+[![cocotb verilator](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/cocotb-verilator.json)](docs/status/status.md)
 [![mmio cocotb](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-cocotb.json)](docs/status/status.md)
 
 ## What you will build
@@ -39,7 +40,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 1. Python + cocotb + pyuvm
 2. GNU Make (or WSL Ubuntu for Python simulator flows)
 
-Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1`, `.\scripts\run-cocotb-verilator.ps1`, and `.\scripts\run-cocotb-mmio.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
+Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1`, `.\scripts\run-mmio-uvm.ps1`, `.\scripts\run-cocotb-verilator.ps1`, and `.\scripts\run-cocotb-mmio.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
 
 ## Project layout
 
@@ -81,6 +82,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_tb.sv
 |  |- test_simple_cpu.py
 |  |- test_simple_cpu_mmio.py
+|  |- test_simple_cpu_mmio_pyuvm.py
 |  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
@@ -100,6 +102,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
+|  |  |- run-mmio-uvm.ps1
 |  |  |- run-cocotb-verilator.ps1
 |  |  |- run-cocotb-mmio.ps1
 |  |  |- run-equiv.ps1
@@ -122,6 +125,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
+|  |  |- run-mmio-uvm.sh
 |  |  |- run-cocotb-verilator.sh
 |  |  |- run-cocotb-mmio.sh
 |  |  |- run-equiv.sh
@@ -142,6 +146,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
+|  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
 |  |- run-cocotb-verilator.ps1 / run-cocotb-verilator.sh (wrappers)
 |  |- run-cocotb-mmio.ps1 / run-cocotb-mmio.sh (wrappers)
 |  |- run-equiv.ps1 / run-equiv.sh (wrappers)
@@ -546,7 +551,7 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 3. `formal`: `bash scripts/run-formal.sh --mode all`
 4. `cocotb-verilator`: `bash scripts/run-cocotb-verilator.sh --no-waves --coverage`
 5. `equivalence`: `bash scripts/run-equiv.sh`
-6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves` plus `bash scripts/run-cocotb-mmio.sh --no-waves`
+6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, and `bash scripts/run-cocotb-mmio.sh --no-waves`
 7. `mutations`: `bash scripts/run-mutations.sh`
 8. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
 
@@ -559,14 +564,15 @@ Uploaded artifacts include:
 5. `sim_build/static_analysis/`
 6. `sim_build/pyuvm_coverage.json`
 7. `sim_build/uvm_results.xml`
-8. `sim_build/mmio_cocotb_results.xml`
-9. `sim_build/verilator_results.xml`
-10. `sim_build/verilator_coverage/`
-11. `sim_build/asm_corpus/`
-12. `sim_build/mutations/`
-13. `formal/simple_cpu_cover/`
-14. `formal/simple_cpu_mmio_cover/`
-15. `equiv/simple_cpu_eqy/`
+8. `sim_build/mmio_uvm_results.xml`
+9. `sim_build/mmio_cocotb_results.xml`
+10. `sim_build/verilator_results.xml`
+11. `sim_build/verilator_coverage/`
+12. `sim_build/asm_corpus/`
+13. `sim_build/mutations/`
+14. `formal/simple_cpu_cover/`
+15. `formal/simple_cpu_mmio_cover/`
+16. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -604,12 +610,29 @@ Run the minimal pyuvm/UVM-style example:
 bash scripts/run-uvm.sh --no-waves
 ```
 
+Run the MMIO wrapper pyuvm/UVM-style example:
+
+```powershell
+.\scripts\run-mmio-uvm.ps1 -NoWaves
+```
+
+```bash
+bash scripts/run-mmio-uvm.sh --no-waves
+```
+
 The cocotb layer now also includes an assembler-corpus regression in `tb/test_simple_cpu.py`, and the pyuvm example in `tb/test_simple_cpu_pyuvm.py` now includes:
 
 1. sequence-item driven smoke/random/branch tests,
 2. deterministic corner-case sequences for `ADD/SUB/SHL/CMP` coverage closure,
 3. a subscriber-based coverage collector that writes `sim_build/pyuvm_coverage.json`,
 4. a program-port stall-and-retarget test that holds `prog_we` across multiple cycles, proves architectural state stops advancing, and confirms a future instruction patch is honored once execution resumes.
+
+The MMIO pyuvm layer in `tb/test_simple_cpu_mmio_pyuvm.py` adds:
+
+1. a sequence/driver/scoreboard wrapper environment over `tb/mmio_bus.py`,
+2. reference-model checks for wrapper programming and randomized replay,
+3. explicit `LOAD` then `RUN` state observation through the MMIO control register,
+4. a direct pyuvm fault-injection test that proves shadow updates do not affect an in-flight run until reload.
 
 The same cocotb tests can now run on Verilator:
 
@@ -920,7 +943,7 @@ The status export now includes:
 2. the EQY equivalence workdir status,
 3. the optional Verilator coverage summary,
 4. the static-analysis summary from `sim_build/static_analysis/summary.json`,
-5. optional suite summaries for `pyuvm_coverage`, `mmio_cocotb`, and `mutations`.
+5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, and `mutations`.
 
 ## Known benign warnings
 
@@ -941,8 +964,8 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
 2. Add bus-level wrappers beyond the current MMIO shell and replay the assembler corpus over them.
-3. Add a pyuvm wrapper environment that reuses `tb/mmio_bus.py` semantics for MMIO-focused sequence tests.
-4. Track lane-level JUnit summaries for more optional suites such as the core cocotb-Verilator regression.
+3. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
+4. Reuse `tb/mmio_bus.py` for a second wrapper protocol once the project grows beyond the current always-ready MMIO shell.
 
 ## Publish To GitHub
 
