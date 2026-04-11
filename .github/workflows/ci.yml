@@ -159,6 +159,9 @@ jobs:
       - name: Run pyuvm regression
         run: bash scripts/run-uvm.sh --no-waves
 
+      - name: Run cocotb MMIO regression
+        run: bash scripts/run-cocotb-mmio.sh --no-waves
+
       - name: Upload pyuvm artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -166,6 +169,7 @@ jobs:
           path: |
             sim_build/pyuvm_coverage.json
             sim_build/uvm_results.xml
+            sim_build/mmio_cocotb_results.xml
 
   mutations:
     runs-on: ubuntu-latest

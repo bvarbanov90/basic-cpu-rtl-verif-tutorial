@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-04-01T12:53:36Z",
+  "generated_utc": "2026-04-11T12:01:04Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "496b2be",
-  "git_dirty": 0,
+  "git_commit": "44df4a1",
+  "git_dirty": 1,
   "overall_required_status": "PASS",
   "core_coverage": {
     "path": "sim_build/coverage.json",
@@ -33,13 +33,22 @@
     "opcode_hits": 15,
     "coverage_pass": 1
   },
+  "mmio_cocotb": {
+    "path": "sim_build/mmio_cocotb_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
   "verilator_coverage": {
     "path": "sim_build/verilator_coverage/summary.json",
     "status": "PASS",
     "required": false,
-    "overall_percent": 61.46,
+    "overall_percent": 61.76,
     "line_percent": 100.0,
-    "toggle_percent": 55.56,
+    "toggle_percent": 55.92,
     "expr_percent": 62.5
   },
   "formal": {
@@ -60,7 +69,7 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:00:55",
+        "elapsed": "0:00:57",
         "raw_status": "PASS 0 0"
       },
       {
@@ -86,7 +95,7 @@
     "path": "equiv/simple_cpu_eqy",
     "status": "PASS",
     "required": true,
-    "elapsed": "0:00:12",
+    "elapsed": "0:00:13",
     "partitions": 93
   },
   "static_analysis": {
@@ -101,7 +110,7 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verilator.log",
-        "command": "/usr/bin/verilator --lint-only -Wall /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/rtl/simple_cpu.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/rtl/simple_cpu_mmio.sv",
+        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "rtl/simple_cpu_mmio.sv"
@@ -112,7 +121,7 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verible_lint.log",
-        "command": "/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-lint --parse_fatal --rules_config /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/.rules.verible_lint /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/rtl/simple_cpu.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/tb/simple_cpu_mmio_assertions.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/tb/simple_cpu_tb.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/tb/simple_cpu_mmio_tb.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_formal.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_mmio_formal.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_cover_formal.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_mmio_cover_formal.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_mmio_stub.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/equiv/simple_cpu_golden.sv",
+        "command": "'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-lint.exe' --parse_fatal --rules_config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.rules.verible_lint' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_stub.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\equiv\\simple_cpu_golden.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "tb/simple_cpu_mmio_assertions.sv",
@@ -131,7 +140,7 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verible_format.log",
-        "command": "/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/rtl/simple_cpu.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/tb/simple_cpu_mmio_assertions.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/tb/simple_cpu_tb.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/tb/simple_cpu_mmio_tb.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_formal.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_mmio_formal.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_cover_formal.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_mmio_cover_formal.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/formal/simple_cpu_mmio_stub.sv\n/home/bvarb/tools/verible/verible-v0.0-4053-g89d4d98a/bin/verible-verilog-format --verify /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/equiv/simple_cpu_golden.sv",
+        "command": "'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_stub.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\equiv\\simple_cpu_golden.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "tb/simple_cpu_mmio_assertions.sv",
@@ -150,7 +159,7 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/svlint.log",
-        "command": "/home/bvarb/tools/svlint/bin/svlint --config /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/.svlint.toml /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/rtl/simple_cpu.sv /mnt/c/Users/bvarb/vscode_ws/basic-cpu-rlt--verif-tutorial/rtl/simple_cpu_mmio.sv",
+        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "rtl/simple_cpu_mmio.sv"
@@ -167,11 +176,11 @@
     "killed_mutations": 9
   },
   "latest_history": {
-    "timestamp_utc": "2026-04-01T12:52:35Z",
+    "timestamp_utc": "2026-04-11T12:00:59Z",
     "label": "tutorial-regression",
-    "git_commit": "8ca8e86",
+    "git_commit": "44df4a1",
     "git_branch": "main",
-    "git_dirty": 0,
+    "git_dirty": 1,
     "core": {
       "coverage_pass": 1,
       "opcode_hits": 15,
@@ -229,10 +238,16 @@
       "message": "PASS 11 runs",
       "status": "PASS"
     },
+    "mmio-cocotb": {
+      "path": "docs/status/badges/mmio-cocotb.json",
+      "label": "mmio cocotb",
+      "message": "PASS 3 tests",
+      "status": "PASS"
+    },
     "verilator-coverage": {
       "path": "docs/status/badges/verilator-coverage.json",
       "label": "verilator cov",
-      "message": "61.46% overall",
+      "message": "61.76% overall",
       "status": "PASS"
     },
     "equivalence": {
@@ -262,7 +277,7 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:00:55",
+      "message": "PASS cvc5 0:00:57",
       "status": "PASS"
     },
     "formal-simple_cpu_cover": {

@@ -13,6 +13,7 @@ from status_lib import (
     equivalence_summary,
     git_dirty,
     history_latest,
+    junit_summary,
     mutation_summary,
     project_now_utc,
     relpath,
@@ -29,6 +30,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--core", default="sim_build/coverage.json", help="Core coverage JSON path.")
     parser.add_argument("--mmio", default="sim_build/mmio_coverage.json", help="MMIO coverage JSON path.")
     parser.add_argument("--pyuvm", default="sim_build/pyuvm_coverage.json", help="pyuvm coverage JSON path.")
+    parser.add_argument(
+        "--mmio-cocotb",
+        default="sim_build/mmio_cocotb_results.xml",
+        help="MMIO cocotb JUnit XML path.",
+    )
     parser.add_argument(
         "--mutations",
         default="sim_build/mutations/mutation_summary.json",
@@ -105,6 +111,15 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             runs=payload.get("program_runs", 0),
             cycles=payload.get("total_cycles", 0),
             hits=payload.get("opcode_hits", 0),
+        )
+    if name == "mmio_cocotb":
+        if status == "MISSING":
+            return "artifact missing"
+        return "tests={tests}, failures={failures}, errors={errors}, skipped={skipped}".format(
+            tests=payload.get("tests", 0),
+            failures=payload.get("failures", 0),
+            errors=payload.get("errors", 0),
+            skipped=payload.get("skipped", 0),
         )
     if name == "mutations":
         if status == "MISSING":
@@ -183,6 +198,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("equivalence", "equivalence"),
         ("static_analysis", "static_analysis"),
         ("pyuvm_coverage", "pyuvm"),
+        ("mmio_cocotb", "mmio_cocotb"),
         ("verilator_coverage", "verilator"),
         ("mutations", "mutations"),
     ]
@@ -289,6 +305,13 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["pyuvm_coverage"]["status"],
             status["pyuvm_coverage"]["status"],
         ),
+        "mmio-cocotb": (
+            "mmio cocotb",
+            "PASS {tests} tests".format(tests=status["mmio_cocotb"].get("tests", 0))
+            if status["mmio_cocotb"]["status"] == STATUS_PASS
+            else status["mmio_cocotb"]["status"],
+            status["mmio_cocotb"]["status"],
+        ),
         "verilator-coverage": (
             "verilator cov",
             "{overall}% overall".format(overall=status["verilator_coverage"].get("overall_percent", "-"))
@@ -367,6 +390,7 @@ def main() -> int:
     core = coverage_summary(Path(args.core).resolve(), "core")
     mmio = coverage_summary(Path(args.mmio).resolve(), "mmio")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
+    mmio_cocotb = junit_summary(Path(args.mmio_cocotb).resolve(), required=False)
     formal = summarize_formal([Path(target).resolve() for target in formal_targets])
     formal["required"] = True
     equivalence = equivalence_summary(Path(args.equivalence).resolve())
@@ -387,6 +411,7 @@ def main() -> int:
         "core_coverage": core,
         "mmio_coverage": mmio,
         "pyuvm_coverage": pyuvm,
+        "mmio_cocotb": mmio_cocotb,
         "verilator_coverage": verilator_coverage,
         "formal": formal,
         "equivalence": equivalence,

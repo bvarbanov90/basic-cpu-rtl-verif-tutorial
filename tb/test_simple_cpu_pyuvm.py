@@ -13,6 +13,9 @@ from pyuvm import uvm_object, uvm_sequence, uvm_sequence_item, uvm_sequencer
 from pyuvm import uvm_test, uvm_tlm_analysis_fifo
 
 from tb.cpu_lib import (
+    OPC_HLT,
+    OPC_LDI,
+    OPC_STA,
     ReferenceCPU,
     build_add_carry_program,
     build_branch_not_taken_program,
@@ -25,6 +28,7 @@ from tb.cpu_lib import (
     build_shift_overflow_program,
     build_smoke_program,
     build_sub_carry_program,
+    ins,
 )
 from tb.coverage_utils import CoverageModel, StepObservation
 
@@ -184,9 +188,35 @@ class SimpleCpuBfm(uvm_object):
             self.dut.prog_data.value = value
             self.dut.prog_we.value = 1
             await RisingEdge(self.dut.clk)
+            await Timer(1, unit="ns")
         self.dut.prog_we.value = 0
         self.dut.prog_addr.value = 0
         self.dut.prog_data.value = 0
+
+    async def program_word(self, addr, value):
+        self.dut.prog_addr.value = addr & 0xF
+        self.dut.prog_data.value = value & 0xFF
+        self.dut.prog_we.value = 1
+        await RisingEdge(self.dut.clk)
+        await Timer(1, unit="ns")
+        self.dut.prog_we.value = 0
+        self.dut.prog_addr.value = 0
+        self.dut.prog_data.value = 0
+
+    def start_program_word(self, addr, value):
+        self.dut.prog_addr.value = addr & 0xF
+        self.dut.prog_data.value = value & 0xFF
+        self.dut.prog_we.value = 1
+
+    async def stop_program_word(self):
+        await Timer(1, unit="ns")
+        self.dut.prog_we.value = 0
+        self.dut.prog_addr.value = 0
+        self.dut.prog_data.value = 0
+
+    async def step_cycles(self, cycles=1):
+        for _ in range(cycles):
+            await RisingEdge(self.dut.clk)
 
     async def read_mem(self, addr):
         self.dut.dbg_mem_addr.value = addr
@@ -269,8 +299,12 @@ class SimpleCpuScoreboard(uvm_component):
         self.checked_runs = 0
 
     @staticmethod
-    def assert_equal(trace: RunTrace, field: str, observed, expected):
-        assert observed == expected, f"{trace.item_name}: {field} got {observed}, expected {expected}"
+    def assert_equal(trace_or_label, field: str, observed, expected):
+        if hasattr(trace_or_label, "item_name"):
+            label = trace_or_label.item_name
+        else:
+            label = str(trace_or_label)
+        assert observed == expected, f"{label}: {field} got {observed}, expected {expected}"
 
     async def run_phase(self):
         while self.checked_runs < self.expected_runs:
@@ -349,6 +383,7 @@ class SimpleCpuUvmBaseTest(uvm_test):
         ConfigDB().set(None, "*", "CPU_BFM", bfm)
         ConfigDB().set(None, "*", "EXPECTED_RUNS", self.expected_runs)
         ConfigDB().set(None, "*", "PYUVM_COVERAGE_REPORT", self.coverage_report)
+        self.bfm = bfm
         self.env = SimpleCpuEnv("env", self)
 
 
@@ -431,5 +466,59 @@ class SimpleCpuUvmCoverageRegressionTest(SimpleCpuUvmBaseTest):
         written_report = json.loads(report_path.read_text(encoding="utf-8"))
         assert written_report["coverage_pass"] == report["coverage_pass"]
         assert written_report["program_runs"] == report["program_runs"]
+
+        self.drop_objection()
+
+
+@test()
+class SimpleCpuUvmProgramWriteStallTest(SimpleCpuUvmBaseTest):
+    expected_runs = 0
+
+    async def run_phase(self):
+        self.raise_objection()
+
+        base_program = [
+            ins(OPC_LDI, 1),
+            ins(OPC_STA, 0),
+            ins(OPC_LDI, 2),
+            ins(OPC_STA, 1),
+            ins(OPC_LDI, 3),
+            ins(OPC_STA, 2),
+            ins(OPC_LDI, 4),
+            ins(OPC_STA, 3),
+            ins(OPC_HLT, 0),
+        ]
+        patched_program = list(base_program)
+        patched_program[6] = ins(OPC_LDI, 9)
+
+        model = ReferenceCPU()
+        model.load_program(patched_program)
+        model.run(max_cycles=64)
+
+        await self.bfm.reset()
+        await self.bfm.load_program(base_program)
+        await self.bfm.step_cycles(1)
+
+        self.bfm.start_program_word(6, patched_program[6])
+        await self.bfm.step_cycles(1)
+        snapshot_prog_cycle_0 = await self.bfm.sample_snapshot()
+        await self.bfm.step_cycles(1)
+        snapshot_prog_cycle_1 = await self.bfm.sample_snapshot()
+        assert snapshot_prog_cycle_1 == snapshot_prog_cycle_0, (
+            "architectural state should stop advancing while prog_we remains asserted: "
+            f"cycle0={snapshot_prog_cycle_0} cycle1={snapshot_prog_cycle_1}"
+        )
+        await self.bfm.stop_program_word()
+
+        _, snapshot = await self.bfm.run_program(patched_program, max_cycles=64)
+
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "HALTED", snapshot.halted, model.halted)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "ACC", snapshot.acc, model.acc)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "PC", snapshot.pc, model.pc)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "ZERO", snapshot.zero, model.zero)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "CARRY", snapshot.carry, model.carry)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "NEG", snapshot.neg, model.neg)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "OVERFLOW", snapshot.overflow, model.overflow)
+        SimpleCpuScoreboard.assert_equal("pyuvm_program_patch", "DMEM", snapshot.dmem, model.dmem)
 
         self.drop_objection()

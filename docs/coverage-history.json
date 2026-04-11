@@ -160,6 +160,38 @@
         "control_start_writes": 7,
         "control_stop_writes": 7
       }
+    },
+    {
+      "timestamp_utc": "2026-04-11T12:00:59Z",
+      "label": "tutorial-regression",
+      "git_commit": "44df4a1",
+      "git_branch": "main",
+      "git_dirty": 1,
+      "core": {
+        "coverage_pass": 1,
+        "opcode_hits": 15,
+        "program_runs": 40,
+        "total_cycles": 676,
+        "jz_taken": 14,
+        "jz_not_taken": 33,
+        "illegal_opcode_hit": 1,
+        "carry_1": 281,
+        "neg_1": 6,
+        "overflow_1": 3
+      },
+      "mmio": {
+        "coverage_pass": 1,
+        "program_runs": 7,
+        "external_program_runs": 0,
+        "shadow_writes": 113,
+        "shadow_reads": 113,
+        "dmem_reads": 112,
+        "status_reads": 189,
+        "acc_reads": 7,
+        "pc_reads": 7,
+        "control_start_writes": 7,
+        "control_stop_writes": 7
+      }
     }
   ]
 }

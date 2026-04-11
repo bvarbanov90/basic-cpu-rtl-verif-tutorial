@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -340,3 +341,55 @@ def history_latest(path: Path) -> dict[str, Any] | None:
     if not entries:
         return None
     return entries[-1]
+
+
+def junit_summary(path: Path, *, required: bool = False) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": relpath(path),
+        "status": STATUS_MISSING,
+        "required": required,
+    }
+    if not path.exists():
+        return payload
+
+    try:
+        root = ET.fromstring(path.read_text(encoding="utf-8"))
+    except ET.ParseError:
+        payload["status"] = STATUS_FAIL
+        payload["parse_error"] = True
+        return payload
+
+    suites: list[ET.Element]
+    if root.tag == "testsuite":
+        suites = [root]
+    elif root.tag == "testsuites":
+        suites = list(root.findall("testsuite"))
+    else:
+        suites = []
+
+    tests = 0
+    failures = 0
+    errors = 0
+    skipped = 0
+    for suite in suites:
+        testcases = list(suite.findall(".//testcase"))
+        tests_attr = int(suite.attrib.get("tests", 0))
+        failures_attr = int(suite.attrib.get("failures", 0))
+        errors_attr = int(suite.attrib.get("errors", 0))
+        skipped_attr = int(suite.attrib.get("skipped", 0))
+
+        tests += tests_attr or len(testcases)
+        failures += failures_attr or sum(1 for testcase in testcases if testcase.find("failure") is not None)
+        errors += errors_attr or sum(1 for testcase in testcases if testcase.find("error") is not None)
+        skipped += skipped_attr or sum(1 for testcase in testcases if testcase.find("skipped") is not None)
+
+    payload.update(
+        {
+            "tests": tests,
+            "failures": failures,
+            "errors": errors,
+            "skipped": skipped,
+        }
+    )
+    payload["status"] = STATUS_PASS if tests > 0 and failures == 0 and errors == 0 else STATUS_FAIL
+    return payload

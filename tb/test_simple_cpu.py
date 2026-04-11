@@ -45,7 +45,32 @@ async def load_program(dut, program) -> None:
         dut.prog_data.value = value
         dut.prog_we.value = 1
         await RisingEdge(dut.clk)
+        await Timer(1, unit="ns")
 
+    dut.prog_we.value = 0
+    dut.prog_addr.value = 0
+    dut.prog_data.value = 0
+
+
+async def program_word(dut, addr: int, value: int) -> None:
+    dut.prog_addr.value = addr & 0xF
+    dut.prog_data.value = value & 0xFF
+    dut.prog_we.value = 1
+    await RisingEdge(dut.clk)
+    await Timer(1, unit="ns")
+    dut.prog_we.value = 0
+    dut.prog_addr.value = 0
+    dut.prog_data.value = 0
+
+
+def start_program_word(dut, addr: int, value: int) -> None:
+    dut.prog_addr.value = addr & 0xF
+    dut.prog_data.value = value & 0xFF
+    dut.prog_we.value = 1
+
+
+async def stop_program_word(dut) -> None:
+    await Timer(1, unit="ns")
     dut.prog_we.value = 0
     dut.prog_addr.value = 0
     dut.prog_data.value = 0
@@ -63,6 +88,22 @@ async def read_mem(dut, addr: int) -> int:
     dut.dbg_mem_addr.value = addr
     await Timer(1, unit="ns")
     return int(dut.dbg_mem_data.value)
+
+
+async def sample_snapshot(dut) -> dict:
+    dmem = []
+    for addr in range(16):
+        dmem.append(await read_mem(dut, addr))
+    return {
+        "halted": int(dut.dbg_halted.value),
+        "acc": int(dut.dbg_acc.value),
+        "pc": int(dut.dbg_pc.value),
+        "zero": int(dut.dbg_zero.value),
+        "carry": int(dut.dbg_carry.value),
+        "neg": int(dut.dbg_neg.value),
+        "overflow": int(dut.dbg_overflow.value),
+        "dmem": dmem,
+    }
 
 
 async def assert_matches_model(dut, model: ReferenceCPU, label: str) -> None:
@@ -148,3 +189,44 @@ async def assembler_corpus_matches_reference_model(dut):
         stmts, labels = parse_source(source_path.read_text(encoding="utf-8"))
         program = assemble(stmts, labels)
         await run_program_against_model(dut, program, max_cycles=256, label=entry["name"])
+
+
+@cocotb.test()
+async def program_write_stalls_and_retargets_execution(dut):
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+
+    base_program = [
+        ins(OPC_LDI, 1),
+        ins(OPC_STA, 0),
+        ins(OPC_LDI, 2),
+        ins(OPC_STA, 1),
+        ins(OPC_LDI, 3),
+        ins(OPC_STA, 2),
+        ins(OPC_LDI, 4),
+        ins(OPC_STA, 3),
+        ins(OPC_HLT, 0),
+    ]
+    patched_program = list(base_program)
+    patched_program[6] = ins(OPC_LDI, 9)
+
+    model = ReferenceCPU()
+    model.load_program(patched_program)
+    model.run(max_cycles=64)
+
+    await reset_dut(dut)
+    await load_program(dut, base_program)
+
+    await RisingEdge(dut.clk)
+    start_program_word(dut, 6, patched_program[6])
+    await RisingEdge(dut.clk)
+    snapshot_prog_cycle_0 = await sample_snapshot(dut)
+    await RisingEdge(dut.clk)
+    snapshot_prog_cycle_1 = await sample_snapshot(dut)
+    assert snapshot_prog_cycle_1 == snapshot_prog_cycle_0, (
+        "architectural state should stop advancing while prog_we remains asserted: "
+        f"cycle0={snapshot_prog_cycle_0} cycle1={snapshot_prog_cycle_1}"
+    )
+    await stop_program_word(dut)
+
+    await run_until_halt(dut, max_cycles=64)
+    await assert_matches_model(dut, model, label="program_port_patch")
