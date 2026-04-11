@@ -1,12 +1,12 @@
 # Verification Status
 
-Generated UTC: `2026-04-11T19:26:53Z`
+Generated UTC: `2026-04-11T19:51:24Z`
 
 | Field | Value |
 |---|---|
 | Label | tutorial-regression |
 | Git branch | `main` |
-| Git commit | `b869f64` |
+| Git commit | `ec276af` |
 | Git dirty | `0` |
 | Overall required-suite status | `PASS` |
 
@@ -27,6 +27,8 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 | mmio_pyuvm | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/mmio_uvm_results.xml` |
 | mmio_wait_cocotb | no | `PASS` | tests=3, failures=0, errors=0, skipped=0 | `sim_build/mmio_wait_cocotb_results.xml` |
 | mmio_wait_pyuvm | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/mmio_wait_uvm_results.xml` |
+| apb_cocotb | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/apb_cocotb_results.xml` |
+| apb_pyuvm | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/apb_uvm_results.xml` |
 | verilator_coverage | no | `PASS` | overall=61.76%, line=100.0%, toggle=55.92%, expr=62.5% | `sim_build/verilator_coverage/summary.json` |
 | mutations | no | `PASS` | killed_mutations=9/9 | `sim_build/mutations/mutation_summary.json` |
 
@@ -43,15 +45,17 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 
 | Field | Value |
 |---|---|
-| Timestamp UTC | `2026-04-11T19:25:46Z` |
+| Timestamp UTC | `2026-04-11T19:50:47Z` |
 | Label | tutorial-regression |
-| Commit | `e6670a4` |
+| Commit | `dd7115e` |
 | Dirty | `1` |
 
 ## Badge Endpoints
 
 Generated shields-compatible endpoint JSON files:
 
+1. `docs/status/badges/apb-cocotb.json`
+1. `docs/status/badges/apb-pyuvm.json`
 1. `docs/status/badges/cocotb-verilator.json`
 1. `docs/status/badges/core-coverage.json`
 1. `docs/status/badges/equivalence.json`

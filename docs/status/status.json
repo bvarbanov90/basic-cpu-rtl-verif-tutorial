@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-04-11T19:26:53Z",
+  "generated_utc": "2026-04-11T19:51:24Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "b869f64",
+  "git_commit": "ec276af",
   "git_dirty": 0,
   "overall_required_status": "PASS",
   "core_coverage": {
@@ -78,6 +78,24 @@
     "errors": 0,
     "skipped": 0
   },
+  "apb_cocotb": {
+    "path": "sim_build/apb_cocotb_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "apb_pyuvm": {
+    "path": "sim_build/apb_uvm_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
   "verilator_coverage": {
     "path": "sim_build/verilator_coverage/summary.json",
     "status": "PASS",
@@ -146,11 +164,12 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verilator.log",
-        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall -Wno-MULTITOP 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_apb.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "rtl/simple_cpu_mmio.sv",
-          "rtl/simple_cpu_mmio_wait.sv"
+          "rtl/simple_cpu_mmio_wait.sv",
+          "rtl/simple_cpu_apb.sv"
         ]
       },
       {
@@ -196,11 +215,12 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/svlint.log",
-        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_apb.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "rtl/simple_cpu_mmio.sv",
-          "rtl/simple_cpu_mmio_wait.sv"
+          "rtl/simple_cpu_mmio_wait.sv",
+          "rtl/simple_cpu_apb.sv"
         ]
       }
     ]
@@ -214,9 +234,9 @@
     "killed_mutations": 9
   },
   "latest_history": {
-    "timestamp_utc": "2026-04-11T19:25:46Z",
+    "timestamp_utc": "2026-04-11T19:50:47Z",
     "label": "tutorial-regression",
-    "git_commit": "e6670a4",
+    "git_commit": "dd7115e",
     "git_branch": "main",
     "git_dirty": 1,
     "core": {
@@ -303,6 +323,18 @@
     "mmio-wait-pyuvm": {
       "path": "docs/status/badges/mmio-wait-pyuvm.json",
       "label": "mmio wait pyuvm",
+      "message": "PASS 4 tests",
+      "status": "PASS"
+    },
+    "apb-cocotb": {
+      "path": "docs/status/badges/apb-cocotb.json",
+      "label": "apb cocotb",
+      "message": "PASS 4 tests",
+      "status": "PASS"
+    },
+    "apb-pyuvm": {
+      "path": "docs/status/badges/apb-pyuvm.json",
+      "label": "apb pyuvm",
       "message": "PASS 4 tests",
       "status": "PASS"
     },
