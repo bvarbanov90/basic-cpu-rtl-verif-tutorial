@@ -14,6 +14,8 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![mmio pyuvm](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-pyuvm.json)](docs/status/status.md)
 [![mmio wait cocotb](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-wait-cocotb.json)](docs/status/status.md)
 [![mmio wait pyuvm](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-wait-pyuvm.json)](docs/status/status.md)
+[![apb cocotb](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-cocotb.json)](docs/status/status.md)
+[![apb pyuvm](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-pyuvm.json)](docs/status/status.md)
 [![verilator coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/verilator-coverage.json)](docs/status/status.md)
 
 ## What you will build
@@ -23,7 +25,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 3. Directed tests plus dataflow and branch-stress randomized regressions with reference-model comparison.
 4. Waveform debug flow with open-source tools.
 5. Assembler-corpus regressions with expected machine code, final state, and coverage signatures.
-6. MMIO wrapper flows that verify interface-level programming and observability on top of the core, including an always-ready shell and a wait-state variant.
+6. Wrapper-protocol flows that verify interface-level programming and observability on top of the core, including MMIO always-ready, MMIO wait-state, and APB-style shells.
 7. Optional cocotb/pyuvm Python verification extensions.
 8. A mutation campaign that proves the regressions kill representative RTL bugs.
 9. A repo-tracked verification status export with Markdown, JSON, and badge-ready endpoints.
@@ -44,7 +46,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 1. Python + cocotb + pyuvm
 2. GNU Make (or WSL Ubuntu for Python simulator flows)
 
-Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1`, `.\scripts\run-mmio-uvm.ps1`, `.\scripts\run-cocotb-verilator.ps1`, `.\scripts\run-cocotb-mmio.ps1`, `.\scripts\run-cocotb-mmio-wait.ps1`, and `.\scripts\run-mmio-wait-uvm.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
+Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1`, `.\scripts\run-mmio-uvm.ps1`, `.\scripts\run-cocotb-verilator.ps1`, `.\scripts\run-cocotb-mmio.ps1`, `.\scripts\run-cocotb-mmio-wait.ps1`, `.\scripts\run-mmio-wait-uvm.ps1`, `.\scripts\run-cocotb-apb.ps1`, and `.\scripts\run-apb-uvm.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
 
 ## Project layout
 
@@ -54,6 +56,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu.sv
 |  |- simple_cpu_mmio.sv
 |  |- simple_cpu_mmio_wait.sv
+|  |- simple_cpu_apb.sv
 |- .github/
 |  |- workflows/
 |     |- ci.yml
@@ -81,6 +84,7 @@ basic-cpu-rlt--verif-tutorial/
 |- tb/
 |  |- coverage_utils.py
 |  |- cpu_lib.py
+|  |- apb_bus.py
 |  |- mmio_bus.py
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_tb.sv
@@ -88,6 +92,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |- test_simple_cpu.py
 |  |- test_simple_cpu_mmio.py
 |  |- test_simple_cpu_mmio_pyuvm.py
+|  |- test_simple_cpu_apb.py
+|  |- test_simple_cpu_apb_pyuvm.py
 |  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
@@ -112,6 +118,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-cocotb-mmio.ps1
 |  |  |- run-cocotb-mmio-wait.ps1
 |  |  |- run-mmio-wait-uvm.ps1
+|  |  |- run-cocotb-apb.ps1
+|  |  |- run-apb-uvm.ps1
 |  |  |- run-equiv.ps1
 |  |  |- check-all.ps1
 |  |  |- format-sv.ps1
@@ -137,6 +145,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-cocotb-mmio.sh
 |  |  |- run-cocotb-mmio-wait.sh
 |  |  |- run-mmio-wait-uvm.sh
+|  |  |- run-cocotb-apb.sh
+|  |  |- run-apb-uvm.sh
 |  |  |- run-equiv.sh
 |  |  |- check-all.sh
 |  |  |- format-sv.sh
@@ -160,6 +170,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-cocotb-mmio.ps1 / run-cocotb-mmio.sh (wrappers)
 |  |- run-cocotb-mmio-wait.ps1 / run-cocotb-mmio-wait.sh (wrappers)
 |  |- run-mmio-wait-uvm.ps1 / run-mmio-wait-uvm.sh (wrappers)
+|  |- run-cocotb-apb.ps1 / run-cocotb-apb.sh (wrappers)
+|  |- run-apb-uvm.ps1 / run-apb-uvm.sh (wrappers)
 |  |- run-equiv.ps1 / run-equiv.sh (wrappers)
 |  |- format-sv.ps1 / format-sv.sh (wrappers)
 |  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
@@ -457,11 +469,11 @@ This lane now runs:
 1. `verilator --lint-only` on the synthesizable RTL
 2. `verible-verilog-lint` on the hand-written SV sources
 3. `verible-verilog-format --verify` on the same tracked source set
-4. `svlint` on `rtl/simple_cpu.sv`, `rtl/simple_cpu_mmio.sv`, and `rtl/simple_cpu_mmio_wait.sv`
+4. `svlint` on `rtl/simple_cpu.sv`, `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv`
 
 Scope notes:
 
-1. Verible intentionally excludes `rtl/simple_cpu_mmio.sv` and `rtl/simple_cpu_mmio_wait.sv`. The current Verible release used here does not parse that wrapper family cleanly enough in this tutorial setup, so those files stay covered by Verilator lint and svlint instead.
+1. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv`. The current Verible release used here does not parse that wrapper family cleanly enough in this tutorial setup, so those files stay covered by Verilator lint and svlint instead.
 2. `svlint` intentionally stays scoped to synthesizable RTL instead of benches/formal harnesses.
 
 Outputs:
@@ -562,7 +574,7 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 3. `formal`: `bash scripts/run-formal.sh --mode all`
 4. `cocotb-verilator`: `bash scripts/run-cocotb-verilator.sh --no-waves --coverage`
 5. `equivalence`: `bash scripts/run-equiv.sh`
-6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, and `bash scripts/run-mmio-wait-uvm.sh --no-waves`
+6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, `bash scripts/run-mmio-wait-uvm.sh --no-waves`, `bash scripts/run-cocotb-apb.sh --no-waves`, and `bash scripts/run-apb-uvm.sh --no-waves`
 7. `mutations`: `bash scripts/run-mutations.sh`
 8. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
 
@@ -579,6 +591,8 @@ Uploaded artifacts include:
 9. `sim_build/mmio_cocotb_results.xml`
 10. `sim_build/mmio_wait_cocotb_results.xml`
 11. `sim_build/mmio_wait_uvm_results.xml`
+12. `sim_build/apb_cocotb_results.xml`
+13. `sim_build/apb_uvm_results.xml`
 12. `sim_build/verilator_results.xml`
 13. `sim_build/verilator_coverage/`
 14. `sim_build/asm_corpus/`
@@ -645,6 +659,18 @@ bash scripts/run-cocotb-mmio-wait.sh --no-waves
 bash scripts/run-mmio-wait-uvm.sh --no-waves
 ```
 
+Run the APB wrapper Python suites:
+
+```powershell
+.\scripts\run-cocotb-apb.ps1 -NoWaves
+.\scripts\run-apb-uvm.ps1 -NoWaves
+```
+
+```bash
+bash scripts/run-cocotb-apb.sh --no-waves
+bash scripts/run-apb-uvm.sh --no-waves
+```
+
 The cocotb layer now also includes an assembler-corpus regression in `tb/test_simple_cpu.py`, and the pyuvm example in `tb/test_simple_cpu_pyuvm.py` now includes:
 
 1. sequence-item driven smoke/random/branch tests,
@@ -660,6 +686,8 @@ The MMIO pyuvm layer in `tb/test_simple_cpu_mmio_pyuvm.py` adds:
 4. a direct pyuvm fault-injection test that proves shadow updates do not affect an in-flight run until reload.
 
 The same MMIO cocotb and MMIO pyuvm suites now also run unchanged against `rtl/simple_cpu_mmio_wait.sv`, which keeps the same register map but inserts an external wait state before every bus handshake. The reusable `tb/mmio_bus.py` helper now waits for `bus_ready` instead of assuming an always-ready shell.
+
+The APB wrapper protocol uses its own reusable Python bus-functional layer in `tb/apb_bus.py`. That keeps the higher-level shadow-program/control/status semantics aligned with MMIO while still checking a real APB-style setup/access handshake with `PSEL/PENABLE/PREADY`.
 
 The same cocotb tests can now run on Verilator:
 
@@ -689,6 +717,15 @@ The MMIO cocotb layer in `tb/test_simple_cpu_mmio.py` covers:
 
 Its bus transactions now live in `tb/mmio_bus.py`, so future wrapper-level Python regressions can reuse the same reset/read/write/start/stop helper instead of duplicating bus logic.
 
+The APB cocotb layer in `tb/test_simple_cpu_apb.py` covers:
+
+1. wrapper programming/readback against the same `ReferenceCPU`,
+2. control/status visibility across `HOLD`, `LOAD`, `RUN`, and `HALT`,
+3. Python-side shadow fault injection with explicit reload behavior,
+4. a protocol-focused check that `PREADY` stays low during the APB setup phase until `PENABLE` is asserted.
+
+The APB pyuvm layer in `tb/test_simple_cpu_apb_pyuvm.py` mirrors the same protocol with sequence/driver/scoreboard structure over `tb/apb_bus.py`.
+
 Generated Verilator artifacts:
 
 1. `sim_build/verilator_results.xml`
@@ -713,6 +750,8 @@ bash scripts/show-verilator-coverage.sh
 `rtl/simple_cpu_mmio.sv` wraps the core behind a tiny always-ready MMIO interface. It is intentionally simple enough to verify with the same open-source tools as the core.
 
 `rtl/simple_cpu_mmio_wait.sv` is the second wrapper variant. It keeps the same address map and inner semantics, but latches each request and inserts a fixed wait state before asserting `bus_ready`. That gives the tutorial a second bus shell without changing the software-visible model.
+
+`rtl/simple_cpu_apb.sv` is the third wrapper protocol. It exposes the same address map through a minimal APB-style setup/access handshake and translates APB transfers into the internal MMIO transaction model.
 
 Address map:
 
@@ -740,6 +779,7 @@ The native wrapper testbench in `tb/simple_cpu_mmio_tb.sv` checks:
 7. external `.hex` program replay, so the tracked assembler corpus can run through the wrapper unchanged
 8. a matching cocotb MMIO regression in `tb/test_simple_cpu_mmio.py` for Python-side bus-level checking
 9. the same cocotb/pyuvm MMIO suites can also run against `rtl/simple_cpu_mmio_wait.sv`, proving the reusable Python bus-functional layer handles delayed `bus_ready`
+10. a separate APB cocotb/pyuvm stack in `tb/test_simple_cpu_apb.py` and `tb/test_simple_cpu_apb_pyuvm.py`, proving the same shadow/control semantics under a different bus protocol
 
 It also writes wrapper-specific coverage artifacts:
 
@@ -973,7 +1013,7 @@ The status export now includes:
 2. the EQY equivalence workdir status,
 3. the optional Verilator coverage summary,
 4. the static-analysis summary from `sim_build/static_analysis/summary.json`,
-5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, and `mutations`.
+5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_cocotb`, `apb_pyuvm`, and `mutations`.
 
 ## Known benign warnings
 
@@ -984,7 +1024,7 @@ The status export now includes:
 5. Verilator structural coverage can report a lower overall percentage than the functional coverage gate because it measures line/toggle/expression activity, not intent-level bins.
 6. The Windows equivalence wrapper intentionally prefers WSL because some OSS CAD Suite `eqy.exe` builds are unstable.
 7. `svlint` is intentionally scoped to the synthesizable RTL so the secondary checker stays focused on real coding hazards instead of tutorial/testbench naming conventions.
-8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv` and `rtl/simple_cpu_mmio_wait.sv` because the current release used in this tutorial does not parse that wrapper family cleanly enough.
+8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv` because the current release used in this tutorial does not parse that wrapper family cleanly enough.
 9. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
 10. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
 
@@ -993,9 +1033,9 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 ## Next extensions
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
-2. Add a third wrapper protocol beyond the current always-ready and wait-state MMIO shells and replay the assembler corpus over it.
-3. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
-4. Extend the reusable Python bus-functional layer beyond this register-mapped interface once the project grows into a distinct protocol family.
+2. Add a fourth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, and APB shells.
+3. Replay the assembler corpus over the APB shell and compare it to the existing MMIO/native reference flows.
+4. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
 
 ## Publish To GitHub
 

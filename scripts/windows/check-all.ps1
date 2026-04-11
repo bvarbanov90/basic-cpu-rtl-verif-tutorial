@@ -30,6 +30,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-cocotb-apb.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\run-uvm.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -41,6 +46,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\run-mmio-wait-uvm.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-apb-uvm.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
