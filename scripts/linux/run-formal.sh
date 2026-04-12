@@ -104,6 +104,7 @@ if [[ "${MODE}" == "prove" || "${MODE}" == "all" ]]; then
     run_sby formal/simple_cpu_mmio.sby formal/simple_cpu_mmio
     run_sby formal/simple_cpu_mmio_wait.sby formal/simple_cpu_mmio_wait
     run_sby formal/simple_cpu_apb.sby formal/simple_cpu_apb
+    run_sby formal/simple_cpu_apb_faults.sby formal/simple_cpu_apb_faults
 fi
 
 if [[ "${MODE}" == "cover" || "${MODE}" == "all" ]]; then

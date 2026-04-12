@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-04-12T08:59:20Z",
+  "generated_utc": "2026-04-12T20:37:28Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "bcc32a8",
-  "git_dirty": 0,
+  "git_commit": "f2f1945",
+  "git_dirty": 1,
   "overall_required_status": "PASS",
   "core_coverage": {
     "path": "sim_build/coverage.json",
@@ -149,8 +149,8 @@
   },
   "formal": {
     "status": "PASS",
-    "passed": 8,
-    "total": 8,
+    "passed": 9,
+    "total": 9,
     "targets": [
       {
         "name": "simple_cpu",
@@ -165,7 +165,7 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:01:10",
+        "elapsed": "0:01:08",
         "raw_status": "PASS 0 0"
       },
       {
@@ -179,6 +179,14 @@
       {
         "name": "simple_cpu_apb",
         "path": "formal/simple_cpu_apb",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_apb_faults",
+        "path": "formal/simple_cpu_apb_faults",
         "status": "PASS",
         "solver": "cvc5",
         "elapsed": "0:00:00",
@@ -416,7 +424,7 @@
     "formal": {
       "path": "docs/status/badges/formal.json",
       "label": "formal",
-      "message": "8/8 PASS",
+      "message": "9/9 PASS",
       "status": "PASS"
     },
     "pyuvm": {
@@ -500,7 +508,7 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:01:10",
+      "message": "PASS cvc5 0:01:08",
       "status": "PASS"
     },
     "formal-simple_cpu_mmio_wait": {
@@ -512,6 +520,12 @@
     "formal-simple_cpu_apb": {
       "path": "docs/status/badges/formal-simple_cpu_apb.json",
       "label": "formal simple_cpu_apb",
+      "message": "PASS cvc5 0:00:00",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_apb_faults": {
+      "path": "docs/status/badges/formal-simple_cpu_apb_faults.json",
+      "label": "formal simple_cpu_apb_faults",
       "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     },

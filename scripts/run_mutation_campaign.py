@@ -28,294 +28,350 @@ class Bench:
     binary_name: str
 
 
-MUTATIONS = (
-    Mutation(
-        name="jz_inverted",
-        category="control_flow",
-        description="Invert the ZERO-branch decision.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            OPC_JZ: begin\n"
-                "                if (zero) begin\n"
-                "                    next_pc = operand;\n"
-                "                end\n"
-                "            end",
-                "            OPC_JZ: begin\n"
-                "                if (!zero) begin\n"
-                "                    next_pc = operand;\n"
-                "                end\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="store_disabled",
-        category="memory",
-        description="Disable data-memory writes for STA.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "                if (opcode == OPC_STA) begin\n"
-                "                    dmem[operand] <= acc;\n"
-                "                end",
-                "                if (1'b0) begin\n"
-                "                    dmem[operand] <= acc;\n"
-                "                end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="shift_carry_stuck_low",
-        category="flags",
-        description="Break SHL carry-out reporting.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "                next_carry = acc[7];\n"
-                "                next_overflow = acc[7] ^ shift_left_result[7];",
-                "                next_carry = 1'b0;\n"
-                "                next_overflow = acc[7] ^ shift_left_result[7];",
-            ),
-        ),
-    ),
-    Mutation(
-        name="illegal_opcode_not_halt",
-        category="control_flow",
-        description="Let illegal opcodes fall through instead of halting.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            default: begin\n"
-                "                next_pc = pc;\n"
-                "                next_halted = 1'b1;\n"
-                "            end",
-                "            default: begin\n"
-                "                next_pc = pc + 4'd1;\n"
-                "                next_halted = 1'b0;\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="add_uses_sub",
-        category="alu",
-        description="Drive ADD from the subtraction datapath.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            OPC_ADD: begin\n"
-                "                next_acc = add_result[7:0];\n"
-                "                next_zero = (add_result[7:0] == 8'h00);\n"
-                "                next_neg = add_result[7];\n"
-                "                next_carry = add_result[8];\n"
-                "                next_overflow = add_overflow;\n"
-                "            end",
-                "            OPC_ADD: begin\n"
-                "                next_acc = sub_result[7:0];\n"
-                "                next_zero = (sub_result[7:0] == 8'h00);\n"
-                "                next_neg = sub_result[7];\n"
-                "                next_carry = ~sub_result[8];\n"
-                "                next_overflow = sub_overflow;\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="sub_uses_add",
-        category="alu",
-        description="Drive SUB from the addition datapath.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            OPC_SUB: begin\n"
-                "                next_acc = sub_result[7:0];\n"
-                "                next_zero = (sub_result[7:0] == 8'h00);\n"
-                "                next_neg = sub_result[7];\n"
-                "                next_carry = ~sub_result[8];\n"
-                "                next_overflow = sub_overflow;\n"
-                "            end",
-                "            OPC_SUB: begin\n"
-                "                next_acc = add_result[7:0];\n"
-                "                next_zero = (add_result[7:0] == 8'h00);\n"
-                "                next_neg = add_result[7];\n"
-                "                next_carry = add_result[8];\n"
-                "                next_overflow = add_overflow;\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="jmp_fallthrough",
-        category="control_flow",
-        description="Make JMP behave like a fall-through instruction.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            OPC_JMP: begin\n"
-                "                next_pc = operand;\n"
-                "            end",
-                "            OPC_JMP: begin\n"
-                "                next_pc = pc + 4'd1;\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="cmp_clobbers_acc",
-        category="flags",
-        description="Incorrectly update ACC during CMP.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            OPC_CMP: begin\n"
-                "                next_zero = (sub_result[7:0] == 8'h00);\n"
-                "                next_neg = sub_result[7];\n"
-                "                next_carry = ~sub_result[8];\n"
-                "                next_overflow = sub_overflow;\n"
-                "            end",
-                "            OPC_CMP: begin\n"
-                "                next_acc = sub_result[7:0];\n"
-                "                next_zero = (sub_result[7:0] == 8'h00);\n"
-                "                next_neg = sub_result[7];\n"
-                "                next_carry = ~sub_result[8];\n"
-                "                next_overflow = sub_overflow;\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="hlt_fallthrough",
-        category="control_flow",
-        description="Allow HLT to advance instead of stopping execution.",
-        target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
-        replacements=(
-            (
-                "            OPC_HLT: begin\n"
-                "                next_pc = pc;\n"
-                "                next_halted = 1'b1;\n"
-                "            end",
-                "            OPC_HLT: begin\n"
-                "                next_pc = pc + 4'd1;\n"
-                "                next_halted = 1'b0;\n"
-                "            end",
-            ),
-        ),
-    ),
-    Mutation(
-        name="apb_setup_acts_like_access",
+def make_mutation(
+    *,
+    name: str,
+    category: str,
+    description: str,
+    target_file: str,
+    bench_names: tuple[str, ...],
+    replacements: tuple[tuple[str, str], ...],
+) -> Mutation:
+    return Mutation(
+        name=name,
+        category=category,
+        description=description,
+        target_file=target_file,
+        bench_names=bench_names,
+        replacements=replacements,
+    )
+
+
+def make_assign_mutation(
+    *,
+    name: str,
+    description: str,
+    target_file: str,
+    bench_names: tuple[str, ...],
+    lhs: str,
+    old_rhs: str,
+    new_rhs: str,
+) -> Mutation:
+    return make_mutation(
+        name=name,
         category="protocol",
-        description="Drive the inner MMIO bus during APB setup instead of waiting for PENABLE.",
-        target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb", "apb_fault_tb"),
-        replacements=(
-            (
-                "    assign mmio_valid = psel && penable;",
-                "    assign mmio_valid = psel;",
-            ),
-        ),
-    ),
-    Mutation(
-        name="apb_pready_ignores_valid",
+        description=description,
+        target_file=target_file,
+        bench_names=bench_names,
+        replacements=((f"    assign {lhs} = {old_rhs};", f"    assign {lhs} = {new_rhs};"),),
+    )
+
+
+def make_port_mutation(
+    *,
+    name: str,
+    description: str,
+    target_file: str,
+    bench_names: tuple[str, ...],
+    port_name: str,
+    old_expr: str,
+    new_expr: str,
+) -> Mutation:
+    return make_mutation(
+        name=name,
         category="protocol",
-        description="Let PREADY ignore the APB valid phase.",
-        target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb", "apb_fault_tb"),
-        replacements=(
-            (
-                "    assign pready = mmio_valid && mmio_ready;",
-                "    assign pready = mmio_ready;",
-            ),
-        ),
-    ),
-    Mutation(
-        name="apb_readback_zeroed",
+        description=description,
+        target_file=target_file,
+        bench_names=bench_names,
+        replacements=((f"        .{port_name}({old_expr}),", f"        .{port_name}({new_expr}),"),),
+    )
+
+
+def make_localparam_mutation(
+    *,
+    name: str,
+    description: str,
+    target_file: str,
+    bench_names: tuple[str, ...],
+    declaration: str,
+    old_value: str,
+    new_value: str,
+) -> Mutation:
+    return make_mutation(
+        name=name,
         category="protocol",
-        description="Break APB readback by forcing PRDATA low.",
-        target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb", "apb_fault_tb"),
-        replacements=(
-            (
-                "    assign prdata = mmio_rdata;",
-                "    assign prdata = 8'h00;",
+        description=description,
+        target_file=target_file,
+        bench_names=bench_names,
+        replacements=((f"    localparam {declaration} = {old_value};", f"    localparam {declaration} = {new_value};"),),
+    )
+
+
+def build_core_mutations() -> tuple[Mutation, ...]:
+    common = {
+        "target_file": "rtl/simple_cpu.sv",
+        "bench_names": ("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
+    }
+    return (
+        make_mutation(
+            name="jz_inverted",
+            category="control_flow",
+            description="Invert the ZERO-branch decision.",
+            replacements=(
+                (
+                    "            OPC_JZ: begin\n"
+                    "                if (zero) begin\n"
+                    "                    next_pc = operand;\n"
+                    "                end\n"
+                    "            end",
+                    "            OPC_JZ: begin\n"
+                    "                if (!zero) begin\n"
+                    "                    next_pc = operand;\n"
+                    "                end\n"
+                    "            end",
+                ),
             ),
+            **common,
         ),
-    ),
-    Mutation(
-        name="apb_write_polarity_inverted",
-        category="protocol",
-        description="Invert APB write polarity before it reaches the MMIO shell.",
-        target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb", "apb_fault_tb"),
-        replacements=(
-            (
-                "        .bus_write(pwrite),",
-                "        .bus_write(~pwrite),",
+        make_mutation(
+            name="store_disabled",
+            category="memory",
+            description="Disable data-memory writes for STA.",
+            replacements=(
+                (
+                    "                if (opcode == OPC_STA) begin\n"
+                    "                    dmem[operand] <= acc;\n"
+                    "                end",
+                    "                if (1'b0) begin\n"
+                    "                    dmem[operand] <= acc;\n"
+                    "                end",
+                ),
             ),
+            **common,
         ),
-    ),
-    Mutation(
-        name="mmio_wait_zero_delay",
-        category="protocol",
-        description="Remove the intended one-cycle wait from the delayed MMIO wrapper.",
-        target_file="rtl/simple_cpu_mmio_wait.sv",
-        bench_names=("mmio_wait_tb",),
-        replacements=(
-            (
-                "    localparam logic [1:0] WAIT_CYCLES = 2'd1;",
-                "    localparam logic [1:0] WAIT_CYCLES = 2'd0;",
+        make_mutation(
+            name="shift_carry_stuck_low",
+            category="flags",
+            description="Break SHL carry-out reporting.",
+            replacements=(
+                (
+                    "                next_carry = acc[7];\n"
+                    "                next_overflow = acc[7] ^ shift_left_result[7];",
+                    "                next_carry = 1'b0;\n"
+                    "                next_overflow = acc[7] ^ shift_left_result[7];",
+                ),
             ),
+            **common,
         ),
-    ),
-    Mutation(
-        name="mmio_wait_ready_early",
-        category="protocol",
-        description="Assert bus_ready as soon as a request is pending instead of waiting for service.",
-        target_file="rtl/simple_cpu_mmio_wait.sv",
-        bench_names=("mmio_wait_tb",),
-        replacements=(
-            (
-                "    assign bus_ready = inner_bus_valid && inner_bus_ready;",
-                "    assign bus_ready = pending && inner_bus_ready;",
+        make_mutation(
+            name="illegal_opcode_not_halt",
+            category="control_flow",
+            description="Let illegal opcodes fall through instead of halting.",
+            replacements=(
+                (
+                    "            default: begin\n"
+                    "                next_pc = pc;\n"
+                    "                next_halted = 1'b1;\n"
+                    "            end",
+                    "            default: begin\n"
+                    "                next_pc = pc + 4'd1;\n"
+                    "                next_halted = 1'b0;\n"
+                    "            end",
+                ),
             ),
+            **common,
         ),
-    ),
-    Mutation(
-        name="mmio_wait_readback_zeroed",
-        category="protocol",
-        description="Force delayed MMIO reads to return zero instead of the inner wrapper data.",
-        target_file="rtl/simple_cpu_mmio_wait.sv",
-        bench_names=("mmio_wait_tb",),
-        replacements=(
-            (
-                "    assign bus_rdata = inner_bus_rdata;",
-                "    assign bus_rdata = 8'h00;",
+        make_mutation(
+            name="add_uses_sub",
+            category="alu",
+            description="Drive ADD from the subtraction datapath.",
+            replacements=(
+                (
+                    "            OPC_ADD: begin\n"
+                    "                next_acc = add_result[7:0];\n"
+                    "                next_zero = (add_result[7:0] == 8'h00);\n"
+                    "                next_neg = add_result[7];\n"
+                    "                next_carry = add_result[8];\n"
+                    "                next_overflow = add_overflow;\n"
+                    "            end",
+                    "            OPC_ADD: begin\n"
+                    "                next_acc = sub_result[7:0];\n"
+                    "                next_zero = (sub_result[7:0] == 8'h00);\n"
+                    "                next_neg = sub_result[7];\n"
+                    "                next_carry = ~sub_result[8];\n"
+                    "                next_overflow = sub_overflow;\n"
+                    "            end",
+                ),
             ),
+            **common,
         ),
-    ),
-    Mutation(
-        name="mmio_wait_write_data_zeroed",
-        category="protocol",
-        description="Drop captured write data before it reaches the inner MMIO shell.",
-        target_file="rtl/simple_cpu_mmio_wait.sv",
-        bench_names=("mmio_wait_tb",),
-        replacements=(
-            (
-                "        .bus_wdata(req_wdata),",
-                "        .bus_wdata(8'h00),",
+        make_mutation(
+            name="sub_uses_add",
+            category="alu",
+            description="Drive SUB from the addition datapath.",
+            replacements=(
+                (
+                    "            OPC_SUB: begin\n"
+                    "                next_acc = sub_result[7:0];\n"
+                    "                next_zero = (sub_result[7:0] == 8'h00);\n"
+                    "                next_neg = sub_result[7];\n"
+                    "                next_carry = ~sub_result[8];\n"
+                    "                next_overflow = sub_overflow;\n"
+                    "            end",
+                    "            OPC_SUB: begin\n"
+                    "                next_acc = add_result[7:0];\n"
+                    "                next_zero = (add_result[7:0] == 8'h00);\n"
+                    "                next_neg = add_result[7];\n"
+                    "                next_carry = add_result[8];\n"
+                    "                next_overflow = add_overflow;\n"
+                    "            end",
+                ),
             ),
+            **common,
         ),
-    ),
-)
+        make_mutation(
+            name="jmp_fallthrough",
+            category="control_flow",
+            description="Make JMP behave like a fall-through instruction.",
+            replacements=(
+                (
+                    "            OPC_JMP: begin\n"
+                    "                next_pc = operand;\n"
+                    "            end",
+                    "            OPC_JMP: begin\n"
+                    "                next_pc = pc + 4'd1;\n"
+                    "            end",
+                ),
+            ),
+            **common,
+        ),
+        make_mutation(
+            name="cmp_clobbers_acc",
+            category="flags",
+            description="Incorrectly update ACC during CMP.",
+            replacements=(
+                (
+                    "            OPC_CMP: begin\n"
+                    "                next_zero = (sub_result[7:0] == 8'h00);\n"
+                    "                next_neg = sub_result[7];\n"
+                    "                next_carry = ~sub_result[8];\n"
+                    "                next_overflow = sub_overflow;\n"
+                    "            end",
+                    "            OPC_CMP: begin\n"
+                    "                next_acc = sub_result[7:0];\n"
+                    "                next_zero = (sub_result[7:0] == 8'h00);\n"
+                    "                next_neg = sub_result[7];\n"
+                    "                next_carry = ~sub_result[8];\n"
+                    "                next_overflow = sub_overflow;\n"
+                    "            end",
+                ),
+            ),
+            **common,
+        ),
+        make_mutation(
+            name="hlt_fallthrough",
+            category="control_flow",
+            description="Allow HLT to advance instead of stopping execution.",
+            replacements=(
+                (
+                    "            OPC_HLT: begin\n"
+                    "                next_pc = pc;\n"
+                    "                next_halted = 1'b1;\n"
+                    "            end",
+                    "            OPC_HLT: begin\n"
+                    "                next_pc = pc + 4'd1;\n"
+                    "                next_halted = 1'b0;\n"
+                    "            end",
+                ),
+            ),
+            **common,
+        ),
+    )
+
+
+def build_apb_protocol_mutations() -> tuple[Mutation, ...]:
+    common = {
+        "target_file": "rtl/simple_cpu_apb.sv",
+        "bench_names": ("apb_tb", "apb_fault_tb"),
+    }
+    return (
+        make_assign_mutation(
+            name="apb_setup_acts_like_access",
+            description="Drive the inner MMIO bus during APB setup instead of waiting for PENABLE.",
+            lhs="mmio_valid",
+            old_rhs="psel && penable",
+            new_rhs="psel",
+            **common,
+        ),
+        make_assign_mutation(
+            name="apb_pready_ignores_valid",
+            description="Let PREADY ignore the APB valid phase.",
+            lhs="pready",
+            old_rhs="mmio_valid && mmio_ready",
+            new_rhs="mmio_ready",
+            **common,
+        ),
+        make_assign_mutation(
+            name="apb_readback_zeroed",
+            description="Break APB readback by forcing PRDATA low.",
+            lhs="prdata",
+            old_rhs="mmio_rdata",
+            new_rhs="8'h00",
+            **common,
+        ),
+        make_port_mutation(
+            name="apb_write_polarity_inverted",
+            description="Invert APB write polarity before it reaches the MMIO shell.",
+            port_name="bus_write",
+            old_expr="pwrite",
+            new_expr="~pwrite",
+            **common,
+        ),
+    )
+
+
+def build_wait_protocol_mutations() -> tuple[Mutation, ...]:
+    common = {
+        "target_file": "rtl/simple_cpu_mmio_wait.sv",
+        "bench_names": ("mmio_wait_tb",),
+    }
+    return (
+        make_localparam_mutation(
+            name="mmio_wait_zero_delay",
+            description="Remove the intended one-cycle wait from the delayed MMIO wrapper.",
+            declaration="logic [1:0] WAIT_CYCLES",
+            old_value="2'd1",
+            new_value="2'd0",
+            **common,
+        ),
+        make_assign_mutation(
+            name="mmio_wait_ready_early",
+            description="Assert bus_ready as soon as a request is pending instead of waiting for service.",
+            lhs="bus_ready",
+            old_rhs="inner_bus_valid && inner_bus_ready",
+            new_rhs="pending && inner_bus_ready",
+            **common,
+        ),
+        make_assign_mutation(
+            name="mmio_wait_readback_zeroed",
+            description="Force delayed MMIO reads to return zero instead of the inner wrapper data.",
+            lhs="bus_rdata",
+            old_rhs="inner_bus_rdata",
+            new_rhs="8'h00",
+            **common,
+        ),
+        make_port_mutation(
+            name="mmio_wait_write_data_zeroed",
+            description="Drop captured write data before it reaches the inner MMIO shell.",
+            port_name="bus_wdata",
+            old_expr="req_wdata",
+            new_expr="8'h00",
+            **common,
+        ),
+    )
+
+
+MUTATIONS = build_core_mutations() + build_apb_protocol_mutations() + build_wait_protocol_mutations()
 
 BENCHES = (
     Bench(

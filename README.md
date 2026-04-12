@@ -78,10 +78,13 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_mmio_wait_cover_formal.sv
 |  |- simple_cpu_mmio_wait_stub.sv
 |  |- simple_cpu_apb.sby
+|  |- simple_cpu_apb_faults.sby
 |  |- simple_cpu_apb_cover.sby
 |  |- simple_cpu_apb_formal.sv
+|  |- simple_cpu_apb_fault_formal.sv
 |  |- simple_cpu_apb_cover_formal.sv
 |  |- simple_cpu_apb_mmio_stub.sv
+|  |- simple_cpu_apb_fault_mmio_stub.sv
 |  |- simple_cpu_cover_formal.sv
 |  |- simple_cpu_mmio_cover_formal.sv
 |- equiv/
@@ -616,6 +619,7 @@ The formal proof flow now runs:
 2. `formal/simple_cpu_mmio.sby`
 3. `formal/simple_cpu_mmio_wait.sby`
 4. `formal/simple_cpu_apb.sby`
+5. `formal/simple_cpu_apb_faults.sby`
 
 The formal cover flow runs:
 
@@ -633,13 +637,16 @@ Current formal properties cover:
 5. representative shadow-image update/stability rules during hold, load, and run phases,
 6. MMIO wait-state request capture, fixed delay, request stability, and delayed read-data pass-through,
 7. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
-8. APB pass-through mapping of the MMIO readback model onto the APB shell.
+8. APB pass-through mapping of the MMIO readback model onto the APB shell,
+9. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
 
 The MMIO wait-state formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through so the extra protocol target stays cheap.
 
 The APB formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the APB proof focuses on setup/access handshake behavior and read-data pass-through so the extra protocol target stays cheap.
+
+The APB fault formal target is split out intentionally. `formal/simple_cpu_apb_faults.sby` uses a small stateful MMIO stub and a deterministic APB stimulus harness so the setup/glitch/reload corner cases are proved directly without slowing down the baseline APB shell proof.
 
 The cover targets use dedicated witness harnesses so `sby cover` produces fast, readable example traces instead of spending time trying to satisfy every proof-harness cover statement in one run.
 

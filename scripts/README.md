@@ -54,3 +54,11 @@ When adding a new automation flow:
 Static-analysis note:
 
 1. `scripts/static_analysis.py` intentionally gives Verible and svlint different source scopes. Verible targets the hand-written SV files that the current release parses cleanly, while svlint stays focused on synthesizable RTL.
+
+Formal note:
+
+1. `run-formal` now includes the dedicated `formal/simple_cpu_apb_faults.sby` target in prove mode, so APB setup/glitch/reload corner cases are proved separately from the lighter baseline APB shell contract.
+
+Mutation note:
+
+1. `scripts/run_mutation_campaign.py` now builds the APB and MMIO-wait protocol-shell mutants through helper templates (`make_assign_mutation`, `make_port_mutation`, `make_localparam_mutation`) so extending a new wrapper family does not require hand-writing every mutation block.
