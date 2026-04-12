@@ -28,6 +28,9 @@ jobs:
       - name: Run assembler regression corpus through APB
         run: bash scripts/run-asm-corpus.sh --runner apb
 
+      - name: Run assembler regression corpus through MMIO wait-state
+        run: bash scripts/run-asm-corpus.sh --runner mmio_wait
+
       - name: Upload native artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -37,6 +40,8 @@ jobs:
             sim_build/coverage.csv
             sim_build/mmio_coverage.json
             sim_build/mmio_coverage.csv
+            sim_build/mmio_wait_coverage.json
+            sim_build/mmio_wait_coverage.csv
             sim_build/apb_coverage.json
             sim_build/apb_coverage.csv
             sim_build/asm_corpus
@@ -81,9 +86,11 @@ jobs:
           path: |
             formal/simple_cpu
             formal/simple_cpu_mmio
+            formal/simple_cpu_mmio_wait
             formal/simple_cpu_apb
             formal/simple_cpu_cover
             formal/simple_cpu_mmio_cover
+            formal/simple_cpu_mmio_wait_cover
             formal/simple_cpu_apb_cover
 
   cocotb-verilator:

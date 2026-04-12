@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
     cat <<'EOF'
-Usage: bash scripts/run-asm-corpus.sh [--no-simulate] [--runner <direct|mmio|apb>]
+Usage: bash scripts/run-asm-corpus.sh [--no-simulate] [--runner <direct|mmio|mmio_wait|apb>]
 EOF
 }
 

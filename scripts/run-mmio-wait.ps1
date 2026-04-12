@@ -1,12 +1,11 @@
 param(
-    [switch]$NoSimulate,
-    [ValidateSet("direct", "mmio", "mmio_wait", "apb")]
-    [string]$Runner = "direct"
+    [switch]$NoWaves,
+    [string]$ProgramHex
 )
 
 $ErrorActionPreference = "Stop"
 $projectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$impl = Join-Path $PSScriptRoot "windows\\run-asm-corpus.ps1"
+$impl = Join-Path $PSScriptRoot "windows\\run-mmio-wait.ps1"
 
 Push-Location $projectRoot
 try {

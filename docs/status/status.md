@@ -1,13 +1,13 @@
 # Verification Status
 
-Generated UTC: `2026-04-12T07:32:00Z`
+Generated UTC: `2026-04-12T08:20:59Z`
 
 | Field | Value |
 |---|---|
 | Label | tutorial-regression |
 | Git branch | `main` |
-| Git commit | `7926dcb` |
-| Git dirty | `0` |
+| Git commit | `fba7cd3` |
+| Git dirty | `1` |
 | Overall required-suite status | `PASS` |
 
 Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence`. Optional suites are reported separately.
@@ -18,8 +18,9 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 |---|---|---|---|---|
 | core_coverage | yes | `PASS` | program_runs=40, total_cycles=676, opcode_hits=15 | `sim_build/coverage.json` |
 | mmio_coverage | yes | `PASS` | program_runs=7, shadow_writes=113, status_reads=189 | `sim_build/mmio_coverage.json` |
+| mmio_wait_coverage | no | `PASS` | program_runs=8, wait_transactions=498, wait_cycles=498, max_wait=1 | `sim_build/mmio_wait_coverage.json` |
 | apb_coverage | no | `PASS` | program_runs=8, shadow_writes=129, setup_phases=514, access_phases=514 | `sim_build/apb_coverage.json` |
-| formal | yes | `PASS` | simple_cpu:PASS solver=cvc5 elapsed=0:00:03; simple_cpu_mmio:PASS solver=cvc5 elapsed=0:01:10; simple_cpu_apb:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_cover:PASS solver=cvc5 elapsed=0:00:01; simple_cpu_apb_cover:PASS solver=cvc5 elapsed=0:00:00 | `-` |
+| formal | yes | `PASS` | simple_cpu:PASS solver=cvc5 elapsed=0:00:03; simple_cpu_mmio:PASS solver=cvc5 elapsed=0:01:10; simple_cpu_mmio_wait:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_cover:PASS solver=cvc5 elapsed=0:00:02; simple_cpu_mmio_wait_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb_cover:PASS solver=cvc5 elapsed=0:00:00 | `-` |
 | equivalence | yes | `PASS` | partitions=93, elapsed=0:00:12 | `equiv/simple_cpu_eqy` |
 | static_analysis | no | `PASS` | tools=4/4 | `sim_build/static_analysis/summary.json` |
 | pyuvm_coverage | no | `PASS` | program_runs=11, total_cycles=131, opcode_hits=15 | `sim_build/pyuvm_coverage.json` |
@@ -39,19 +40,21 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 |---|---|---|---|---|
 | simple_cpu | `PASS` | `cvc5` | `0:00:03` | `formal/simple_cpu` |
 | simple_cpu_mmio | `PASS` | `cvc5` | `0:01:10` | `formal/simple_cpu_mmio` |
+| simple_cpu_mmio_wait | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_mmio_wait` |
 | simple_cpu_apb | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_apb` |
 | simple_cpu_cover | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_cover` |
-| simple_cpu_mmio_cover | `PASS` | `cvc5` | `0:00:01` | `formal/simple_cpu_mmio_cover` |
+| simple_cpu_mmio_cover | `PASS` | `cvc5` | `0:00:02` | `formal/simple_cpu_mmio_cover` |
+| simple_cpu_mmio_wait_cover | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_mmio_wait_cover` |
 | simple_cpu_apb_cover | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_apb_cover` |
 
 ## Latest Coverage History Snapshot
 
 | Field | Value |
 |---|---|
-| Timestamp UTC | `2026-04-12T07:31:48Z` |
+| Timestamp UTC | `2026-04-12T08:20:59Z` |
 | Label | tutorial-regression |
-| Commit | `0f7db76` |
-| Dirty | `0` |
+| Commit | `fba7cd3` |
+| Dirty | `1` |
 
 ## Badge Endpoints
 
@@ -70,10 +73,13 @@ Generated shields-compatible endpoint JSON files:
 1. `docs/status/badges/formal-simple_cpu_cover.json`
 1. `docs/status/badges/formal-simple_cpu_mmio.json`
 1. `docs/status/badges/formal-simple_cpu_mmio_cover.json`
+1. `docs/status/badges/formal-simple_cpu_mmio_wait.json`
+1. `docs/status/badges/formal-simple_cpu_mmio_wait_cover.json`
 1. `docs/status/badges/mmio-cocotb.json`
 1. `docs/status/badges/mmio-coverage.json`
 1. `docs/status/badges/mmio-pyuvm.json`
 1. `docs/status/badges/mmio-wait-cocotb.json`
+1. `docs/status/badges/mmio-wait-coverage.json`
 1. `docs/status/badges/mmio-wait-pyuvm.json`
 1. `docs/status/badges/mutations.json`
 1. `docs/status/badges/overall.json`

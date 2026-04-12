@@ -1,12 +1,10 @@
 param(
-    [switch]$NoSimulate,
-    [ValidateSet("direct", "mmio", "mmio_wait", "apb")]
-    [string]$Runner = "direct"
+    [string]$CoverageFile = "sim_build/mmio_wait_coverage.json"
 )
 
 $ErrorActionPreference = "Stop"
 $projectRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$impl = Join-Path $PSScriptRoot "windows\\run-asm-corpus.ps1"
+$impl = Join-Path $PSScriptRoot "windows\\show-mmio-wait-coverage.ps1"
 
 Push-Location $projectRoot
 try {

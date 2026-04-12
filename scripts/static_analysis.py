@@ -25,13 +25,18 @@ VERILATOR_FILES = [
 VERIBLE_FILES = [
     Path("rtl/simple_cpu.sv"),
     Path("tb/simple_cpu_mmio_assertions.sv"),
+    Path("tb/simple_cpu_mmio_wait_assertions.sv"),
     Path("tb/simple_cpu_tb.sv"),
     Path("tb/simple_cpu_mmio_tb.sv"),
+    Path("tb/simple_cpu_mmio_wait_tb.sv"),
     Path("formal/simple_cpu_formal.sv"),
     Path("formal/simple_cpu_mmio_formal.sv"),
+    Path("formal/simple_cpu_mmio_wait_formal.sv"),
     Path("formal/simple_cpu_cover_formal.sv"),
     Path("formal/simple_cpu_mmio_cover_formal.sv"),
+    Path("formal/simple_cpu_mmio_wait_cover_formal.sv"),
     Path("formal/simple_cpu_mmio_stub.sv"),
+    Path("formal/simple_cpu_mmio_wait_stub.sv"),
     Path("equiv/simple_cpu_golden.sv"),
 ]
 

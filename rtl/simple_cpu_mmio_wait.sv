@@ -7,6 +7,17 @@ module simple_cpu_mmio_wait (
     input  logic [7:0] bus_wdata,
     output logic       bus_ready,
     output logic [7:0] bus_rdata
+`ifdef FORMAL
+    ,
+    output logic       formal_pending,
+    output logic [1:0] formal_wait_count,
+    output logic       formal_req_write,
+    output logic [7:0] formal_req_addr,
+    output logic [7:0] formal_req_wdata,
+    output logic       formal_inner_bus_valid,
+    output logic       formal_inner_bus_ready,
+    output logic [7:0] formal_inner_bus_rdata
+`endif
 );
     localparam logic [1:0] WAIT_CYCLES = 2'd1;
 
@@ -23,6 +34,16 @@ module simple_cpu_mmio_wait (
     assign inner_bus_valid = pending && (wait_count == 2'd0);
     assign bus_ready = inner_bus_valid && inner_bus_ready;
     assign bus_rdata = inner_bus_rdata;
+`ifdef FORMAL
+    assign formal_pending = pending;
+    assign formal_wait_count = wait_count;
+    assign formal_req_write = req_write;
+    assign formal_req_addr = req_addr;
+    assign formal_req_wdata = req_wdata;
+    assign formal_inner_bus_valid = inner_bus_valid;
+    assign formal_inner_bus_ready = inner_bus_ready;
+    assign formal_inner_bus_rdata = inner_bus_rdata;
+`endif
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin

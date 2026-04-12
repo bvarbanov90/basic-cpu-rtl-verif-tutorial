@@ -5,6 +5,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![overall](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/overall.json)](docs/status/status.md)
 [![core coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/core-coverage.json)](docs/status/status.md)
 [![mmio coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-coverage.json)](docs/status/status.md)
+[![mmio wait coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-wait-coverage.json)](docs/status/status.md)
 [![apb coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-coverage.json)](docs/status/status.md)
 [![formal](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/formal.json)](docs/status/status.md)
 [![equivalence](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/equivalence.json)](docs/status/status.md)
@@ -70,6 +71,11 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_mmio.sby
 |  |- simple_cpu_mmio_cover.sby
 |  |- simple_cpu_mmio_formal.sv
+|  |- simple_cpu_mmio_wait.sby
+|  |- simple_cpu_mmio_wait_cover.sby
+|  |- simple_cpu_mmio_wait_formal.sv
+|  |- simple_cpu_mmio_wait_cover_formal.sv
+|  |- simple_cpu_mmio_wait_stub.sv
 |  |- simple_cpu_apb.sby
 |  |- simple_cpu_apb_cover.sby
 |  |- simple_cpu_apb_formal.sv
@@ -95,7 +101,9 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_apb_assertions.sv
 |  |- simple_cpu_apb_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
+|  |- simple_cpu_mmio_wait_assertions.sv
 |  |- simple_cpu_mmio_tb.sv
+|  |- simple_cpu_mmio_wait_tb.sv
 |  |- simple_cpu_tb.sv
 |  |- test_simple_cpu.py
 |  |- test_simple_cpu_mmio.py
@@ -119,6 +127,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-asm.ps1
 |  |  |- run-asm-corpus.ps1
 |  |  |- run-mmio.ps1
+|  |  |- run-mmio-wait.ps1
 |  |  |- run-apb.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
@@ -139,6 +148,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.cmd
 |  |  |- show-coverage.ps1
 |  |  |- show-apb-coverage.ps1
+|  |  |- show-mmio-wait-coverage.ps1
 |  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
 |  |  |- show-static-analysis.ps1
@@ -148,6 +158,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-asm.sh
 |  |  |- run-asm-corpus.sh
 |  |  |- run-mmio.sh
+|  |  |- run-mmio-wait.sh
 |  |  |- run-apb.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
@@ -167,6 +178,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
 |  |  |- show-apb-coverage.sh
+|  |  |- show-mmio-wait-coverage.sh
 |  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
 |  |  |- show-static-analysis.sh
@@ -175,6 +187,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
 |  |- check-native.ps1 / check-native.sh (wrappers)
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
+|  |- run-mmio-wait.ps1 / run-mmio-wait.sh (wrappers)
 |  |- run-apb.ps1 / run-apb.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
@@ -193,6 +206,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
 |  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
+|  |- show-mmio-wait-coverage.ps1 / show-mmio-wait-coverage.sh (wrappers)
 |  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
 |  |- show-static-analysis.ps1 / show-static-analysis.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
@@ -568,13 +582,15 @@ The formal proof flow now runs:
 
 1. `formal/simple_cpu.sby`
 2. `formal/simple_cpu_mmio.sby`
-3. `formal/simple_cpu_apb.sby`
+3. `formal/simple_cpu_mmio_wait.sby`
+4. `formal/simple_cpu_apb.sby`
 
 The formal cover flow runs:
 
 1. `formal/simple_cpu_cover.sby`
 2. `formal/simple_cpu_mmio_cover.sby`
-3. `formal/simple_cpu_apb_cover.sby`
+3. `formal/simple_cpu_mmio_wait_cover.sby`
+4. `formal/simple_cpu_apb_cover.sby`
 
 Current formal properties cover:
 
@@ -583,10 +599,13 @@ Current formal properties cover:
 3. MMIO address-map readback for status, `ACC`, `PC`, control, and boundary shadow slots,
 4. MMIO `HOLD/LOAD/RUN` state transitions and loader sequencing,
 5. representative shadow-image update/stability rules during hold, load, and run phases,
-6. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
-7. APB pass-through mapping of the MMIO readback model onto the APB shell.
+6. MMIO wait-state request capture, fixed delay, request stability, and delayed read-data pass-through,
+7. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
+8. APB pass-through mapping of the MMIO readback model onto the APB shell.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
+
+The MMIO wait-state formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through so the extra protocol target stays cheap.
 
 The APB formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the APB proof focuses on setup/access handshake behavior and read-data pass-through so the extra protocol target stays cheap.
 
@@ -652,9 +671,11 @@ Uploaded artifacts include:
 19. `sim_build/mutations/`
 20. `formal/simple_cpu_cover/`
 21. `formal/simple_cpu_mmio_cover/`
-22. `formal/simple_cpu_apb/`
-23. `formal/simple_cpu_apb_cover/`
-24. `equiv/simple_cpu_eqy/`
+22. `formal/simple_cpu_mmio_wait/`
+23. `formal/simple_cpu_mmio_wait_cover/`
+24. `formal/simple_cpu_apb/`
+25. `formal/simple_cpu_apb_cover/`
+26. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -806,6 +827,8 @@ bash scripts/show-verilator-coverage.sh
 
 `rtl/simple_cpu_mmio_wait.sv` is the second wrapper variant. It keeps the same address map and inner semantics, but latches each request and inserts a fixed wait state before asserting `bus_ready`. That gives the tutorial a second bus shell without changing the software-visible model.
 
+The wait-state wrapper now also has dedicated SymbiYosys prove/cover targets. Those targets prove the request-capture and fixed-delay contract directly, without re-solving the MMIO semantics already covered by `formal/simple_cpu_mmio.sby`.
+
 `rtl/simple_cpu_apb.sv` is the third wrapper protocol. It exposes the same address map through a minimal APB-style setup/access handshake and translates APB transfers into the internal MMIO transaction model.
 
 Address map:
@@ -841,14 +864,28 @@ It also writes wrapper-specific coverage artifacts:
 1. `sim_build/mmio_coverage.json`
 2. `sim_build/mmio_coverage.csv`
 
+The native wait-state wrapper testbench in `tb/simple_cpu_mmio_wait_tb.sv` checks:
+
+1. the same programming, reprogramming, illegal-opcode, branch/control, and shadow-fault flows as the always-ready MMIO bench
+2. assertion-based wait-state protocol checks via `tb/simple_cpu_mmio_wait_assertions.sv`
+3. explicit delayed-handshake accounting for every native read/write transaction
+4. external `.hex` replay through the delayed wrapper, so the assembler corpus can run through the wait-state shell unchanged
+
+It also writes wait-state-specific coverage artifacts:
+
+1. `sim_build/mmio_wait_coverage.json`
+2. `sim_build/mmio_wait_coverage.csv`
+
 Quick summary commands:
 
 ```powershell
 .\scripts\show-mmio-coverage.ps1
+.\scripts\show-mmio-wait-coverage.ps1
 ```
 
 ```bash
 bash scripts/show-mmio-coverage.sh
+bash scripts/show-mmio-wait-coverage.sh
 ```
 
 Current MMIO coverage goals:
@@ -858,6 +895,13 @@ Current MMIO coverage goals:
 3. data-memory reads cover the full 16-byte window on every run
 4. status, `ACC`, and `PC` reads occur on every run
 5. start/stop control writes occur on every run
+
+Current MMIO wait-state coverage goals:
+
+1. the same full-image/readback/control visibility goals as the always-ready MMIO shell
+2. every native read/write transaction observes a delayed handshake
+3. at least one delayed cycle is observed per transaction
+4. the maximum observed wait is at least one cycle
 
 The native APB wrapper testbench in `tb/simple_cpu_apb_tb.sv` checks:
 
