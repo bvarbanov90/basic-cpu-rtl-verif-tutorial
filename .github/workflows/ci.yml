@@ -220,7 +220,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install open-source EDA toolchain
-        run: bash scripts/install-tools-ubuntu.sh
+        run: bash scripts/install-tools-ubuntu.sh --profile mutations
 
       - name: Run mutation campaign
         run: bash scripts/run-mutations.sh

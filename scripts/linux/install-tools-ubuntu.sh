@@ -1,6 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PROFILE="full"
+
+usage() {
+    cat <<'EOF'
+Usage: bash scripts/install-tools-ubuntu.sh [--profile full|mutations]
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --profile)
+            if [[ $# -lt 2 ]]; then
+                usage
+                exit 2
+            fi
+            PROFILE="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument: $1" >&2
+            usage
+            exit 2
+            ;;
+    esac
+done
+
+case "${PROFILE}" in
+    full|mutations)
+        ;;
+    *)
+        echo "Unsupported profile '${PROFILE}'. Use full or mutations." >&2
+        exit 2
+        ;;
+esac
+
 if [[ "$(id -u)" -eq 0 ]]; then
     SUDO=""
 else
@@ -11,24 +50,38 @@ else
     SUDO="sudo"
 fi
 
+apt_install() {
+    ${SUDO} apt-get install -y "$@"
+}
+
+curl_fetch() {
+    curl --retry 5 --retry-delay 2 --retry-all-errors -fsSL "$@"
+}
+
 ${SUDO} apt-get update
-${SUDO} apt-get install -y \
-    curl \
-    g++ \
-    iverilog \
-    verilator \
-    gtkwave \
-    yosys \
-    cvc5 \
-    z3 \
-    make \
-    python3 \
-    python3-pip \
-    python3-click \
-    python3-venv \
-    git \
-    tar \
-    unzip
+if [[ "${PROFILE}" == "mutations" ]]; then
+    apt_install \
+        iverilog \
+        python3
+else
+    apt_install \
+        curl \
+        g++ \
+        iverilog \
+        verilator \
+        gtkwave \
+        yosys \
+        cvc5 \
+        z3 \
+        make \
+        python3 \
+        python3-pip \
+        python3-click \
+        python3-venv \
+        git \
+        tar \
+        unzip
+fi
 
 TOOLS_ROOT="${HOME}/tools"
 VERIBLE_ROOT="${TOOLS_ROOT}/verible"
@@ -49,7 +102,7 @@ install_latest_release_asset() {
     archive_path="$(mktemp)"
     trap 'rm -f "${release_json}" "${archive_path}"' RETURN
 
-    curl -fsSL "https://api.github.com/repos/${repo}/releases/latest" -o "${release_json}"
+    curl_fetch "https://api.github.com/repos/${repo}/releases/latest" -o "${release_json}"
     download_url="$(python3 - "${release_json}" "${asset_regex}" <<'PY'
 import json
 import re
@@ -69,7 +122,7 @@ PY
 
     rm -rf "${target_dir}"
     mkdir -p "${target_dir}"
-    curl -fsSL "${download_url}" -o "${archive_path}"
+    curl_fetch "${download_url}" -o "${archive_path}"
 
     case "${archive_ext}" in
         tar.gz)
@@ -96,31 +149,36 @@ find_verible_lint() {
     find "${VERIBLE_ROOT}" -maxdepth 3 -type f -name verible-verilog-lint -print -quit 2>/dev/null || true
 }
 
-if ! command -v sby >/dev/null 2>&1; then
-    tmpdir="$(mktemp -d)"
-    git clone --depth 1 https://github.com/YosysHQ/sby "${tmpdir}/sby"
-    ${SUDO} make -C "${tmpdir}/sby" install PREFIX=/usr/local
-    rm -rf "${tmpdir}"
-fi
+if [[ "${PROFILE}" == "full" ]]; then
+    if ! command -v sby >/dev/null 2>&1; then
+        tmpdir="$(mktemp -d)"
+        git clone --depth 1 https://github.com/YosysHQ/sby "${tmpdir}/sby"
+        ${SUDO} make -C "${tmpdir}/sby" install PREFIX=/usr/local
+        rm -rf "${tmpdir}"
+    fi
 
-if [[ -z "$(find_verible_lint)" ]]; then
-    install_latest_release_asset \
-        "chipsalliance/verible" \
-        "linux-static-x86_64\\.tar\\.gz$" \
-        "${VERIBLE_ROOT}" \
-        "tar.gz"
-fi
+    if [[ -z "$(find_verible_lint)" ]]; then
+        install_latest_release_asset \
+            "chipsalliance/verible" \
+            "linux-static-x86_64\\.tar\\.gz$" \
+            "${VERIBLE_ROOT}" \
+            "tar.gz"
+    fi
 
-if [[ ! -x "${SVLINT_ROOT}/bin/svlint" ]]; then
-    install_latest_release_asset \
-        "dalance/svlint" \
-        "x86_64-lnx\\.zip$" \
-        "${SVLINT_ROOT}" \
-        "zip"
-fi
+    if [[ ! -x "${SVLINT_ROOT}/bin/svlint" ]]; then
+        install_latest_release_asset \
+            "dalance/svlint" \
+            "x86_64-lnx\\.zip$" \
+            "${SVLINT_ROOT}" \
+            "zip"
+    fi
 
-echo "Installed tools for Ubuntu/WSL:"
-echo "  g++, iverilog, vvp, verilator, gtkwave, yosys, cvc5, z3, sby"
-echo "  verible: ${VERIBLE_ROOT}"
-echo "  svlint:  ${SVLINT_ROOT}"
-echo "  eqy is resolved by scripts/run-equiv.sh via system PATH or Linux OSS CAD Suite."
+    echo "Installed tools for Ubuntu/WSL profile '${PROFILE}':"
+    echo "  g++, iverilog, vvp, verilator, gtkwave, yosys, cvc5, z3, sby"
+    echo "  verible: ${VERIBLE_ROOT}"
+    echo "  svlint:  ${SVLINT_ROOT}"
+    echo "  eqy is resolved by scripts/run-equiv.sh via system PATH or Linux OSS CAD Suite."
+else
+    echo "Installed tools for Ubuntu/WSL profile '${PROFILE}':"
+    echo "  iverilog, vvp, python3"
+fi
