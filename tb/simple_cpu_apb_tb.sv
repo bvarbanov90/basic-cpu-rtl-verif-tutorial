@@ -174,7 +174,7 @@ module simple_cpu_apb_tb;
       @(negedge pclk);
       penable = 1'b1;
       #1;
-      cov_access_phases = cov_access_phases + 1;
+      cov_access_phases  = cov_access_phases + 1;
       cov_write_accesses = cov_write_accesses + 1;
       if (pready !== 1'b1) begin
         $fatal(1, "APB write access observed PREADY deasserted");

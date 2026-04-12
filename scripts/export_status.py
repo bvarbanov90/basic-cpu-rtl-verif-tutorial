@@ -35,6 +35,11 @@ def parse_args() -> argparse.Namespace:
         help="MMIO wait-state coverage JSON path.",
     )
     parser.add_argument("--apb", default="sim_build/apb_coverage.json", help="APB coverage JSON path.")
+    parser.add_argument(
+        "--apb-fault",
+        default="sim_build/apb_fault_coverage.json",
+        help="APB fault-coverage JSON path.",
+    )
     parser.add_argument("--pyuvm", default="sim_build/pyuvm_coverage.json", help="pyuvm coverage JSON path.")
     parser.add_argument(
         "--cocotb-verilator",
@@ -158,6 +163,20 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             setup=payload.get("setup_phases", 0),
             access=payload.get("access_phases", 0),
         )
+    if name == "apb_fault":
+        if status == "MISSING":
+            return "artifact missing"
+        return "fault_cases={faults}, deferred_updates={deferred}, reload_updates={reloads}, readbacks={readbacks}".format(
+            faults=(
+                payload.get("setup_only_writes_ignored", 0)
+                + payload.get("aborted_writes_ignored", 0)
+                + payload.get("setup_only_starts_ignored", 0)
+                + payload.get("penable_without_select_ignored", 0)
+            ),
+            deferred=payload.get("deferred_shadow_updates", 0),
+            reloads=payload.get("reload_observed_updates", 0),
+            readbacks=payload.get("fault_readbacks", 0),
+        )
     if name == "pyuvm":
         if status == "MISSING":
             return "artifact missing"
@@ -258,6 +277,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("mmio_coverage", "mmio"),
         ("mmio_wait_coverage", "mmio_wait"),
         ("apb_coverage", "apb"),
+        ("apb_fault_coverage", "apb_fault"),
         ("formal", "formal"),
         ("equivalence", "equivalence"),
         ("static_analysis", "static_analysis"),
@@ -371,6 +391,20 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             if status["apb_coverage"]["status"] == STATUS_PASS
             else status["apb_coverage"]["status"],
             status["apb_coverage"]["status"],
+        ),
+        "apb-fault-coverage": (
+            "apb fault",
+            "PASS {cases} cases".format(
+                cases=(
+                    status["apb_fault_coverage"].get("setup_only_writes_ignored", 0)
+                    + status["apb_fault_coverage"].get("aborted_writes_ignored", 0)
+                    + status["apb_fault_coverage"].get("setup_only_starts_ignored", 0)
+                    + status["apb_fault_coverage"].get("penable_without_select_ignored", 0)
+                )
+            )
+            if status["apb_fault_coverage"]["status"] == STATUS_PASS
+            else status["apb_fault_coverage"]["status"],
+            status["apb_fault_coverage"]["status"],
         ),
         "formal": (
             "formal",
@@ -521,6 +555,7 @@ def main() -> int:
     mmio = coverage_summary(Path(args.mmio).resolve(), "mmio")
     mmio_wait = coverage_summary(Path(args.mmio_wait).resolve(), "mmio_wait")
     apb = coverage_summary(Path(args.apb).resolve(), "apb")
+    apb_fault = coverage_summary(Path(args.apb_fault).resolve(), "apb_fault")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
     cocotb_verilator = junit_summary(Path(args.cocotb_verilator).resolve(), required=False)
     mmio_cocotb = junit_summary(Path(args.mmio_cocotb).resolve(), required=False)
@@ -550,6 +585,7 @@ def main() -> int:
         "mmio_coverage": mmio,
         "mmio_wait_coverage": mmio_wait,
         "apb_coverage": apb,
+        "apb_fault_coverage": apb_fault,
         "pyuvm_coverage": pyuvm,
         "cocotb_verilator": cocotb_verilator,
         "mmio_cocotb": mmio_cocotb,

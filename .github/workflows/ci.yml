@@ -44,6 +44,8 @@ jobs:
             sim_build/mmio_wait_coverage.csv
             sim_build/apb_coverage.json
             sim_build/apb_coverage.csv
+            sim_build/apb_fault_coverage.json
+            sim_build/apb_fault_coverage.csv
             sim_build/asm_corpus
 
   lint:

@@ -1,13 +1,13 @@
 # Verification Status
 
-Generated UTC: `2026-04-12T08:23:35Z`
+Generated UTC: `2026-04-12T08:58:31Z`
 
 | Field | Value |
 |---|---|
 | Label | tutorial-regression |
 | Git branch | `main` |
-| Git commit | `5090082` |
-| Git dirty | `0` |
+| Git commit | `bb26e41` |
+| Git dirty | `1` |
 | Overall required-suite status | `PASS` |
 
 Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence`. Optional suites are reported separately.
@@ -20,6 +20,7 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 | mmio_coverage | yes | `PASS` | program_runs=7, shadow_writes=113, status_reads=189 | `sim_build/mmio_coverage.json` |
 | mmio_wait_coverage | no | `PASS` | program_runs=8, wait_transactions=498, wait_cycles=498, max_wait=1 | `sim_build/mmio_wait_coverage.json` |
 | apb_coverage | no | `PASS` | program_runs=8, shadow_writes=129, setup_phases=514, access_phases=514 | `sim_build/apb_coverage.json` |
+| apb_fault_coverage | no | `PASS` | fault_cases=4, deferred_updates=1, reload_updates=1, readbacks=39 | `sim_build/apb_fault_coverage.json` |
 | formal | yes | `PASS` | simple_cpu:PASS solver=cvc5 elapsed=0:00:03; simple_cpu_mmio:PASS solver=cvc5 elapsed=0:01:10; simple_cpu_mmio_wait:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_cover:PASS solver=cvc5 elapsed=0:00:02; simple_cpu_mmio_wait_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb_cover:PASS solver=cvc5 elapsed=0:00:00 | `-` |
 | equivalence | yes | `PASS` | partitions=93, elapsed=0:00:12 | `equiv/simple_cpu_eqy` |
 | static_analysis | no | `PASS` | tools=4/4 | `sim_build/static_analysis/summary.json` |
@@ -32,7 +33,7 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 | apb_cocotb | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/apb_cocotb_results.xml` |
 | apb_pyuvm | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/apb_uvm_results.xml` |
 | verilator_coverage | no | `PASS` | overall=61.76%, line=100.0%, toggle=55.92%, expr=62.5% | `sim_build/verilator_coverage/summary.json` |
-| mutations | no | `PASS` | killed_mutations=13/13 | `sim_build/mutations/mutation_summary.json` |
+| mutations | no | `PASS` | killed_mutations=17/17 | `sim_build/mutations/mutation_summary.json` |
 
 ## Formal Targets
 
@@ -51,10 +52,10 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 
 | Field | Value |
 |---|---|
-| Timestamp UTC | `2026-04-12T08:23:08Z` |
+| Timestamp UTC | `2026-04-12T08:58:31Z` |
 | Label | tutorial-regression |
-| Commit | `1e0bad7` |
-| Dirty | `0` |
+| Commit | `bb26e41` |
+| Dirty | `1` |
 
 ## Badge Endpoints
 
@@ -62,6 +63,7 @@ Generated shields-compatible endpoint JSON files:
 
 1. `docs/status/badges/apb-cocotb.json`
 1. `docs/status/badges/apb-coverage.json`
+1. `docs/status/badges/apb-fault-coverage.json`
 1. `docs/status/badges/apb-pyuvm.json`
 1. `docs/status/badges/cocotb-verilator.json`
 1. `docs/status/badges/core-coverage.json`

@@ -20,12 +20,22 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-apb-fault.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\show-coverage.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
 & .\scripts\show-apb-coverage.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\show-apb-fault-coverage.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

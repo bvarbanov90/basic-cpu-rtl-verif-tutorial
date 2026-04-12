@@ -23,7 +23,8 @@
 10. `.\scripts\show-mmio-coverage.ps1`: PASS
 11. `.\scripts\show-mmio-wait-coverage.ps1`: PASS
 12. `.\scripts\show-apb-coverage.ps1`: PASS
-13. `.\scripts\record-coverage-history.ps1`: PASS
+13. `.\scripts\show-apb-fault-coverage.ps1`: PASS
+14. `.\scripts\record-coverage-history.ps1`: PASS
 14. `.\scripts\show-coverage-trend.ps1`: PASS
 14. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
 15. `.\scripts\run-mmio-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
@@ -36,12 +37,13 @@
 22. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
 23. `.\scripts\run-mmio-wait.ps1 -NoWaves`: PASS
 24. `.\scripts\run-apb.ps1 -NoWaves`: PASS
-25. `.\scripts\check-native.ps1`: PASS
-26. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
-27. `.\scripts\run-asm-corpus.ps1 -Runner mmio_wait`: PASS
-28. `.\scripts\run-asm-corpus.ps1 -Runner apb`: PASS
-29. `.\scripts\run-mutations.ps1`: PASS
-30. `.\scripts\show-mutations.ps1`: PASS
+25. `.\scripts\run-apb-fault.ps1 -NoWaves`: PASS
+26. `.\scripts\check-native.ps1`: PASS
+27. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
+28. `.\scripts\run-asm-corpus.ps1 -Runner mmio_wait`: PASS
+29. `.\scripts\run-asm-corpus.ps1 -Runner apb`: PASS
+30. `.\scripts\run-mutations.ps1`: PASS
+31. `.\scripts\show-mutations.ps1`: PASS
 29. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
 30. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
 32. `bash scripts/run-mmio-wait.sh --no-waves` (WSL Ubuntu): PASS
@@ -49,7 +51,8 @@
 34. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
 35. `bash scripts/show-mmio-wait-coverage.sh` (WSL Ubuntu): PASS
 36. `bash scripts/show-apb-coverage.sh` (WSL Ubuntu): PASS
-37. `bash scripts/check-native.sh`: PASS
+37. `bash scripts/show-apb-fault-coverage.sh` (WSL Ubuntu): PASS
+38. `bash scripts/check-native.sh`: PASS
 38. `bash scripts/lint.sh` (WSL Ubuntu): PASS
 39. `bash scripts/show-static-analysis.sh` (WSL Ubuntu): PASS
 40. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
@@ -130,6 +133,12 @@
 | `test_external_program` | `tb/simple_cpu_apb_tb.sv` | Optional `.hex` replay through the APB wrapper against the reference model. |
 | `report_and_check_apb_coverage` | `tb/simple_cpu_apb_tb.sv` | APB protocol/transaction coverage thresholds and artifact emission. |
 | `simple_cpu_apb_assertions` | `tb/simple_cpu_apb_assertions.sv` | Assertion-based checker for APB setup/access sequencing, `PREADY` gating, and control/readback alignment. |
+| `test_setup_only_shadow_write_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves setup-only shadow writes do not update the APB wrapper shadow image. |
+| `test_aborted_shadow_write_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves setup then abort traffic does not update the APB wrapper shadow image. |
+| `test_setup_only_control_start_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves setup-only `CONTROL=1` writes do not start the loader. |
+| `test_penable_without_select_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves `PENABLE` glitches without `PSEL` do not create hidden APB side effects. |
+| `test_run_phase_shadow_update_requires_reload` | `tb/simple_cpu_apb_fault_tb.sv` | Proves APB shadow updates during `RUN` are visible in shadow readback immediately but only affect execution after the next explicit reload. |
+| `report_and_check_apb_fault_coverage` | `tb/simple_cpu_apb_fault_tb.sv` | APB fault-injection coverage thresholds and artifact emission. |
 | `directed_arithmetic_and_branch` | `tb/test_simple_cpu.py` | Optional cocotb directed test mirroring simulator-native checks. |
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
 | `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
@@ -194,17 +203,18 @@ Coverage artifacts:
 10. `sim_build/mmio_coverage.json` / `sim_build/mmio_coverage.csv` (wrapper transaction coverage)
 11. `sim_build/mmio_wait_coverage.json` / `sim_build/mmio_wait_coverage.csv` (wait-state MMIO wrapper transaction coverage)
 12. `sim_build/apb_coverage.json` / `sim_build/apb_coverage.csv` (APB wrapper transaction coverage)
-13. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
-14. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
-15. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
-16. `sim_build/mmio_cocotb_results.xml` (MMIO cocotb regression results)
-17. `sim_build/mmio_uvm_results.xml` (MMIO pyuvm regression results)
-18. `sim_build/mmio_wait_cocotb_results.xml` (MMIO wait-state cocotb regression results)
-19. `sim_build/mmio_wait_uvm_results.xml` (MMIO wait-state pyuvm regression results)
-20. `sim_build/verilator_results.xml` (core cocotb-Verilator JUnit results)
-21. `sim_build/apb_cocotb_results.xml` (APB cocotb regression results)
-22. `sim_build/apb_uvm_results.xml` (APB pyuvm regression results)
-23. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
+13. `sim_build/apb_fault_coverage.json` / `sim_build/apb_fault_coverage.csv` (APB fault-injection coverage)
+14. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
+15. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
+16. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
+17. `sim_build/mmio_cocotb_results.xml` (MMIO cocotb regression results)
+18. `sim_build/mmio_uvm_results.xml` (MMIO pyuvm regression results)
+19. `sim_build/mmio_wait_cocotb_results.xml` (MMIO wait-state cocotb regression results)
+20. `sim_build/mmio_wait_uvm_results.xml` (MMIO wait-state pyuvm regression results)
+21. `sim_build/verilator_results.xml` (core cocotb-Verilator JUnit results)
+22. `sim_build/apb_cocotb_results.xml` (APB cocotb regression results)
+23. `sim_build/apb_uvm_results.xml` (APB pyuvm regression results)
+24. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
 
 Additional outputs:
 
@@ -224,11 +234,12 @@ Implementation note:
 10. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the MMIO wrapper coverage report without opening JSON manually.
 11. `scripts/show-mmio-wait-coverage.ps1` / `scripts/show-mmio-wait-coverage.sh` summarize the wait-state MMIO wrapper coverage report without opening JSON manually.
 12. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
+13. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
 13. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-14. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, and APB native lanes plus corpus replay through APB and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, and APB pyuvm regressions.
+14. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, and APB fault native lanes plus corpus replay through APB and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, and APB pyuvm regressions.
 15. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 16. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, and APB prove/cover targets.
-17. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_cocotb`, and `apb_pyuvm`.
+17. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, and `apb_pyuvm`.
 16. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
 17. `formal/simple_cpu_mmio_wait.sby` swaps in an abstract `simple_cpu_mmio` stub so the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through instead of re-proving MMIO internals.
 18. `formal/simple_cpu_apb.sby` swaps in an abstract `simple_cpu_mmio` stub so the APB proof focuses on setup/access handshake behavior and MMIO read-data pass-through instead of re-proving MMIO internals.
@@ -272,6 +283,6 @@ Known toolchain notes (non-fatal when runs pass):
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
 2. Add a fourth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, and APB shells.
-3. Extend the mutation set beyond the APB shell, for example with MMIO wait-state or proof-harness regressions.
+3. Extend the mutation set beyond the current MMIO wait-state and APB shell set, for example with proof-harness or Python-lane regressions.
 4. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
 5. Extend the reusable Python bus-functional layer beyond this register-mapped interface once the project grows into a distinct protocol family.

@@ -34,7 +34,7 @@ MUTATIONS = (
         category="control_flow",
         description="Invert the ZERO-branch decision.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_JZ: begin\n"
@@ -55,7 +55,7 @@ MUTATIONS = (
         category="memory",
         description="Disable data-memory writes for STA.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "                if (opcode == OPC_STA) begin\n"
@@ -72,7 +72,7 @@ MUTATIONS = (
         category="flags",
         description="Break SHL carry-out reporting.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "                next_carry = acc[7];\n"
@@ -87,7 +87,7 @@ MUTATIONS = (
         category="control_flow",
         description="Let illegal opcodes fall through instead of halting.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            default: begin\n"
@@ -106,7 +106,7 @@ MUTATIONS = (
         category="alu",
         description="Drive ADD from the subtraction datapath.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_ADD: begin\n"
@@ -131,7 +131,7 @@ MUTATIONS = (
         category="alu",
         description="Drive SUB from the addition datapath.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_SUB: begin\n"
@@ -156,7 +156,7 @@ MUTATIONS = (
         category="control_flow",
         description="Make JMP behave like a fall-through instruction.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_JMP: begin\n"
@@ -173,7 +173,7 @@ MUTATIONS = (
         category="flags",
         description="Incorrectly update ACC during CMP.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_CMP: begin\n"
@@ -197,7 +197,7 @@ MUTATIONS = (
         category="control_flow",
         description="Allow HLT to advance instead of stopping execution.",
         target_file="rtl/simple_cpu.sv",
-        bench_names=("core_tb", "mmio_tb", "apb_tb"),
+        bench_names=("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_HLT: begin\n"
@@ -216,7 +216,7 @@ MUTATIONS = (
         category="protocol",
         description="Drive the inner MMIO bus during APB setup instead of waiting for PENABLE.",
         target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb",),
+        bench_names=("apb_tb", "apb_fault_tb"),
         replacements=(
             (
                 "    assign mmio_valid = psel && penable;",
@@ -229,7 +229,7 @@ MUTATIONS = (
         category="protocol",
         description="Let PREADY ignore the APB valid phase.",
         target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb",),
+        bench_names=("apb_tb", "apb_fault_tb"),
         replacements=(
             (
                 "    assign pready = mmio_valid && mmio_ready;",
@@ -242,7 +242,7 @@ MUTATIONS = (
         category="protocol",
         description="Break APB readback by forcing PRDATA low.",
         target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb",),
+        bench_names=("apb_tb", "apb_fault_tb"),
         replacements=(
             (
                 "    assign prdata = mmio_rdata;",
@@ -255,11 +255,63 @@ MUTATIONS = (
         category="protocol",
         description="Invert APB write polarity before it reaches the MMIO shell.",
         target_file="rtl/simple_cpu_apb.sv",
-        bench_names=("apb_tb",),
+        bench_names=("apb_tb", "apb_fault_tb"),
         replacements=(
             (
                 "        .bus_write(pwrite),",
                 "        .bus_write(~pwrite),",
+            ),
+        ),
+    ),
+    Mutation(
+        name="mmio_wait_zero_delay",
+        category="protocol",
+        description="Remove the intended one-cycle wait from the delayed MMIO wrapper.",
+        target_file="rtl/simple_cpu_mmio_wait.sv",
+        bench_names=("mmio_wait_tb",),
+        replacements=(
+            (
+                "    localparam logic [1:0] WAIT_CYCLES = 2'd1;",
+                "    localparam logic [1:0] WAIT_CYCLES = 2'd0;",
+            ),
+        ),
+    ),
+    Mutation(
+        name="mmio_wait_ready_early",
+        category="protocol",
+        description="Assert bus_ready as soon as a request is pending instead of waiting for service.",
+        target_file="rtl/simple_cpu_mmio_wait.sv",
+        bench_names=("mmio_wait_tb",),
+        replacements=(
+            (
+                "    assign bus_ready = inner_bus_valid && inner_bus_ready;",
+                "    assign bus_ready = pending && inner_bus_ready;",
+            ),
+        ),
+    ),
+    Mutation(
+        name="mmio_wait_readback_zeroed",
+        category="protocol",
+        description="Force delayed MMIO reads to return zero instead of the inner wrapper data.",
+        target_file="rtl/simple_cpu_mmio_wait.sv",
+        bench_names=("mmio_wait_tb",),
+        replacements=(
+            (
+                "    assign bus_rdata = inner_bus_rdata;",
+                "    assign bus_rdata = 8'h00;",
+            ),
+        ),
+    ),
+    Mutation(
+        name="mmio_wait_write_data_zeroed",
+        category="protocol",
+        description="Drop captured write data before it reaches the inner MMIO shell.",
+        target_file="rtl/simple_cpu_mmio_wait.sv",
+        bench_names=("mmio_wait_tb",),
+        replacements=(
+            (
+                "        .bus_wdata(req_wdata),",
+                "        .bus_wdata(8'h00),",
             ),
         ),
     ),
@@ -286,6 +338,28 @@ BENCHES = (
             "tb/simple_cpu_apb_tb.sv",
         ),
         binary_name="simple_cpu_apb_tb.vvp",
+    ),
+    Bench(
+        name="mmio_wait_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_mmio_wait.sv",
+            "tb/simple_cpu_mmio_wait_assertions.sv",
+            "tb/simple_cpu_mmio_wait_tb.sv",
+        ),
+        binary_name="simple_cpu_mmio_wait_tb.vvp",
+    ),
+    Bench(
+        name="apb_fault_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_apb.sv",
+            "tb/simple_cpu_apb_assertions.sv",
+            "tb/simple_cpu_apb_fault_tb.sv",
+        ),
+        binary_name="simple_cpu_apb_fault_tb.vvp",
     ),
 )
 

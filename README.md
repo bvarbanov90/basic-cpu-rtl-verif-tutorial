@@ -7,6 +7,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![mmio coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-coverage.json)](docs/status/status.md)
 [![mmio wait coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-wait-coverage.json)](docs/status/status.md)
 [![apb coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-coverage.json)](docs/status/status.md)
+[![apb fault coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-fault-coverage.json)](docs/status/status.md)
 [![formal](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/formal.json)](docs/status/status.md)
 [![equivalence](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/equivalence.json)](docs/status/status.md)
 [![static analysis](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/static-analysis.json)](docs/status/status.md)
@@ -99,6 +100,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- apb_bus.py
 |  |- mmio_bus.py
 |  |- simple_cpu_apb_assertions.sv
+|  |- simple_cpu_apb_fault_tb.sv
 |  |- simple_cpu_apb_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_wait_assertions.sv
@@ -129,6 +131,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.ps1
 |  |  |- run-mmio-wait.ps1
 |  |  |- run-apb.ps1
+|  |  |- run-apb-fault.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
 |  |  |- run-mmio-uvm.ps1
@@ -148,6 +151,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.cmd
 |  |  |- show-coverage.ps1
 |  |  |- show-apb-coverage.ps1
+|  |  |- show-apb-fault-coverage.ps1
 |  |  |- show-mmio-wait-coverage.ps1
 |  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
@@ -160,6 +164,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.sh
 |  |  |- run-mmio-wait.sh
 |  |  |- run-apb.sh
+|  |  |- run-apb-fault.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
 |  |  |- run-mmio-uvm.sh
@@ -178,6 +183,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
 |  |  |- show-apb-coverage.sh
+|  |  |- show-apb-fault-coverage.sh
 |  |  |- show-mmio-wait-coverage.sh
 |  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
@@ -189,6 +195,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
 |  |- run-mmio-wait.ps1 / run-mmio-wait.sh (wrappers)
 |  |- run-apb.ps1 / run-apb.sh (wrappers)
+|  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
@@ -206,6 +213,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
 |  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
+|  |- show-apb-fault-coverage.ps1 / show-apb-fault-coverage.sh (wrappers)
 |  |- show-mmio-wait-coverage.ps1 / show-mmio-wait-coverage.sh (wrappers)
 |  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
 |  |- show-static-analysis.ps1 / show-static-analysis.sh (wrappers)
@@ -294,6 +302,12 @@ To run the APB wrapper regression:
 .\scripts\run-apb.ps1 -NoWaves
 ```
 
+To run the APB fault-injection native regression:
+
+```powershell
+.\scripts\run-apb-fault.ps1 -NoWaves
+```
+
 To summarize the wrapper coverage report:
 
 ```powershell
@@ -304,6 +318,12 @@ To summarize the APB wrapper coverage report:
 
 ```powershell
 .\scripts\show-apb-coverage.ps1
+```
+
+To summarize the APB fault-coverage report:
+
+```powershell
+.\scripts\show-apb-fault-coverage.ps1
 ```
 
 To run the tracked assembler corpus:
@@ -441,6 +461,12 @@ Run the APB wrapper regression:
 bash scripts/run-apb.sh --no-waves
 ```
 
+Run the APB fault-injection native regression:
+
+```bash
+bash scripts/run-apb-fault.sh --no-waves
+```
+
 Run the cocotb regression on Verilator and collect structural coverage:
 
 ```bash
@@ -481,6 +507,12 @@ Show the APB wrapper coverage report:
 
 ```bash
 bash scripts/show-apb-coverage.sh
+```
+
+Show the APB fault-coverage report:
+
+```bash
+bash scripts/show-apb-fault-coverage.sh
 ```
 
 Show the formal target summary:
@@ -656,26 +688,28 @@ Uploaded artifacts include:
 4. `sim_build/mmio_coverage.csv`
 5. `sim_build/apb_coverage.json`
 6. `sim_build/apb_coverage.csv`
-7. `sim_build/static_analysis/`
-8. `sim_build/pyuvm_coverage.json`
-9. `sim_build/uvm_results.xml`
-10. `sim_build/mmio_uvm_results.xml`
-11. `sim_build/mmio_cocotb_results.xml`
-12. `sim_build/mmio_wait_cocotb_results.xml`
-13. `sim_build/mmio_wait_uvm_results.xml`
-14. `sim_build/apb_cocotb_results.xml`
-15. `sim_build/apb_uvm_results.xml`
-16. `sim_build/verilator_results.xml`
-17. `sim_build/verilator_coverage/`
-18. `sim_build/asm_corpus/`
-19. `sim_build/mutations/`
-20. `formal/simple_cpu_cover/`
-21. `formal/simple_cpu_mmio_cover/`
-22. `formal/simple_cpu_mmio_wait/`
-23. `formal/simple_cpu_mmio_wait_cover/`
-24. `formal/simple_cpu_apb/`
-25. `formal/simple_cpu_apb_cover/`
-26. `equiv/simple_cpu_eqy/`
+7. `sim_build/apb_fault_coverage.json`
+8. `sim_build/apb_fault_coverage.csv`
+9. `sim_build/static_analysis/`
+10. `sim_build/pyuvm_coverage.json`
+11. `sim_build/uvm_results.xml`
+12. `sim_build/mmio_uvm_results.xml`
+13. `sim_build/mmio_cocotb_results.xml`
+14. `sim_build/mmio_wait_cocotb_results.xml`
+15. `sim_build/mmio_wait_uvm_results.xml`
+16. `sim_build/apb_cocotb_results.xml`
+17. `sim_build/apb_uvm_results.xml`
+18. `sim_build/verilator_results.xml`
+19. `sim_build/verilator_coverage/`
+20. `sim_build/asm_corpus/`
+21. `sim_build/mutations/`
+22. `formal/simple_cpu_cover/`
+23. `formal/simple_cpu_mmio_cover/`
+24. `formal/simple_cpu_mmio_wait/`
+25. `formal/simple_cpu_mmio_wait_cover/`
+26. `formal/simple_cpu_apb/`
+27. `formal/simple_cpu_apb_cover/`
+28. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -912,19 +946,34 @@ The native APB wrapper testbench in `tb/simple_cpu_apb_tb.sv` checks:
 5. a shadow-image fault-injection test that proves APB writes during `RUN` only affect the next explicit reload
 6. external `.hex` program replay, so the tracked assembler corpus can run through the APB shell unchanged
 
+The dedicated APB fault-injection testbench in `tb/simple_cpu_apb_fault_tb.sv` checks:
+
+1. setup-only shadow writes have no side effects until a real access phase occurs
+2. aborted APB writes do not update the wrapper shadow image
+3. setup-only `CONTROL=1` writes do not start the loader
+4. `PENABLE` glitches without `PSEL` do not cause hidden writes or starts
+5. shadow writes during `RUN` are staged for the next reload and do not perturb the in-flight program
+
 It also writes APB-specific coverage artifacts:
 
 1. `sim_build/apb_coverage.json`
 2. `sim_build/apb_coverage.csv`
 
+It also writes APB fault-specific coverage artifacts:
+
+1. `sim_build/apb_fault_coverage.json`
+2. `sim_build/apb_fault_coverage.csv`
+
 Quick summary commands:
 
 ```powershell
 .\scripts\show-apb-coverage.ps1
+.\scripts\show-apb-fault-coverage.ps1
 ```
 
 ```bash
 bash scripts/show-apb-coverage.sh
+bash scripts/show-apb-fault-coverage.sh
 ```
 
 Current APB coverage goals:
@@ -935,6 +984,14 @@ Current APB coverage goals:
 4. APB setup and access phases are both observed on read and write traffic
 5. start/stop control writes occur on every run
 6. `HOLD`, `LOAD`, and `RUN` wrapper states are all observed
+
+Current APB fault-coverage goals:
+
+1. at least one setup-only shadow write is proven to be ignored
+2. at least one aborted write is proven to be ignored
+3. at least one setup-only start command is proven to be ignored
+4. at least one `PENABLE`-without-`PSEL` glitch is proven to be ignored
+5. a run-time shadow update is observed immediately in shadow readback but only affects execution after an explicit reload
 
 ## Assembler regression corpus
 
@@ -965,7 +1022,8 @@ The replay target can be either:
 
 1. the direct core testbench (`direct`, default)
 2. the MMIO wrapper testbench (`mmio`)
-3. the APB wrapper testbench (`apb`)
+3. the MMIO wait-state wrapper testbench (`mmio_wait`)
+4. the APB wrapper testbench (`apb`)
 
 Artifacts:
 
@@ -1012,6 +1070,10 @@ Current mutants:
 11. APB `PREADY` incorrectly ignoring the valid phase
 12. APB readback forced low
 13. APB write polarity inverted before the MMIO shell
+14. MMIO-wait zero-delay handshake
+15. MMIO-wait `bus_ready` asserted one cycle too early
+16. MMIO-wait readback forced low
+17. MMIO-wait write data dropped before the inner MMIO shell
 
 Artifacts:
 
@@ -1020,7 +1082,7 @@ Artifacts:
 3. `sim_build/mutations/<mutant>/*_compile.log`
 4. `sim_build/mutations/<mutant>/*_run.log`
 
-The current campaign is expected to be killed by the direct-core, MMIO-wrapper, and native APB-wrapper benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` is the deciding bench for setup/access and readback faults.
+The current campaign is expected to be killed by the direct-core, MMIO-wrapper, MMIO wait-state, native APB-wrapper, and APB fault-injection benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` and `apb_fault_tb` are the deciding benches for setup/access and readback faults, while the MMIO-wait protocol mutants are intentionally scoped so `mmio_wait_tb` is the deciding bench for delayed-handshake faults.
 
 ## Suggested learning path
 
@@ -1149,7 +1211,7 @@ The status export now includes:
 2. the EQY equivalence workdir status,
 3. the optional Verilator coverage summary,
 4. the static-analysis summary from `sim_build/static_analysis/summary.json`,
-5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_cocotb`, `apb_pyuvm`, and `mutations`.
+5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, and `mutations`.
 
 ## Known benign warnings
 
@@ -1170,7 +1232,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
 2. Add a fourth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, and APB shells.
-3. Extend the mutation set beyond the APB shell, for example with MMIO wait-state wrapper or formal-harness regressions.
+3. Extend the mutation set beyond the current MMIO wait-state and APB shell set, for example with formal-harness or Python-lane regressions.
 4. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
 
 ## Publish To GitHub
