@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "formal simple_cpu_mmio",
-  "message": "PASS cvc5 0:01:11",
+  "message": "PASS cvc5 0:01:10",
   "color": "brightgreen"
 }

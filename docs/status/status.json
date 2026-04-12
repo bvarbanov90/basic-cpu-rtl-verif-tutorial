@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-04-11T19:51:24Z",
+  "generated_utc": "2026-04-12T07:32:00Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "ec276af",
+  "git_commit": "7926dcb",
   "git_dirty": 0,
   "overall_required_status": "PASS",
   "core_coverage": {
@@ -22,6 +22,18 @@
     "shadow_writes": 113,
     "shadow_reads": 113,
     "status_reads": 189,
+    "coverage_pass": 1
+  },
+  "apb_coverage": {
+    "path": "sim_build/apb_coverage.json",
+    "status": "PASS",
+    "required": false,
+    "program_runs": 8,
+    "shadow_writes": 129,
+    "shadow_reads": 129,
+    "status_reads": 71,
+    "setup_phases": 514,
+    "access_phases": 514,
     "coverage_pass": 1
   },
   "pyuvm_coverage": {
@@ -107,8 +119,8 @@
   },
   "formal": {
     "status": "PASS",
-    "passed": 4,
-    "total": 4,
+    "passed": 6,
+    "total": 6,
     "targets": [
       {
         "name": "simple_cpu",
@@ -123,7 +135,15 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:01:11",
+        "elapsed": "0:01:10",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_apb",
+        "path": "formal/simple_cpu_apb",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
         "raw_status": "PASS 0 0"
       },
       {
@@ -139,7 +159,15 @@
         "path": "formal/simple_cpu_mmio_cover",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:00:02",
+        "elapsed": "0:00:01",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_apb_cover",
+        "path": "formal/simple_cpu_apb_cover",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
         "raw_status": "PASS 0 0"
       }
     ],
@@ -230,15 +258,15 @@
     "status": "PASS",
     "required": false,
     "campaign_pass": 1,
-    "total_mutations": 9,
-    "killed_mutations": 9
+    "total_mutations": 13,
+    "killed_mutations": 13
   },
   "latest_history": {
-    "timestamp_utc": "2026-04-11T19:50:47Z",
+    "timestamp_utc": "2026-04-12T07:31:48Z",
     "label": "tutorial-regression",
-    "git_commit": "dd7115e",
+    "git_commit": "0f7db76",
     "git_branch": "main",
-    "git_dirty": 1,
+    "git_dirty": 0,
     "core": {
       "coverage_pass": 1,
       "opcode_hits": 15,
@@ -263,6 +291,16 @@
       "pc_reads": 7,
       "control_start_writes": 7,
       "control_stop_writes": 7
+    },
+    "apb": {
+      "coverage_pass": 1,
+      "program_runs": 8,
+      "external_program_runs": 1,
+      "shadow_writes": 129,
+      "shadow_reads": 129,
+      "status_reads": 71,
+      "setup_phases": 514,
+      "access_phases": 514
     }
   },
   "badges": {
@@ -284,10 +322,16 @@
       "message": "PASS 7 runs",
       "status": "PASS"
     },
+    "apb-coverage": {
+      "path": "docs/status/badges/apb-coverage.json",
+      "label": "apb coverage",
+      "message": "PASS 8 runs",
+      "status": "PASS"
+    },
     "formal": {
       "path": "docs/status/badges/formal.json",
       "label": "formal",
-      "message": "4/4 PASS",
+      "message": "6/6 PASS",
       "status": "PASS"
     },
     "pyuvm": {
@@ -359,7 +403,7 @@
     "mutations": {
       "path": "docs/status/badges/mutations.json",
       "label": "mutations",
-      "message": "9/9 killed",
+      "message": "13/13 killed",
       "status": "PASS"
     },
     "formal-simple_cpu": {
@@ -371,7 +415,13 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:01:11",
+      "message": "PASS cvc5 0:01:10",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_apb": {
+      "path": "docs/status/badges/formal-simple_cpu_apb.json",
+      "label": "formal simple_cpu_apb",
+      "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     },
     "formal-simple_cpu_cover": {
@@ -383,7 +433,13 @@
     "formal-simple_cpu_mmio_cover": {
       "path": "docs/status/badges/formal-simple_cpu_mmio_cover.json",
       "label": "formal simple_cpu_mmio_cover",
-      "message": "PASS cvc5 0:00:02",
+      "message": "PASS cvc5 0:00:01",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_apb_cover": {
+      "path": "docs/status/badges/formal-simple_cpu_apb_cover.json",
+      "label": "formal simple_cpu_apb_cover",
+      "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     }
   }
