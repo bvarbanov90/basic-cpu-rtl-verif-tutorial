@@ -16,6 +16,8 @@ class Mutation:
     name: str
     category: str
     description: str
+    target_file: str
+    bench_names: tuple[str, ...]
     replacements: tuple[tuple[str, str], ...]
 
 
@@ -31,6 +33,8 @@ MUTATIONS = (
         name="jz_inverted",
         category="control_flow",
         description="Invert the ZERO-branch decision.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_JZ: begin\n"
@@ -50,6 +54,8 @@ MUTATIONS = (
         name="store_disabled",
         category="memory",
         description="Disable data-memory writes for STA.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "                if (opcode == OPC_STA) begin\n"
@@ -65,6 +71,8 @@ MUTATIONS = (
         name="shift_carry_stuck_low",
         category="flags",
         description="Break SHL carry-out reporting.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "                next_carry = acc[7];\n"
@@ -78,6 +86,8 @@ MUTATIONS = (
         name="illegal_opcode_not_halt",
         category="control_flow",
         description="Let illegal opcodes fall through instead of halting.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            default: begin\n"
@@ -95,6 +105,8 @@ MUTATIONS = (
         name="add_uses_sub",
         category="alu",
         description="Drive ADD from the subtraction datapath.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_ADD: begin\n"
@@ -118,6 +130,8 @@ MUTATIONS = (
         name="sub_uses_add",
         category="alu",
         description="Drive SUB from the addition datapath.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_SUB: begin\n"
@@ -141,6 +155,8 @@ MUTATIONS = (
         name="jmp_fallthrough",
         category="control_flow",
         description="Make JMP behave like a fall-through instruction.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_JMP: begin\n"
@@ -156,6 +172,8 @@ MUTATIONS = (
         name="cmp_clobbers_acc",
         category="flags",
         description="Incorrectly update ACC during CMP.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_CMP: begin\n"
@@ -178,6 +196,8 @@ MUTATIONS = (
         name="hlt_fallthrough",
         category="control_flow",
         description="Allow HLT to advance instead of stopping execution.",
+        target_file="rtl/simple_cpu.sv",
+        bench_names=("core_tb", "mmio_tb", "apb_tb"),
         replacements=(
             (
                 "            OPC_HLT: begin\n"
@@ -191,18 +211,81 @@ MUTATIONS = (
             ),
         ),
     ),
+    Mutation(
+        name="apb_setup_acts_like_access",
+        category="protocol",
+        description="Drive the inner MMIO bus during APB setup instead of waiting for PENABLE.",
+        target_file="rtl/simple_cpu_apb.sv",
+        bench_names=("apb_tb",),
+        replacements=(
+            (
+                "    assign mmio_valid = psel && penable;",
+                "    assign mmio_valid = psel;",
+            ),
+        ),
+    ),
+    Mutation(
+        name="apb_pready_ignores_valid",
+        category="protocol",
+        description="Let PREADY ignore the APB valid phase.",
+        target_file="rtl/simple_cpu_apb.sv",
+        bench_names=("apb_tb",),
+        replacements=(
+            (
+                "    assign pready = mmio_valid && mmio_ready;",
+                "    assign pready = mmio_ready;",
+            ),
+        ),
+    ),
+    Mutation(
+        name="apb_readback_zeroed",
+        category="protocol",
+        description="Break APB readback by forcing PRDATA low.",
+        target_file="rtl/simple_cpu_apb.sv",
+        bench_names=("apb_tb",),
+        replacements=(
+            (
+                "    assign prdata = mmio_rdata;",
+                "    assign prdata = 8'h00;",
+            ),
+        ),
+    ),
+    Mutation(
+        name="apb_write_polarity_inverted",
+        category="protocol",
+        description="Invert APB write polarity before it reaches the MMIO shell.",
+        target_file="rtl/simple_cpu_apb.sv",
+        bench_names=("apb_tb",),
+        replacements=(
+            (
+                "        .bus_write(pwrite),",
+                "        .bus_write(~pwrite),",
+            ),
+        ),
+    ),
 )
 
 BENCHES = (
     Bench(
         name="core_tb",
-        sources=("tb/simple_cpu_tb.sv",),
+        sources=("rtl/simple_cpu.sv", "tb/simple_cpu_tb.sv"),
         binary_name="simple_cpu_tb.vvp",
     ),
     Bench(
         name="mmio_tb",
-        sources=("rtl/simple_cpu_mmio.sv", "tb/simple_cpu_mmio_assertions.sv", "tb/simple_cpu_mmio_tb.sv"),
+        sources=("rtl/simple_cpu.sv", "rtl/simple_cpu_mmio.sv", "tb/simple_cpu_mmio_assertions.sv", "tb/simple_cpu_mmio_tb.sv"),
         binary_name="simple_cpu_mmio_tb.vvp",
+    ),
+    Bench(
+        name="apb_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_apb.sv",
+            "tb/simple_cpu_apb_assertions.sv",
+            "tb/simple_cpu_apb_tb.sv",
+        ),
+        binary_name="simple_cpu_apb_tb.vvp",
     ),
 )
 
@@ -233,10 +316,17 @@ def run_command(cmd: list[str], cwd: Path, log_path: Path) -> subprocess.Complet
     return result
 
 
-def run_bench(mutated_rtl: Path, mutation_dir: Path, bench: Bench) -> dict:
+def run_bench(mutated_rtl: Path, mutation: Mutation, mutation_dir: Path, bench: Bench) -> dict:
     vvp_path = mutation_dir / bench.binary_name
     compile_log = mutation_dir / f"{bench.name}_compile.log"
     run_log = mutation_dir / f"{bench.name}_run.log"
+
+    compile_sources: list[str] = []
+    for source in bench.sources:
+        if source == mutation.target_file:
+            compile_sources.append(str(mutated_rtl))
+        else:
+            compile_sources.append(str(PROJECT_ROOT / source))
 
     compile_cmd = [
         "iverilog",
@@ -244,9 +334,8 @@ def run_bench(mutated_rtl: Path, mutation_dir: Path, bench: Bench) -> dict:
         "-DNO_WAVES",
         "-o",
         str(vvp_path),
-        str(mutated_rtl),
     ]
-    compile_cmd.extend(str(PROJECT_ROOT / source) for source in bench.sources)
+    compile_cmd.extend(compile_sources)
 
     compile_result = run_command(compile_cmd, PROJECT_ROOT, compile_log)
     if compile_result.returncode != 0:
@@ -307,7 +396,7 @@ def render_markdown(campaign_pass: bool, summary: list[dict], bench_kill_counts:
 def main() -> int:
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
 
-    base_rtl = (PROJECT_ROOT / "rtl" / "simple_cpu.sv").read_text(encoding="utf-8")
+    benches_by_name = {bench.name: bench for bench in BENCHES}
     summary: list[dict] = []
     campaign_pass = True
     bench_kill_counts = {bench.name: 0 for bench in BENCHES}
@@ -315,10 +404,12 @@ def main() -> int:
     for mutation in MUTATIONS:
         mutation_dir = OUTPUT_ROOT / mutation.name
         mutation_dir.mkdir(parents=True, exist_ok=True)
-        mutated_rtl = mutation_dir / "simple_cpu.sv"
+        base_rtl = (PROJECT_ROOT / mutation.target_file).read_text(encoding="utf-8")
+        mutated_rtl = mutation_dir / Path(mutation.target_file).name
         mutated_rtl.write_text(apply_mutation(base_rtl, mutation), encoding="utf-8")
 
-        results = [run_bench(mutated_rtl, mutation_dir, bench) for bench in BENCHES]
+        selected_benches = [benches_by_name[name] for name in mutation.bench_names]
+        results = [run_bench(mutated_rtl, mutation, mutation_dir, bench) for bench in selected_benches]
         killed_by = [result["bench"] for result in results if result["status"] == "killed"]
         for bench_name in killed_by:
             bench_kill_counts[bench_name] += 1
@@ -331,6 +422,8 @@ def main() -> int:
                 "name": mutation.name,
                 "category": mutation.category,
                 "description": mutation.description,
+                "target_file": mutation.target_file,
+                "bench_scope": list(mutation.bench_names),
                 "killed_by": killed_by,
                 "killed_by_count": len(killed_by),
                 "results": results,

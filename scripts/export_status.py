@@ -29,6 +29,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export repo-tracked verification status markdown/json/badges.")
     parser.add_argument("--core", default="sim_build/coverage.json", help="Core coverage JSON path.")
     parser.add_argument("--mmio", default="sim_build/mmio_coverage.json", help="MMIO coverage JSON path.")
+    parser.add_argument("--apb", default="sim_build/apb_coverage.json", help="APB coverage JSON path.")
     parser.add_argument("--pyuvm", default="sim_build/pyuvm_coverage.json", help="pyuvm coverage JSON path.")
     parser.add_argument(
         "--cocotb-verilator",
@@ -134,6 +135,15 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             writes=payload.get("shadow_writes", 0),
             reads=payload.get("status_reads", 0),
         )
+    if name == "apb":
+        if status == "MISSING":
+            return "artifact missing"
+        return "program_runs={runs}, shadow_writes={writes}, setup_phases={setup}, access_phases={access}".format(
+            runs=payload.get("program_runs", 0),
+            writes=payload.get("shadow_writes", 0),
+            setup=payload.get("setup_phases", 0),
+            access=payload.get("access_phases", 0),
+        )
     if name == "pyuvm":
         if status == "MISSING":
             return "artifact missing"
@@ -232,6 +242,7 @@ def render_markdown(status: dict[str, Any]) -> str:
     suite_order = [
         ("core_coverage", "core"),
         ("mmio_coverage", "mmio"),
+        ("apb_coverage", "apb"),
         ("formal", "formal"),
         ("equivalence", "equivalence"),
         ("static_analysis", "static_analysis"),
@@ -331,6 +342,13 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             if status["mmio_coverage"]["status"] == STATUS_PASS
             else status["mmio_coverage"]["status"],
             status["mmio_coverage"]["status"],
+        ),
+        "apb-coverage": (
+            "apb coverage",
+            "PASS {runs} runs".format(runs=status["apb_coverage"].get("program_runs", 0))
+            if status["apb_coverage"]["status"] == STATUS_PASS
+            else status["apb_coverage"]["status"],
+            status["apb_coverage"]["status"],
         ),
         "formal": (
             "formal",
@@ -469,12 +487,15 @@ def main() -> int:
     formal_targets = args.formal_targets or [
         "formal/simple_cpu",
         "formal/simple_cpu_mmio",
+        "formal/simple_cpu_apb",
         "formal/simple_cpu_cover",
         "formal/simple_cpu_mmio_cover",
+        "formal/simple_cpu_apb_cover",
     ]
 
     core = coverage_summary(Path(args.core).resolve(), "core")
     mmio = coverage_summary(Path(args.mmio).resolve(), "mmio")
+    apb = coverage_summary(Path(args.apb).resolve(), "apb")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
     cocotb_verilator = junit_summary(Path(args.cocotb_verilator).resolve(), required=False)
     mmio_cocotb = junit_summary(Path(args.mmio_cocotb).resolve(), required=False)
@@ -502,6 +523,7 @@ def main() -> int:
         "overall_required_status": overall_required_status,
         "core_coverage": core,
         "mmio_coverage": mmio,
+        "apb_coverage": apb,
         "pyuvm_coverage": pyuvm,
         "cocotb_verilator": cocotb_verilator,
         "mmio_cocotb": mmio_cocotb,

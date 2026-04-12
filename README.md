@@ -5,6 +5,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![overall](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/overall.json)](docs/status/status.md)
 [![core coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/core-coverage.json)](docs/status/status.md)
 [![mmio coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-coverage.json)](docs/status/status.md)
+[![apb coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-coverage.json)](docs/status/status.md)
 [![formal](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/formal.json)](docs/status/status.md)
 [![equivalence](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/equivalence.json)](docs/status/status.md)
 [![static analysis](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/static-analysis.json)](docs/status/status.md)
@@ -69,6 +70,11 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_mmio.sby
 |  |- simple_cpu_mmio_cover.sby
 |  |- simple_cpu_mmio_formal.sv
+|  |- simple_cpu_apb.sby
+|  |- simple_cpu_apb_cover.sby
+|  |- simple_cpu_apb_formal.sv
+|  |- simple_cpu_apb_cover_formal.sv
+|  |- simple_cpu_apb_mmio_stub.sv
 |  |- simple_cpu_cover_formal.sv
 |  |- simple_cpu_mmio_cover_formal.sv
 |- equiv/
@@ -86,6 +92,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |- cpu_lib.py
 |  |- apb_bus.py
 |  |- mmio_bus.py
+|  |- simple_cpu_apb_assertions.sv
+|  |- simple_cpu_apb_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_tb.sv
 |  |- simple_cpu_tb.sv
@@ -111,6 +119,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-asm.ps1
 |  |  |- run-asm-corpus.ps1
 |  |  |- run-mmio.ps1
+|  |  |- run-apb.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
 |  |  |- run-mmio-uvm.ps1
@@ -129,6 +138,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.ps1
 |  |  |- open-waves.cmd
 |  |  |- show-coverage.ps1
+|  |  |- show-apb-coverage.ps1
 |  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
 |  |  |- show-static-analysis.ps1
@@ -138,6 +148,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-asm.sh
 |  |  |- run-asm-corpus.sh
 |  |  |- run-mmio.sh
+|  |  |- run-apb.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
 |  |  |- run-mmio-uvm.sh
@@ -155,6 +166,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- export-status.sh
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
+|  |  |- show-apb-coverage.sh
 |  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
 |  |  |- show-static-analysis.sh
@@ -163,6 +175,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
 |  |- check-native.ps1 / check-native.sh (wrappers)
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
+|  |- run-apb.ps1 / run-apb.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
@@ -179,6 +192,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- update-coverage-baseline.ps1 / update-coverage-baseline.sh (wrappers)
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
+|  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
 |  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
 |  |- show-static-analysis.ps1 / show-static-analysis.sh (wrappers)
 |  |- ... (compat wrappers for old paths)
@@ -260,10 +274,22 @@ To run the MMIO wrapper regression:
 .\scripts\run-mmio.ps1 -NoWaves
 ```
 
+To run the APB wrapper regression:
+
+```powershell
+.\scripts\run-apb.ps1 -NoWaves
+```
+
 To summarize the wrapper coverage report:
 
 ```powershell
 .\scripts\show-mmio-coverage.ps1
+```
+
+To summarize the APB wrapper coverage report:
+
+```powershell
+.\scripts\show-apb-coverage.ps1
 ```
 
 To run the tracked assembler corpus:
@@ -276,6 +302,12 @@ To replay the tracked assembler corpus through the MMIO wrapper:
 
 ```powershell
 .\scripts\run-asm-corpus.ps1 -Runner mmio
+```
+
+To replay the tracked assembler corpus through the APB wrapper:
+
+```powershell
+.\scripts\run-asm-corpus.ps1 -Runner apb
 ```
 
 To run the cocotb regression on Verilator and collect structural coverage:
@@ -389,6 +421,12 @@ Run the MMIO wrapper regression:
 bash scripts/run-mmio.sh --no-waves
 ```
 
+Run the APB wrapper regression:
+
+```bash
+bash scripts/run-apb.sh --no-waves
+```
+
 Run the cocotb regression on Verilator and collect structural coverage:
 
 ```bash
@@ -425,6 +463,12 @@ Show the wrapper coverage report:
 bash scripts/show-mmio-coverage.sh
 ```
 
+Show the APB wrapper coverage report:
+
+```bash
+bash scripts/show-apb-coverage.sh
+```
+
 Show the formal target summary:
 
 ```bash
@@ -447,8 +491,9 @@ Notes:
 6. Open waves in WSLg with: `bash scripts/open-waves.sh`.
 7. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
 8. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
-9. The MMIO cocotb runner uses Icarus and the dedicated `tb/test_simple_cpu_mmio.py` bus-level suite.
-10. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
+9. Use `bash scripts/run-asm-corpus.sh --runner apb` to replay the same corpus through the APB shell.
+10. The MMIO cocotb runner uses Icarus and the dedicated `tb/test_simple_cpu_mmio.py` bus-level suite.
+11. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
 
 If you saw `libcairo-2.dll` or GTK `libpixbufloader-svg.dll` errors before, these launcher scripts apply a compatibility workaround automatically.
 
@@ -523,11 +568,13 @@ The formal proof flow now runs:
 
 1. `formal/simple_cpu.sby`
 2. `formal/simple_cpu_mmio.sby`
+3. `formal/simple_cpu_apb.sby`
 
 The formal cover flow runs:
 
 1. `formal/simple_cpu_cover.sby`
 2. `formal/simple_cpu_mmio_cover.sby`
+3. `formal/simple_cpu_apb_cover.sby`
 
 Current formal properties cover:
 
@@ -535,9 +582,13 @@ Current formal properties cover:
 2. MMIO `bus_ready` always-ready behavior,
 3. MMIO address-map readback for status, `ACC`, `PC`, control, and boundary shadow slots,
 4. MMIO `HOLD/LOAD/RUN` state transitions and loader sequencing,
-5. representative shadow-image update/stability rules during hold, load, and run phases.
+5. representative shadow-image update/stability rules during hold, load, and run phases,
+6. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
+7. APB pass-through mapping of the MMIO readback model onto the APB shell.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
+
+The APB formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the APB proof focuses on setup/access handshake behavior and read-data pass-through so the extra protocol target stays cheap.
 
 The cover targets use dedicated witness harnesses so `sby cover` produces fast, readable example traces instead of spending time trying to satisfy every proof-harness cover statement in one run.
 
@@ -584,22 +635,26 @@ Uploaded artifacts include:
 2. `sim_build/coverage.csv`
 3. `sim_build/mmio_coverage.json`
 4. `sim_build/mmio_coverage.csv`
-5. `sim_build/static_analysis/`
-6. `sim_build/pyuvm_coverage.json`
-7. `sim_build/uvm_results.xml`
-8. `sim_build/mmio_uvm_results.xml`
-9. `sim_build/mmio_cocotb_results.xml`
-10. `sim_build/mmio_wait_cocotb_results.xml`
-11. `sim_build/mmio_wait_uvm_results.xml`
-12. `sim_build/apb_cocotb_results.xml`
-13. `sim_build/apb_uvm_results.xml`
-12. `sim_build/verilator_results.xml`
-13. `sim_build/verilator_coverage/`
-14. `sim_build/asm_corpus/`
-15. `sim_build/mutations/`
-16. `formal/simple_cpu_cover/`
-17. `formal/simple_cpu_mmio_cover/`
-18. `equiv/simple_cpu_eqy/`
+5. `sim_build/apb_coverage.json`
+6. `sim_build/apb_coverage.csv`
+7. `sim_build/static_analysis/`
+8. `sim_build/pyuvm_coverage.json`
+9. `sim_build/uvm_results.xml`
+10. `sim_build/mmio_uvm_results.xml`
+11. `sim_build/mmio_cocotb_results.xml`
+12. `sim_build/mmio_wait_cocotb_results.xml`
+13. `sim_build/mmio_wait_uvm_results.xml`
+14. `sim_build/apb_cocotb_results.xml`
+15. `sim_build/apb_uvm_results.xml`
+16. `sim_build/verilator_results.xml`
+17. `sim_build/verilator_coverage/`
+18. `sim_build/asm_corpus/`
+19. `sim_build/mutations/`
+20. `formal/simple_cpu_cover/`
+21. `formal/simple_cpu_mmio_cover/`
+22. `formal/simple_cpu_apb/`
+23. `formal/simple_cpu_apb_cover/`
+24. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -803,6 +858,38 @@ Current MMIO coverage goals:
 3. data-memory reads cover the full 16-byte window on every run
 4. status, `ACC`, and `PC` reads occur on every run
 5. start/stop control writes occur on every run
+
+The native APB wrapper testbench in `tb/simple_cpu_apb_tb.sv` checks:
+
+1. APB setup/access handshakes across instruction-window, control, status, and debug-data reads
+2. APB-side programming, reprogramming, and loader start/stop sequencing
+3. a focused `SUB/CMP/JMP` replay against the same reference model used by the direct and MMIO benches
+4. assertion-based protocol checks via `tb/simple_cpu_apb_assertions.sv`
+5. a shadow-image fault-injection test that proves APB writes during `RUN` only affect the next explicit reload
+6. external `.hex` program replay, so the tracked assembler corpus can run through the APB shell unchanged
+
+It also writes APB-specific coverage artifacts:
+
+1. `sim_build/apb_coverage.json`
+2. `sim_build/apb_coverage.csv`
+
+Quick summary commands:
+
+```powershell
+.\scripts\show-apb-coverage.ps1
+```
+
+```bash
+bash scripts/show-apb-coverage.sh
+```
+
+Current APB coverage goals:
+
+1. at least 4 wrapper program runs
+2. shadow writes/reads cover the full 16-byte image on every run
+3. status, `ACC`, `PC`, and control reads occur on every run
+4. APB setup and access phases are both observed on read and write traffic
+5. start/stop control writes occur on every run
 6. `HOLD`, `LOAD`, and `RUN` wrapper states are all observed
 
 ## Assembler regression corpus
@@ -834,6 +921,7 @@ The replay target can be either:
 
 1. the direct core testbench (`direct`, default)
 2. the MMIO wrapper testbench (`mmio`)
+3. the APB wrapper testbench (`apb`)
 
 Artifacts:
 
@@ -876,6 +964,10 @@ Current mutants:
 7. `JMP` forced to fall through
 8. `CMP` incorrectly clobbers `ACC`
 9. `HLT` no longer stops execution
+10. APB setup phase incorrectly driving the inner MMIO bus
+11. APB `PREADY` incorrectly ignoring the valid phase
+12. APB readback forced low
+13. APB write polarity inverted before the MMIO shell
 
 Artifacts:
 
@@ -884,7 +976,7 @@ Artifacts:
 3. `sim_build/mutations/<mutant>/*_compile.log`
 4. `sim_build/mutations/<mutant>/*_run.log`
 
-The current campaign is expected to be killed by both the direct-core and MMIO wrapper benches.
+The current campaign is expected to be killed by the direct-core, MMIO-wrapper, and native APB-wrapper benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` is the deciding bench for setup/access and readback faults.
 
 ## Suggested learning path
 
@@ -1013,7 +1105,7 @@ The status export now includes:
 2. the EQY equivalence workdir status,
 3. the optional Verilator coverage summary,
 4. the static-analysis summary from `sim_build/static_analysis/summary.json`,
-5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_cocotb`, `apb_pyuvm`, and `mutations`.
+5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_cocotb`, `apb_pyuvm`, and `mutations`.
 
 ## Known benign warnings
 
@@ -1034,7 +1126,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
 2. Add a fourth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, and APB shells.
-3. Replay the assembler corpus over the APB shell and compare it to the existing MMIO/native reference flows.
+3. Extend the mutation set beyond the APB shell, for example with MMIO wait-state wrapper or formal-harness regressions.
 4. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
 
 ## Publish To GitHub

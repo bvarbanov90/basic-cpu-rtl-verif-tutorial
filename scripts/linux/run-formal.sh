@@ -102,11 +102,13 @@ run_sby() {
 if [[ "${MODE}" == "prove" || "${MODE}" == "all" ]]; then
     run_sby formal/simple_cpu.sby formal/simple_cpu
     run_sby formal/simple_cpu_mmio.sby formal/simple_cpu_mmio
+    run_sby formal/simple_cpu_apb.sby formal/simple_cpu_apb
 fi
 
 if [[ "${MODE}" == "cover" || "${MODE}" == "all" ]]; then
     run_sby formal/simple_cpu_cover.sby formal/simple_cpu_cover
     run_sby formal/simple_cpu_mmio_cover.sby formal/simple_cpu_mmio_cover
+    run_sby formal/simple_cpu_apb_cover.sby formal/simple_cpu_apb_cover
 fi
 
 echo "Formal run complete with solver '${SOLVER}' in mode '${MODE}'."

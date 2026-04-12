@@ -2,8 +2,10 @@ param(
     [string[]]$Targets = @(
         "formal/simple_cpu",
         "formal/simple_cpu_mmio",
+        "formal/simple_cpu_apb",
         "formal/simple_cpu_cover",
-        "formal/simple_cpu_mmio_cover"
+        "formal/simple_cpu_mmio_cover",
+        "formal/simple_cpu_apb_cover"
     )
 )
 

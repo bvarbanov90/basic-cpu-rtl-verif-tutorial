@@ -83,6 +83,19 @@ def summarize_mmio_coverage(report: dict[str, Any]) -> dict[str, int]:
     }
 
 
+def summarize_apb_coverage(report: dict[str, Any]) -> dict[str, int]:
+    return {
+        "coverage_pass": int(report.get("coverage_pass", 0)),
+        "program_runs": int(report.get("program_runs", 0)),
+        "external_program_runs": int(report.get("external_program_runs", 0)),
+        "shadow_writes": int(report.get("shadow_writes", 0)),
+        "shadow_reads": int(report.get("shadow_reads", 0)),
+        "status_reads": int(report.get("status_reads", 0)),
+        "setup_phases": int(report.get("setup_phases", 0)),
+        "access_phases": int(report.get("access_phases", 0)),
+    }
+
+
 def load_history(path: Path) -> dict[str, Any]:
     if path.exists():
         data = load_json(path)
@@ -127,18 +140,19 @@ def render_markdown(history: dict[str, Any], limit: int) -> str:
         "",
         "## Recent Snapshots",
         "",
-        "| # | Timestamp UTC | Commit | Dirty | Label | Core pass | Core runs | Core cycles | MMIO pass | MMIO runs |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| # | Timestamp UTC | Commit | Dirty | Label | Core pass | Core runs | Core cycles | MMIO pass | MMIO runs | APB pass | APB runs |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
 
     if not entries:
-        lines.append("| - | - | - | - | - | - | - | - | - | - |")
+        lines.append("| - | - | - | - | - | - | - | - | - | - | - | - |")
     else:
         for index, entry in enumerate(entries, start=1):
             core = entry.get("core", {})
             mmio = entry.get("mmio", {})
+            apb = entry.get("apb", {})
             lines.append(
-                "| {index} | {timestamp} | {commit} | {dirty} | {label} | {core_pass} | {core_runs} | {core_cycles} | {mmio_pass} | {mmio_runs} |".format(
+                "| {index} | {timestamp} | {commit} | {dirty} | {label} | {core_pass} | {core_runs} | {core_cycles} | {mmio_pass} | {mmio_runs} | {apb_pass} | {apb_runs} |".format(
                     index=index,
                     timestamp=entry.get("timestamp_utc", "-"),
                     commit=entry.get("git_commit") or "-",
@@ -149,6 +163,8 @@ def render_markdown(history: dict[str, Any], limit: int) -> str:
                     core_cycles=core.get("total_cycles", "-"),
                     mmio_pass=mmio.get("coverage_pass", "-"),
                     mmio_runs=mmio.get("program_runs", "-"),
+                    apb_pass=apb.get("coverage_pass", "-"),
+                    apb_runs=apb.get("program_runs", "-"),
                 )
             )
 
@@ -175,6 +191,16 @@ def render_markdown(history: dict[str, Any], limit: int) -> str:
             *render_trend_block(entries, "mmio", "status_reads", "status_reads"),
             "```",
             "",
+            "## APB Trends",
+            "",
+            "```text",
+            *render_trend_block(entries, "apb", "program_runs", "program_runs"),
+            "",
+            *render_trend_block(entries, "apb", "setup_phases", "setup_phases"),
+            "",
+            *render_trend_block(entries, "apb", "access_phases", "access_phases"),
+            "```",
+            "",
         ]
     )
     return "\n".join(lines)
@@ -190,8 +216,9 @@ def render_terminal_report(history: dict[str, Any], limit: int) -> str:
     for index, entry in enumerate(entries, start=1):
         core = entry.get("core", {})
         mmio = entry.get("mmio", {})
+        apb = entry.get("apb", {})
         lines.append(
-            "[{index:02d}] {label} commit={commit} dirty={dirty} core(pass={core_pass}, runs={core_runs}, cycles={core_cycles}, opcodes={opcode_hits}) mmio(pass={mmio_pass}, runs={mmio_runs})".format(
+            "[{index:02d}] {label} commit={commit} dirty={dirty} core(pass={core_pass}, runs={core_runs}, cycles={core_cycles}, opcodes={opcode_hits}) mmio(pass={mmio_pass}, runs={mmio_runs}) apb(pass={apb_pass}, runs={apb_runs})".format(
                 index=index,
                 label=short_label(entry),
                 commit=entry.get("git_commit") or "no-git",
@@ -202,6 +229,8 @@ def render_terminal_report(history: dict[str, Any], limit: int) -> str:
                 opcode_hits=core.get("opcode_hits", 0),
                 mmio_pass=mmio.get("coverage_pass", 0),
                 mmio_runs=mmio.get("program_runs", 0),
+                apb_pass=apb.get("coverage_pass", 0),
+                apb_runs=apb.get("program_runs", 0),
             )
         )
 
@@ -211,6 +240,8 @@ def render_terminal_report(history: dict[str, Any], limit: int) -> str:
     lines.extend(render_trend_block(entries, "core", "total_cycles", "Core total_cycles"))
     lines.append("")
     lines.extend(render_trend_block(entries, "mmio", "program_runs", "MMIO program_runs"))
+    lines.append("")
+    lines.extend(render_trend_block(entries, "apb", "program_runs", "APB program_runs"))
     return "\n".join(lines)
 
 
@@ -221,7 +252,9 @@ def snapshot(args: argparse.Namespace) -> int:
 
     core_report = load_json(Path(args.core).resolve())
     mmio_path = Path(args.mmio).resolve() if args.mmio else None
+    apb_path = Path(args.apb).resolve() if args.apb else None
     mmio_report = load_json(mmio_path) if mmio_path and mmio_path.exists() else {}
+    apb_report = load_json(apb_path) if apb_path and apb_path.exists() else {}
 
     entry = {
         "timestamp_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -231,6 +264,7 @@ def snapshot(args: argparse.Namespace) -> int:
         "git_dirty": git_dirty(),
         "core": summarize_core_coverage(core_report),
         "mmio": summarize_mmio_coverage(mmio_report) if mmio_report else {},
+        "apb": summarize_apb_coverage(apb_report) if apb_report else {},
     }
 
     entries = history.setdefault("entries", [])
@@ -242,6 +276,7 @@ def snapshot(args: argparse.Namespace) -> int:
             and latest.get("git_dirty") == entry["git_dirty"]
             and latest.get("core") == entry["core"]
             and latest.get("mmio") == entry["mmio"]
+            and latest.get("apb") == entry["apb"]
         )
         if same_identity:
             entries[-1] = entry
@@ -272,12 +307,13 @@ def report(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Record and report core/MMIO coverage history.")
+    parser = argparse.ArgumentParser(description="Record and report core/MMIO/APB coverage history.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     snapshot_parser = subparsers.add_parser("snapshot", help="Append or refresh a coverage history snapshot.")
     snapshot_parser.add_argument("--core", default=str(PROJECT_ROOT / "sim_build" / "coverage.json"))
     snapshot_parser.add_argument("--mmio", default=str(PROJECT_ROOT / "sim_build" / "mmio_coverage.json"))
+    snapshot_parser.add_argument("--apb", default=str(PROJECT_ROOT / "sim_build" / "apb_coverage.json"))
     snapshot_parser.add_argument("--history", default=str(DEFAULT_HISTORY_PATH))
     snapshot_parser.add_argument("--markdown", default=str(DEFAULT_MARKDOWN_PATH))
     snapshot_parser.add_argument("--label", default="tutorial-regression")

@@ -1,6 +1,6 @@
 param(
     [switch]$NoSimulate,
-    [ValidateSet("direct", "mmio")]
+    [ValidateSet("direct", "mmio", "apb")]
     [string]$Runner = "direct"
 )
 

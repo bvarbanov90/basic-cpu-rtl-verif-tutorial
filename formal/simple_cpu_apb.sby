@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 24
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal -D FORMAL simple_cpu_apb_mmio_stub.sv simple_cpu_apb.sv simple_cpu_apb_formal.sv
+prep -top simple_cpu_apb_formal
+
+[files]
+formal/simple_cpu_apb_mmio_stub.sv
+rtl/simple_cpu_apb.sv
+formal/simple_cpu_apb_formal.sv
