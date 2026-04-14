@@ -6,18 +6,7 @@ from cocotb.triggers import RisingEdge
 
 from tb.cpu_lib import ReferenceCPU, build_logic_ops_program, ins, OPC_HLT, OPC_LDI, OPC_STA
 from tb.mmio_bus import ADDR_ACC, ADDR_CONTROL, ADDR_STATUS, SimpleCpuMmioBus
-
-
-async def assert_matches_model(mmio: SimpleCpuMmioBus, model: ReferenceCPU, label: str) -> None:
-    observed = await mmio.sample_state()
-    assert observed.halted == model.halted, f"{label}: HALTED mismatch"
-    assert observed.acc == model.acc, f"{label}: ACC mismatch"
-    assert observed.pc == model.pc, f"{label}: PC mismatch"
-    assert observed.zero == model.zero, f"{label}: ZERO mismatch"
-    assert observed.carry == model.carry, f"{label}: CARRY mismatch"
-    assert observed.neg == model.neg, f"{label}: NEG mismatch"
-    assert observed.overflow == model.overflow, f"{label}: OVERFLOW mismatch"
-    assert observed.dmem == model.dmem, f"{label}: DMEM mismatch"
+from tb.protocol_conformance import assert_snapshot_matches_model, run_protocol_conformance_suite
 
 
 @cocotb.test()
@@ -32,12 +21,17 @@ async def mmio_program_matches_reference_model(dut):
     model.run(max_cycles=128)
 
     await mmio.load_shadow_program(program)
-    for addr, value in enumerate(program[:16]):
-        assert await mmio.read(addr) == value, f"shadow[{addr}] readback mismatch"
-
-    await mmio.start_program()
+    await mmio.verify_loaded_program(program)
+    await mmio.begin_execution()
     await mmio.run_until_halt(max_cycles=256)
-    await assert_matches_model(mmio, model, "mmio_logic_ops")
+    assert_snapshot_matches_model(await mmio.sample_state(), model, "mmio_logic_ops")
+
+
+@cocotb.test()
+async def mmio_protocol_conformance_suite(dut):
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    mmio = SimpleCpuMmioBus(dut)
+    await run_protocol_conformance_suite(mmio, str(dut._name))
 
 
 @cocotb.test()
@@ -72,12 +66,12 @@ async def mmio_shadow_fault_injection_requires_reload(dut):
     assert await mmio.read(2) == patched_program[2], "shadow image should update immediately"
 
     await mmio.run_until_halt(max_cycles=128)
-    await assert_matches_model(mmio, model_initial, "mmio_shadow_current_run")
+    assert_snapshot_matches_model(await mmio.sample_state(), model_initial, "mmio_shadow_current_run")
 
     await mmio.stop_program()
     await mmio.start_program()
     await mmio.run_until_halt(max_cycles=128)
-    await assert_matches_model(mmio, model_reloaded, "mmio_shadow_after_reload")
+    assert_snapshot_matches_model(await mmio.sample_state(), model_reloaded, "mmio_shadow_after_reload")
 
 
 @cocotb.test()

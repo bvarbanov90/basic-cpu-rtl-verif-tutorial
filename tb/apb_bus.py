@@ -72,6 +72,14 @@ class SimpleCpuApbBus:
         for addr, value in enumerate(program[:16]):
             await self.write(addr, value)
 
+    async def load_program(self, program: list[int]) -> None:
+        await self.load_shadow_program(program)
+
+    async def verify_loaded_program(self, program: list[int]) -> None:
+        for addr, value in enumerate(program[:16]):
+            observed = await self.read(addr)
+            assert observed == (value & 0xFF), f"shadow[{addr}] got {observed}, expected {value & 0xFF}"
+
     async def wait_for_control_state(self, *, run: int, load: int, max_cycles: int = 64) -> None:
         expected = ((load & 1) << 1) | (run & 1)
         for _ in range(max_cycles):
@@ -84,6 +92,9 @@ class SimpleCpuApbBus:
     async def start_program(self) -> None:
         await self.write(ADDR_CONTROL, 0x01)
         await self.wait_for_control_state(run=1, load=0)
+
+    async def begin_execution(self) -> None:
+        await self.start_program()
 
     async def stop_program(self) -> None:
         await self.write(ADDR_CONTROL, 0x00)

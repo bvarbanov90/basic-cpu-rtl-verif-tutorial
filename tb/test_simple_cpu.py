@@ -6,6 +6,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, RisingEdge, Timer
 
 from scripts.asm import assemble, parse_source
+from tb.core_bus import SimpleCpuCoreBus
 from tb.cpu_lib import (
     OPC_ADD,
     OPC_AND,
@@ -27,6 +28,7 @@ from tb.cpu_lib import (
     build_random_dataflow_program,
     ins,
 )
+from tb.protocol_conformance import run_protocol_conformance_suite
 
 
 async def reset_dut(dut) -> None:
@@ -168,6 +170,13 @@ async def randomized_program_matches_reference_model(dut):
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     program = build_random_dataflow_program(seed=20260221, length=12)
     await run_program_against_model(dut, program, max_cycles=64, label="randomized_program")
+
+
+@cocotb.test()
+async def protocol_conformance_matches_reference_suite(dut):
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    core = SimpleCpuCoreBus(dut)
+    await run_protocol_conformance_suite(core, str(dut._name))
 
 
 @cocotb.test()

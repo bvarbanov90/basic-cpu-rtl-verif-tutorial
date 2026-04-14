@@ -20,6 +20,7 @@ from tb.cpu_lib import (
     ins,
 )
 from tb.mmio_bus import MmioSnapshot, SimpleCpuMmioBus
+from tb.protocol_conformance import assert_snapshot_matches_model as assert_protocol_snapshot_matches_model
 
 
 def get_config(component, key: str, default):
@@ -252,14 +253,7 @@ class SimpleCpuMmioBaseTest(uvm_test):
 
 
 def assert_snapshot_matches_model(label: str, snapshot: MmioSnapshot, model: ReferenceCPU) -> None:
-    assert snapshot.halted == model.halted, f"{label}: HALTED mismatch"
-    assert snapshot.acc == model.acc, f"{label}: ACC mismatch"
-    assert snapshot.pc == model.pc, f"{label}: PC mismatch"
-    assert snapshot.zero == model.zero, f"{label}: ZERO mismatch"
-    assert snapshot.carry == model.carry, f"{label}: CARRY mismatch"
-    assert snapshot.neg == model.neg, f"{label}: NEG mismatch"
-    assert snapshot.overflow == model.overflow, f"{label}: OVERFLOW mismatch"
-    assert snapshot.dmem == model.dmem, f"{label}: DMEM mismatch"
+    assert_protocol_snapshot_matches_model(snapshot, model, label)
 
 
 @test()

@@ -9,7 +9,7 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (April 12, 2026)
+## Current status (April 14, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
@@ -143,14 +143,17 @@
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
 | `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
 | `assembler_corpus_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb replay of the tracked assembler corpus against the DUT and reference model. |
+| `protocol_conformance_matches_reference_suite` | `tb/test_simple_cpu.py` | Shared conformance-suite replay over the direct programming interface using the same scenario set as the wrapper buses. |
 | `program_write_stalls_and_retargets_execution` | `tb/test_simple_cpu.py` | Holds `prog_we` across consecutive cycles, proves architectural state stalls, and confirms a future instruction patch is honored once execution resumes. |
 | `mmio_program_matches_reference_model` | `tb/test_simple_cpu_mmio.py` | Optional cocotb MMIO wrapper replay against the same `ReferenceCPU` used by the native bench. |
+| `mmio_protocol_conformance_suite` | `tb/test_simple_cpu_mmio.py` | Replays the shared conformance-suite scenarios through the MMIO wrapper and checks end state against `ReferenceCPU`. |
 | `mmio_shadow_fault_injection_requires_reload` | `tb/test_simple_cpu_mmio.py` | Python-side bus-level check that shadow writes during `RUN` do not perturb the current run and only take effect after reload. |
 | `mmio_control_status_readback` | `tb/test_simple_cpu_mmio.py` | Reads `CONTROL`, `STATUS`, `ACC`, and DMEM through MMIO across `HOLD`, `LOAD`, `RUN`, and `HALT`. |
 | `run-cocotb-verilator` | `scripts/run-cocotb-verilator.*` | Runs the cocotb core regression on Verilator and emits structural coverage artifacts. |
 | `run-cocotb-mmio` | `scripts/run-cocotb-mmio.*` | Runs the dedicated MMIO cocotb regression on Icarus with bus-level programming/readback checks. |
 | `run-cocotb-mmio-wait` | `scripts/run-cocotb-mmio-wait.*` | Replays the same MMIO cocotb suite against the wait-state wrapper variant and proves the Python bus helper tolerates delayed `bus_ready`. |
 | `apb_program_matches_reference_model` | `tb/test_simple_cpu_apb.py` | Optional cocotb APB-wrapper replay against the same `ReferenceCPU` used by the MMIO and native benches. |
+| `apb_protocol_conformance_suite` | `tb/test_simple_cpu_apb.py` | Replays the shared conformance-suite scenarios through the APB wrapper and checks end state against `ReferenceCPU`. |
 | `apb_shadow_fault_injection_requires_reload` | `tb/test_simple_cpu_apb.py` | APB-side shadow-image change check proving the current run is isolated until reload. |
 | `apb_control_status_readback` | `tb/test_simple_cpu_apb.py` | Reads APB-exposed `CONTROL`, `STATUS`, `ACC`, and DMEM through the APB shell across `HOLD`, `LOAD`, `RUN`, and `HALT`. |
 | `apb_setup_phase_requires_penable` | `tb/test_simple_cpu_apb.py` | Protocol-focused APB check that `PREADY` stays low during setup until `PENABLE` is asserted. |
@@ -223,34 +226,38 @@ Additional outputs:
 Implementation note:
 
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
-2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`, `formal/simple_cpu_mmio.sby`, `formal/simple_cpu_mmio_wait.sby`, `formal/simple_cpu_apb.sby`, and `formal/simple_cpu_apb_faults.sby`) in bounded mode.
+2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`, `formal/simple_cpu_mmio.sby`, `formal/simple_cpu_mmio_wait.sby`, `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb.sby`, and `formal/simple_cpu_apb_faults.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
 4. The Python `CoverageModel` mirrors the native SV coverage pass/fail conditions, including reachability checks for impossible bins.
 5. `rtl/simple_cpu_mmio.sv` adds a tiny wrapper state machine that loads a shadow program image into the core over the existing programming interface before releasing execution.
 6. The assembler corpus can replay through the direct core testbench, the MMIO wrapper testbench, the wait-state MMIO wrapper testbench, or the APB wrapper testbench.
-7. `tb/simple_cpu_mmio_assertions.sv` adds reusable interface assertions around `bus_ready`, control readback, and loader/reset signal alignment.
-8. `tb/simple_cpu_mmio_wait_assertions.sv` is the parallel wait-state checker for delayed `bus_ready`, request capture, and stable pending transaction fields.
-9. `tb/simple_cpu_apb_assertions.sv` is the parallel APB checker for setup/access sequencing, `PREADY` gating, and control/readback alignment.
-10. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the MMIO wrapper coverage report without opening JSON manually.
-11. `scripts/show-mmio-wait-coverage.ps1` / `scripts/show-mmio-wait-coverage.sh` summarize the wait-state MMIO wrapper coverage report without opening JSON manually.
-12. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
-13. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
-13. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-14. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, and APB fault native lanes plus corpus replay through APB and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, and APB pyuvm regressions.
-15. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
-16. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, APB, and APB-fault prove/cover targets.
-17. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, and `apb_pyuvm`.
-16. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
-17. `formal/simple_cpu_mmio_wait.sby` swaps in an abstract `simple_cpu_mmio` stub so the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through instead of re-proving MMIO internals.
-18. `formal/simple_cpu_apb.sby` swaps in an abstract `simple_cpu_mmio` stub so the APB proof focuses on setup/access handshake behavior and MMIO read-data pass-through instead of re-proving MMIO internals.
-19. `formal/simple_cpu_apb_faults.sby` keeps APB fault proofs separate from the baseline APB shell contract by driving deterministic setup/glitch/reload sequences through a small stateful MMIO stub.
-20. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
-21. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
-22. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
-23. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
-24. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv`; those files remain covered by Verilator lint and svlint.
-25. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
-26. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
+7. `tb/simple_cpu_wrapper_common_assertions.svh` centralizes the hold/load/run, loader-signal, and control-readback invariants that every wrapper must satisfy.
+8. `tb/simple_cpu_mmio_assertions.sv` adds reusable interface assertions around `bus_ready` and instantiates the common checker library.
+9. `tb/simple_cpu_mmio_wait_assertions.sv` is the parallel wait-state checker for delayed `bus_ready`, request capture, stable pending transaction fields, and the shared wrapper invariants from the common checker library.
+10. `tb/simple_cpu_apb_assertions.sv` is the parallel APB checker for setup/access sequencing, `PREADY` gating, and the shared wrapper invariants from the common checker library.
+11. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the MMIO wrapper coverage report without opening JSON manually.
+12. `scripts/show-mmio-wait-coverage.ps1` / `scripts/show-mmio-wait-coverage.sh` summarize the wait-state MMIO wrapper coverage report without opening JSON manually.
+13. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
+14. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
+15. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
+16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, and APB fault native lanes plus corpus replay through APB and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, and APB pyuvm regressions.
+17. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
+18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, and APB-fault prove/cover targets.
+19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, and `apb_pyuvm`.
+20. `tb/protocol_conformance.py` is the shared scenario library that replays the same smoke, logic, loop, branch-stress, and randomized programs across the direct core, MMIO, and APB buses.
+21. `tb/core_bus.py`, `tb/mmio_bus.py`, and `tb/apb_bus.py` expose the same high-level load/start/sample interface so the shared conformance suite can verify wrapper parity instead of only per-wrapper local tests.
+22. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
+23. `formal/simple_cpu_mmio_wait.sby` swaps in an abstract `simple_cpu_mmio` stub so the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through instead of re-proving MMIO internals.
+24. `formal/simple_cpu_mmio_wait_faults.sby` keeps a separate wait-state fault proof focused on captured-request integrity under later external bus glitches and on forbidding early `bus_ready` responses.
+25. `formal/simple_cpu_apb.sby` swaps in an abstract `simple_cpu_mmio` stub so the APB proof focuses on setup/access handshake behavior and MMIO read-data pass-through instead of re-proving MMIO internals.
+26. `formal/simple_cpu_apb_faults.sby` keeps APB fault proofs separate from the baseline APB shell contract by driving deterministic setup/glitch/reload sequences through a small stateful MMIO stub.
+27. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
+28. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
+29. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
+30. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
+31. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv`; those files remain covered by Verilator lint and svlint.
+32. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
+33. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
 
 Formal properties currently checked:
 
@@ -264,11 +271,12 @@ Formal properties currently checked:
 8. MMIO wait-state `bus_ready` stays low until the fixed wait expires, then mirrors the inner MMIO ready signal.
 9. MMIO wait-state request fields (`write`, `addr`, `wdata`) are captured once and stay stable until service.
 10. MMIO wait-state read data is exactly the delayed inner MMIO read data.
-11. APB `PREADY` stays low outside setup/access completion and matches the translated MMIO handshake during access.
-12. APB status, `ACC`, `PC`, control, DMEM-window, and representative shadow-window reads match the abstract MMIO model.
-13. APB-side `core_rst_n`, `prog_we`, `prog_addr`, and `prog_data` stay aligned with the translated MMIO programming path.
-14. APB fault proofs show setup-only writes are ignored, `PENABLE` glitches without `PSEL` are ignored, and a shadow update made during `RUN` is only reloaded after an explicit stop/start sequence.
-15. Cover mode produces one core witness showing program-write then execute-to-halt, one MMIO witness showing start-to-run-to-halt, one MMIO wait-state witness showing request-to-delay-to-service, and one APB witness showing setup-to-access-to-start-to-halt behavior.
+11. MMIO wait-state fault proofs show a captured read request cannot be replaced by later external bus activity and cannot return ready/data before the configured delay expires.
+12. APB `PREADY` stays low outside setup/access completion and matches the translated MMIO handshake during access.
+13. APB status, `ACC`, `PC`, control, DMEM-window, and representative shadow-window reads match the abstract MMIO model.
+14. APB-side `core_rst_n`, `prog_we`, `prog_addr`, and `prog_data` stay aligned with the translated MMIO programming path.
+15. APB fault proofs show setup-only writes are ignored, `PENABLE` glitches without `PSEL` are ignored, and a shadow update made during `RUN` is only reloaded after an explicit stop/start sequence.
+16. Cover mode produces one core witness showing program-write then execute-to-halt, one MMIO witness showing start-to-run-to-halt, one MMIO wait-state witness showing request-to-delay-to-service, and one APB witness showing setup-to-access-to-start-to-halt behavior.
 
 Known toolchain notes (non-fatal when runs pass):
 

@@ -57,7 +57,11 @@ Static-analysis note:
 
 Formal note:
 
-1. `run-formal` now includes the dedicated `formal/simple_cpu_apb_faults.sby` target in prove mode, so APB setup/glitch/reload corner cases are proved separately from the lighter baseline APB shell contract.
+1. `run-formal` now includes the dedicated `formal/simple_cpu_mmio_wait_faults.sby` and `formal/simple_cpu_apb_faults.sby` targets in prove mode, so protocol-specific fault scenarios stay separated from the lighter baseline wrapper contracts.
+
+Conformance note:
+
+1. The shared wrapper conformance layer in `tb/protocol_conformance.py` assumes each Python bus adapter exposes the same high-level methods (`reset`, `load_program`, `verify_loaded_program`, `begin_execution`, `run_until_halt`, `sample_state`). Keep new wrapper adapters aligned with that interface so the same scenario suite can run across protocols unchanged.
 
 Mutation note:
 

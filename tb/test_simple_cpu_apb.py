@@ -6,18 +6,7 @@ from cocotb.triggers import RisingEdge, Timer
 
 from tb.apb_bus import SimpleCpuApbBus
 from tb.cpu_lib import ReferenceCPU, build_logic_ops_program, ins, OPC_HLT, OPC_LDI, OPC_STA
-
-
-async def assert_matches_model(apb: SimpleCpuApbBus, model: ReferenceCPU, label: str) -> None:
-    observed = await apb.sample_state()
-    assert observed.halted == model.halted, f"{label}: HALTED mismatch"
-    assert observed.acc == model.acc, f"{label}: ACC mismatch"
-    assert observed.pc == model.pc, f"{label}: PC mismatch"
-    assert observed.zero == model.zero, f"{label}: ZERO mismatch"
-    assert observed.carry == model.carry, f"{label}: CARRY mismatch"
-    assert observed.neg == model.neg, f"{label}: NEG mismatch"
-    assert observed.overflow == model.overflow, f"{label}: OVERFLOW mismatch"
-    assert observed.dmem == model.dmem, f"{label}: DMEM mismatch"
+from tb.protocol_conformance import assert_snapshot_matches_model, run_protocol_conformance_suite
 
 
 @cocotb.test()
@@ -32,12 +21,17 @@ async def apb_program_matches_reference_model(dut):
     model.run(max_cycles=128)
 
     await apb.load_shadow_program(program)
-    for addr, value in enumerate(program[:16]):
-        assert await apb.read(addr) == value, f"shadow[{addr}] readback mismatch"
-
-    await apb.start_program()
+    await apb.verify_loaded_program(program)
+    await apb.begin_execution()
     await apb.run_until_halt(max_cycles=256)
-    await assert_matches_model(apb, model, "apb_logic_ops")
+    assert_snapshot_matches_model(await apb.sample_state(), model, "apb_logic_ops")
+
+
+@cocotb.test()
+async def apb_protocol_conformance_suite(dut):
+    cocotb.start_soon(Clock(dut.pclk, 10, unit="ns").start())
+    apb = SimpleCpuApbBus(dut)
+    await run_protocol_conformance_suite(apb, str(dut._name))
 
 
 @cocotb.test()
@@ -72,12 +66,12 @@ async def apb_shadow_fault_injection_requires_reload(dut):
     assert await apb.read(2) == patched_program[2], "shadow image should update immediately"
 
     await apb.run_until_halt(max_cycles=128)
-    await assert_matches_model(apb, model_initial, "apb_shadow_current_run")
+    assert_snapshot_matches_model(await apb.sample_state(), model_initial, "apb_shadow_current_run")
 
     await apb.stop_program()
     await apb.start_program()
     await apb.run_until_halt(max_cycles=128)
-    await assert_matches_model(apb, model_reloaded, "apb_shadow_after_reload")
+    assert_snapshot_matches_model(await apb.sample_state(), model_reloaded, "apb_shadow_after_reload")
 
 
 @cocotb.test()

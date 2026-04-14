@@ -76,6 +76,9 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_mmio_wait_cover.sby
 |  |- simple_cpu_mmio_wait_formal.sv
 |  |- simple_cpu_mmio_wait_cover_formal.sv
+|  |- simple_cpu_mmio_wait_faults.sby
+|  |- simple_cpu_mmio_wait_fault_formal.sv
+|  |- simple_cpu_mmio_wait_fault_stub.sv
 |  |- simple_cpu_mmio_wait_stub.sv
 |  |- simple_cpu_apb.sby
 |  |- simple_cpu_apb_faults.sby
@@ -99,14 +102,17 @@ basic-cpu-rlt--verif-tutorial/
 |  |- sparse_jump.asm
 |- tb/
 |  |- coverage_utils.py
+|  |- core_bus.py
 |  |- cpu_lib.py
 |  |- apb_bus.py
 |  |- mmio_bus.py
+|  |- protocol_conformance.py
 |  |- simple_cpu_apb_assertions.sv
 |  |- simple_cpu_apb_fault_tb.sv
 |  |- simple_cpu_apb_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_wait_assertions.sv
+|  |- simple_cpu_wrapper_common_assertions.svh
 |  |- simple_cpu_mmio_tb.sv
 |  |- simple_cpu_mmio_wait_tb.sv
 |  |- simple_cpu_tb.sv
@@ -299,6 +305,12 @@ To run the MMIO wrapper regression:
 .\scripts\run-mmio.ps1 -NoWaves
 ```
 
+To run the wait-state MMIO wrapper regression:
+
+```powershell
+.\scripts\run-mmio-wait.ps1 -NoWaves
+```
+
 To run the APB wrapper regression:
 
 ```powershell
@@ -339,6 +351,12 @@ To replay the tracked assembler corpus through the MMIO wrapper:
 
 ```powershell
 .\scripts\run-asm-corpus.ps1 -Runner mmio
+```
+
+To replay the tracked assembler corpus through the wait-state MMIO wrapper:
+
+```powershell
+.\scripts\run-asm-corpus.ps1 -Runner mmio_wait
 ```
 
 To replay the tracked assembler corpus through the APB wrapper:
@@ -618,8 +636,9 @@ The formal proof flow now runs:
 1. `formal/simple_cpu.sby`
 2. `formal/simple_cpu_mmio.sby`
 3. `formal/simple_cpu_mmio_wait.sby`
-4. `formal/simple_cpu_apb.sby`
-5. `formal/simple_cpu_apb_faults.sby`
+4. `formal/simple_cpu_mmio_wait_faults.sby`
+5. `formal/simple_cpu_apb.sby`
+6. `formal/simple_cpu_apb_faults.sby`
 
 The formal cover flow runs:
 
@@ -636,13 +655,16 @@ Current formal properties cover:
 4. MMIO `HOLD/LOAD/RUN` state transitions and loader sequencing,
 5. representative shadow-image update/stability rules during hold, load, and run phases,
 6. MMIO wait-state request capture, fixed delay, request stability, and delayed read-data pass-through,
-7. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
-8. APB pass-through mapping of the MMIO readback model onto the APB shell,
-9. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload.
+7. MMIO wait-state fault-focused guarantees that no later bus glitch can overwrite a captured request and no early `bus_ready` pulse can escape before the programmed delay,
+8. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
+9. APB pass-through mapping of the MMIO readback model onto the APB shell,
+10. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
 
 The MMIO wait-state formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through so the extra protocol target stays cheap.
+
+The MMIO wait-state fault formal target is split out intentionally. `formal/simple_cpu_mmio_wait_faults.sby` drives one captured read request followed by distracting external traffic and proves the wrapper still services the originally latched request after the configured delay.
 
 The APB formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the APB proof focuses on setup/access handshake behavior and read-data pass-through so the extra protocol target stays cheap.
 
@@ -795,6 +817,8 @@ The cocotb layer now also includes an assembler-corpus regression in `tb/test_si
 3. a subscriber-based coverage collector that writes `sim_build/pyuvm_coverage.json`,
 4. a program-port stall-and-retarget test that holds `prog_we` across multiple cycles, proves architectural state stops advancing, and confirms a future instruction patch is honored once execution resumes.
 
+The same core cocotb module now also carries a shared protocol-conformance scenario library in `tb/protocol_conformance.py`. The direct-core adapter in `tb/core_bus.py` and the wrapper adapters in `tb/mmio_bus.py` and `tb/apb_bus.py` all run the same smoke, logic, loop, branch-stress, and randomized programs against the same `ReferenceCPU` end-state checks.
+
 The MMIO pyuvm layer in `tb/test_simple_cpu_mmio_pyuvm.py` adds:
 
 1. a sequence/driver/scoreboard wrapper environment over `tb/mmio_bus.py`,
@@ -829,17 +853,19 @@ bash scripts/run-cocotb-mmio.sh --no-waves
 The MMIO cocotb layer in `tb/test_simple_cpu_mmio.py` covers:
 
 1. wrapper programming/readback against the same `ReferenceCPU`,
-2. control/status visibility across `HOLD`, `LOAD`, `RUN`, and `HALT`,
-3. Python-side shadow fault injection that only takes effect after an explicit reload.
+2. protocol-conformance replay of the shared cross-wrapper scenario suite,
+3. control/status visibility across `HOLD`, `LOAD`, `RUN`, and `HALT`,
+4. Python-side shadow fault injection that only takes effect after an explicit reload.
 
 Its bus transactions now live in `tb/mmio_bus.py`, so future wrapper-level Python regressions can reuse the same reset/read/write/start/stop helper instead of duplicating bus logic.
 
 The APB cocotb layer in `tb/test_simple_cpu_apb.py` covers:
 
 1. wrapper programming/readback against the same `ReferenceCPU`,
-2. control/status visibility across `HOLD`, `LOAD`, `RUN`, and `HALT`,
-3. Python-side shadow fault injection with explicit reload behavior,
-4. a protocol-focused check that `PREADY` stays low during the APB setup phase until `PENABLE` is asserted.
+2. protocol-conformance replay of the shared cross-wrapper scenario suite,
+3. control/status visibility across `HOLD`, `LOAD`, `RUN`, and `HALT`,
+4. Python-side shadow fault injection with explicit reload behavior,
+5. a protocol-focused check that `PREADY` stays low during the APB setup phase until `PENABLE` is asserted.
 
 The APB pyuvm layer in `tb/test_simple_cpu_apb_pyuvm.py` mirrors the same protocol with sequence/driver/scoreboard structure over `tb/apb_bus.py`.
 
@@ -886,6 +912,8 @@ Wrapper behavior:
 1. Writing the instruction window updates a shadow program image.
 2. Writing `0x30 = 0x01` resets the core into a 16-cycle loader phase, copies the shadow image into instruction memory, then starts execution.
 3. Writing `0x30 = 0x00` returns the wrapper to hold/reset state for reprogramming.
+
+The assertion modules now share a common checker library in `tb/simple_cpu_wrapper_common_assertions.svh`. Wrapper-specific assertion files only keep the protocol rules that are actually unique to MMIO always-ready, MMIO wait-state, or APB, while the shared hold/load/run and control-readback invariants stay defined once.
 
 The native wrapper testbench in `tb/simple_cpu_mmio_tb.sv` checks:
 

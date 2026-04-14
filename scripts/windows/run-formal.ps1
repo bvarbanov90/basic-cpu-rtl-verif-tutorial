@@ -57,6 +57,7 @@ if ($Mode -in @("prove", "all")) {
         @{ Source = "formal/simple_cpu.sby"; OutputDir = "formal/simple_cpu"; Temp = "formal/simple_cpu.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_mmio.sby"; OutputDir = "formal/simple_cpu_mmio"; Temp = "formal/simple_cpu_mmio.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_mmio_wait.sby"; OutputDir = "formal/simple_cpu_mmio_wait"; Temp = "formal/simple_cpu_mmio_wait.$Solver.tmp.sby" },
+        @{ Source = "formal/simple_cpu_mmio_wait_faults.sby"; OutputDir = "formal/simple_cpu_mmio_wait_faults"; Temp = "formal/simple_cpu_mmio_wait_faults.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_apb.sby"; OutputDir = "formal/simple_cpu_apb"; Temp = "formal/simple_cpu_apb.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_apb_faults.sby"; OutputDir = "formal/simple_cpu_apb_faults"; Temp = "formal/simple_cpu_apb_faults.$Solver.tmp.sby" }
     )
