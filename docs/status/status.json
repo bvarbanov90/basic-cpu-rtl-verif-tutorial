@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-04-12T20:38:44Z",
+  "generated_utc": "2026-04-14T09:41:06Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "051df4a",
+  "git_commit": "9085aae",
   "git_dirty": 0,
   "overall_required_status": "PASS",
   "core_coverage": {
@@ -79,7 +79,7 @@
     "path": "sim_build/verilator_results.xml",
     "status": "PASS",
     "required": false,
-    "tests": 5,
+    "tests": 6,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -88,7 +88,7 @@
     "path": "sim_build/mmio_cocotb_results.xml",
     "status": "PASS",
     "required": false,
-    "tests": 3,
+    "tests": 4,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -106,7 +106,7 @@
     "path": "sim_build/mmio_wait_cocotb_results.xml",
     "status": "PASS",
     "required": false,
-    "tests": 3,
+    "tests": 4,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -124,7 +124,7 @@
     "path": "sim_build/apb_cocotb_results.xml",
     "status": "PASS",
     "required": false,
-    "tests": 4,
+    "tests": 5,
     "failures": 0,
     "errors": 0,
     "skipped": 0
@@ -149,8 +149,8 @@
   },
   "formal": {
     "status": "PASS",
-    "passed": 9,
-    "total": 9,
+    "passed": 10,
+    "total": 10,
     "targets": [
       {
         "name": "simple_cpu",
@@ -165,12 +165,20 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:01:08",
+        "elapsed": "0:01:09",
         "raw_status": "PASS 0 0"
       },
       {
         "name": "simple_cpu_mmio_wait",
         "path": "formal/simple_cpu_mmio_wait",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_mmio_wait_faults",
+        "path": "formal/simple_cpu_mmio_wait_faults",
         "status": "PASS",
         "solver": "cvc5",
         "elapsed": "0:00:00",
@@ -259,9 +267,10 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verible_lint.log",
-        "command": "'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-lint.exe' --parse_fatal --rules_config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.rules.verible_lint' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_fault_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_stub.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_stub.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\equiv\\simple_cpu_golden.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-lint.exe' --parse_fatal --rules_config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.rules.verible_lint' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_wrapper_common_assertions.svh' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_assertions.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_fault_tb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_fault_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_cover_formal.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_stub.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_stub.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_fault_stub.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\equiv\\simple_cpu_golden.sv'",
         "files": [
           "rtl/simple_cpu.sv",
+          "tb/simple_cpu_wrapper_common_assertions.svh",
           "tb/simple_cpu_mmio_assertions.sv",
           "tb/simple_cpu_mmio_wait_assertions.sv",
           "tb/simple_cpu_apb_assertions.sv",
@@ -273,11 +282,13 @@
           "formal/simple_cpu_formal.sv",
           "formal/simple_cpu_mmio_formal.sv",
           "formal/simple_cpu_mmio_wait_formal.sv",
+          "formal/simple_cpu_mmio_wait_fault_formal.sv",
           "formal/simple_cpu_cover_formal.sv",
           "formal/simple_cpu_mmio_cover_formal.sv",
           "formal/simple_cpu_mmio_wait_cover_formal.sv",
           "formal/simple_cpu_mmio_stub.sv",
           "formal/simple_cpu_mmio_wait_stub.sv",
+          "formal/simple_cpu_mmio_wait_fault_stub.sv",
           "equiv/simple_cpu_golden.sv"
         ]
       },
@@ -286,9 +297,10 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verible_format.log",
-        "command": "'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_fault_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_stub.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_stub.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\equiv\\simple_cpu_golden.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_wrapper_common_assertions.svh'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_assertions.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_mmio_wait_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\tb\\simple_cpu_apb_fault_tb.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_fault_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_cover_formal.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_stub.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_stub.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\formal\\simple_cpu_mmio_wait_fault_stub.sv'\n'C:\\Users\\bvarb\\tools\\verible\\verible-verilog-format.exe' --verify 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\equiv\\simple_cpu_golden.sv'",
         "files": [
           "rtl/simple_cpu.sv",
+          "tb/simple_cpu_wrapper_common_assertions.svh",
           "tb/simple_cpu_mmio_assertions.sv",
           "tb/simple_cpu_mmio_wait_assertions.sv",
           "tb/simple_cpu_apb_assertions.sv",
@@ -300,11 +312,13 @@
           "formal/simple_cpu_formal.sv",
           "formal/simple_cpu_mmio_formal.sv",
           "formal/simple_cpu_mmio_wait_formal.sv",
+          "formal/simple_cpu_mmio_wait_fault_formal.sv",
           "formal/simple_cpu_cover_formal.sv",
           "formal/simple_cpu_mmio_cover_formal.sv",
           "formal/simple_cpu_mmio_wait_cover_formal.sv",
           "formal/simple_cpu_mmio_stub.sv",
           "formal/simple_cpu_mmio_wait_stub.sv",
+          "formal/simple_cpu_mmio_wait_fault_stub.sv",
           "equiv/simple_cpu_golden.sv"
         ]
       },
@@ -332,9 +346,9 @@
     "killed_mutations": 17
   },
   "latest_history": {
-    "timestamp_utc": "2026-04-12T20:38:36Z",
+    "timestamp_utc": "2026-04-14T09:40:26Z",
     "label": "tutorial-regression",
-    "git_commit": "b41f78a",
+    "git_commit": "719fcbf",
     "git_branch": "main",
     "git_dirty": 0,
     "core": {
@@ -424,7 +438,7 @@
     "formal": {
       "path": "docs/status/badges/formal.json",
       "label": "formal",
-      "message": "9/9 PASS",
+      "message": "10/10 PASS",
       "status": "PASS"
     },
     "pyuvm": {
@@ -436,13 +450,13 @@
     "cocotb-verilator": {
       "path": "docs/status/badges/cocotb-verilator.json",
       "label": "cocotb verilator",
-      "message": "PASS 5 tests",
+      "message": "PASS 6 tests",
       "status": "PASS"
     },
     "mmio-cocotb": {
       "path": "docs/status/badges/mmio-cocotb.json",
       "label": "mmio cocotb",
-      "message": "PASS 3 tests",
+      "message": "PASS 4 tests",
       "status": "PASS"
     },
     "mmio-pyuvm": {
@@ -454,7 +468,7 @@
     "mmio-wait-cocotb": {
       "path": "docs/status/badges/mmio-wait-cocotb.json",
       "label": "mmio wait cocotb",
-      "message": "PASS 3 tests",
+      "message": "PASS 4 tests",
       "status": "PASS"
     },
     "mmio-wait-pyuvm": {
@@ -466,7 +480,7 @@
     "apb-cocotb": {
       "path": "docs/status/badges/apb-cocotb.json",
       "label": "apb cocotb",
-      "message": "PASS 4 tests",
+      "message": "PASS 5 tests",
       "status": "PASS"
     },
     "apb-pyuvm": {
@@ -508,12 +522,18 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:01:08",
+      "message": "PASS cvc5 0:01:09",
       "status": "PASS"
     },
     "formal-simple_cpu_mmio_wait": {
       "path": "docs/status/badges/formal-simple_cpu_mmio_wait.json",
       "label": "formal simple_cpu_mmio_wait",
+      "message": "PASS cvc5 0:00:00",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_mmio_wait_faults": {
+      "path": "docs/status/badges/formal-simple_cpu_mmio_wait_faults.json",
+      "label": "formal simple_cpu_mmio_wait_faults",
       "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     },
