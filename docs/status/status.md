@@ -1,13 +1,13 @@
 # Verification Status
 
-Generated UTC: `2026-04-14T17:35:14Z`
+Generated UTC: `2026-04-14T18:12:29Z`
 
 | Field | Value |
 |---|---|
 | Label | tutorial-regression |
 | Git branch | `main` |
-| Git commit | `b66c6f2` |
-| Git dirty | `1` |
+| Git commit | `19bc17f` |
+| Git dirty | `0` |
 | Overall required-suite status | `PASS` |
 
 Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence`. Optional suites are reported separately.
@@ -59,9 +59,9 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 
 | Field | Value |
 |---|---|
-| Timestamp UTC | `2026-04-14T09:40:26Z` |
+| Timestamp UTC | `2026-04-14T18:12:20Z` |
 | Label | tutorial-regression |
-| Commit | `719fcbf` |
+| Commit | `39ace05` |
 | Dirty | `0` |
 
 ## Badge Endpoints
