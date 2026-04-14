@@ -28,7 +28,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 3. Directed tests plus dataflow and branch-stress randomized regressions with reference-model comparison.
 4. Waveform debug flow with open-source tools.
 5. Assembler-corpus regressions with expected machine code, final state, and coverage signatures.
-6. Wrapper-protocol flows that verify interface-level programming and observability on top of the core, including MMIO always-ready, MMIO wait-state, and APB-style shells.
+6. Wrapper-protocol flows that verify interface-level programming and observability on top of the core, including MMIO always-ready, MMIO wait-state, APB-style, and Wishbone classic shells.
 7. Optional cocotb/pyuvm Python verification extensions.
 8. A mutation campaign that proves the regressions kill representative RTL bugs.
 9. A repo-tracked verification status export with Markdown, JSON, and badge-ready endpoints.
@@ -49,7 +49,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 1. Python + cocotb + pyuvm
 2. GNU Make (or WSL Ubuntu for Python simulator flows)
 
-Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1`, `.\scripts\run-mmio-uvm.ps1`, `.\scripts\run-cocotb-verilator.ps1`, `.\scripts\run-cocotb-mmio.ps1`, `.\scripts\run-cocotb-mmio-wait.ps1`, `.\scripts\run-mmio-wait-uvm.ps1`, `.\scripts\run-cocotb-apb.ps1`, and `.\scripts\run-apb-uvm.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
+Use Python 3.13 for the cocotb flow in this tutorial setup. On Windows, `.\scripts\run-uvm.ps1`, `.\scripts\run-mmio-uvm.ps1`, `.\scripts\run-cocotb-verilator.ps1`, `.\scripts\run-cocotb-mmio.ps1`, `.\scripts\run-cocotb-mmio-wait.ps1`, `.\scripts\run-mmio-wait-uvm.ps1`, `.\scripts\run-cocotb-apb.ps1`, `.\scripts\run-apb-uvm.ps1`, `.\scripts\run-cocotb-wishbone.ps1`, and `.\scripts\run-wishbone-uvm.ps1` fall back to WSL automatically if native GNU build tooling is unavailable.
 
 ## Project layout
 
@@ -60,6 +60,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_mmio.sv
 |  |- simple_cpu_mmio_wait.sv
 |  |- simple_cpu_apb.sv
+|  |- simple_cpu_wishbone.sv
 |- .github/
 |  |- workflows/
 |     |- ci.yml
@@ -81,12 +82,17 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_mmio_wait_fault_stub.sv
 |  |- simple_cpu_mmio_wait_stub.sv
 |  |- simple_cpu_apb.sby
+|  |- simple_cpu_wishbone.sby
 |  |- simple_cpu_apb_faults.sby
 |  |- simple_cpu_apb_cover.sby
+|  |- simple_cpu_wishbone_cover.sby
 |  |- simple_cpu_apb_formal.sv
+|  |- simple_cpu_wishbone_formal.sv
 |  |- simple_cpu_apb_fault_formal.sv
 |  |- simple_cpu_apb_cover_formal.sv
+|  |- simple_cpu_wishbone_cover_formal.sv
 |  |- simple_cpu_apb_mmio_stub.sv
+|  |- simple_cpu_wishbone_mmio_stub.sv
 |  |- simple_cpu_apb_fault_mmio_stub.sv
 |  |- simple_cpu_cover_formal.sv
 |  |- simple_cpu_mmio_cover_formal.sv
@@ -106,10 +112,13 @@ basic-cpu-rlt--verif-tutorial/
 |  |- cpu_lib.py
 |  |- apb_bus.py
 |  |- mmio_bus.py
+|  |- wishbone_bus.py
 |  |- protocol_conformance.py
 |  |- simple_cpu_apb_assertions.sv
 |  |- simple_cpu_apb_fault_tb.sv
 |  |- simple_cpu_apb_tb.sv
+|  |- simple_cpu_wishbone_assertions.sv
+|  |- simple_cpu_wishbone_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_wait_assertions.sv
 |  |- simple_cpu_wrapper_common_assertions.svh
@@ -121,6 +130,8 @@ basic-cpu-rlt--verif-tutorial/
 |  |- test_simple_cpu_mmio_pyuvm.py
 |  |- test_simple_cpu_apb.py
 |  |- test_simple_cpu_apb_pyuvm.py
+|  |- test_simple_cpu_wishbone.py
+|  |- test_simple_cpu_wishbone_pyuvm.py
 |  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
@@ -140,6 +151,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.ps1
 |  |  |- run-mmio-wait.ps1
 |  |  |- run-apb.ps1
+|  |  |- run-wishbone.ps1
 |  |  |- run-apb-fault.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
@@ -149,7 +161,9 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-cocotb-mmio-wait.ps1
 |  |  |- run-mmio-wait-uvm.ps1
 |  |  |- run-cocotb-apb.ps1
+|  |  |- run-cocotb-wishbone.ps1
 |  |  |- run-apb-uvm.ps1
+|  |  |- run-wishbone-uvm.ps1
 |  |  |- run-equiv.ps1
 |  |  |- check-all.ps1
 |  |  |- format-sv.ps1
@@ -160,6 +174,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.cmd
 |  |  |- show-coverage.ps1
 |  |  |- show-apb-coverage.ps1
+|  |  |- show-wishbone-coverage.ps1
 |  |  |- show-apb-fault-coverage.ps1
 |  |  |- show-mmio-wait-coverage.ps1
 |  |  |- show-verilator-coverage.ps1
@@ -173,6 +188,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-mmio.sh
 |  |  |- run-mmio-wait.sh
 |  |  |- run-apb.sh
+|  |  |- run-wishbone.sh
 |  |  |- run-apb-fault.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
@@ -182,7 +198,9 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-cocotb-mmio-wait.sh
 |  |  |- run-mmio-wait-uvm.sh
 |  |  |- run-cocotb-apb.sh
+|  |  |- run-cocotb-wishbone.sh
 |  |  |- run-apb-uvm.sh
+|  |  |- run-wishbone-uvm.sh
 |  |  |- run-equiv.sh
 |  |  |- check-all.sh
 |  |  |- format-sv.sh
@@ -192,6 +210,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- open-waves.sh
 |  |  |- show-coverage.sh
 |  |  |- show-apb-coverage.sh
+|  |  |- show-wishbone-coverage.sh
 |  |  |- show-apb-fault-coverage.sh
 |  |  |- show-mmio-wait-coverage.sh
 |  |  |- show-verilator-coverage.sh
@@ -204,6 +223,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
 |  |- run-mmio-wait.ps1 / run-mmio-wait.sh (wrappers)
 |  |- run-apb.ps1 / run-apb.sh (wrappers)
+|  |- run-wishbone.ps1 / run-wishbone.sh (wrappers)
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
@@ -213,7 +233,9 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-cocotb-mmio-wait.ps1 / run-cocotb-mmio-wait.sh (wrappers)
 |  |- run-mmio-wait-uvm.ps1 / run-mmio-wait-uvm.sh (wrappers)
 |  |- run-cocotb-apb.ps1 / run-cocotb-apb.sh (wrappers)
+|  |- run-cocotb-wishbone.ps1 / run-cocotb-wishbone.sh (wrappers)
 |  |- run-apb-uvm.ps1 / run-apb-uvm.sh (wrappers)
+|  |- run-wishbone-uvm.ps1 / run-wishbone-uvm.sh (wrappers)
 |  |- run-equiv.ps1 / run-equiv.sh (wrappers)
 |  |- format-sv.ps1 / format-sv.sh (wrappers)
 |  |- check-coverage-delta.ps1 / check-coverage-delta.sh (wrappers)
@@ -222,6 +244,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
 |  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
+|  |- show-wishbone-coverage.ps1 / show-wishbone-coverage.sh (wrappers)
 |  |- show-apb-fault-coverage.ps1 / show-apb-fault-coverage.sh (wrappers)
 |  |- show-mmio-wait-coverage.ps1 / show-mmio-wait-coverage.sh (wrappers)
 |  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
@@ -317,6 +340,12 @@ To run the APB wrapper regression:
 .\scripts\run-apb.ps1 -NoWaves
 ```
 
+To run the Wishbone wrapper regression:
+
+```powershell
+.\scripts\run-wishbone.ps1 -NoWaves
+```
+
 To run the APB fault-injection native regression:
 
 ```powershell
@@ -333,6 +362,12 @@ To summarize the APB wrapper coverage report:
 
 ```powershell
 .\scripts\show-apb-coverage.ps1
+```
+
+To summarize the Wishbone wrapper coverage report:
+
+```powershell
+.\scripts\show-wishbone-coverage.ps1
 ```
 
 To summarize the APB fault-coverage report:
@@ -363,6 +398,12 @@ To replay the tracked assembler corpus through the APB wrapper:
 
 ```powershell
 .\scripts\run-asm-corpus.ps1 -Runner apb
+```
+
+To replay the tracked assembler corpus through the Wishbone wrapper:
+
+```powershell
+.\scripts\run-asm-corpus.ps1 -Runner wishbone
 ```
 
 To run the cocotb regression on Verilator and collect structural coverage:
@@ -482,6 +523,12 @@ Run the APB wrapper regression:
 bash scripts/run-apb.sh --no-waves
 ```
 
+Run the Wishbone wrapper regression:
+
+```bash
+bash scripts/run-wishbone.sh --no-waves
+```
+
 Run the APB fault-injection native regression:
 
 ```bash
@@ -528,6 +575,12 @@ Show the APB wrapper coverage report:
 
 ```bash
 bash scripts/show-apb-coverage.sh
+```
+
+Show the Wishbone wrapper coverage report:
+
+```bash
+bash scripts/show-wishbone-coverage.sh
 ```
 
 Show the APB fault-coverage report:
@@ -581,11 +634,11 @@ This lane now runs:
 1. `verilator --lint-only` on the synthesizable RTL
 2. `verible-verilog-lint` on the hand-written SV sources
 3. `verible-verilog-format --verify` on the same tracked source set
-4. `svlint` on `rtl/simple_cpu.sv`, `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv`
+4. `svlint` on `rtl/simple_cpu.sv`, `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, and `rtl/simple_cpu_wishbone.sv`
 
 Scope notes:
 
-1. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv`. The current Verible release used here does not parse that wrapper family cleanly enough in this tutorial setup, so those files stay covered by Verilator lint and svlint instead.
+1. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, and `rtl/simple_cpu_wishbone.sv`. The current Verible release used here does not parse that wrapper family cleanly enough in this tutorial setup, so those files stay covered by Verilator lint and svlint instead.
 2. `svlint` intentionally stays scoped to synthesizable RTL instead of benches/formal harnesses.
 
 Outputs:
@@ -638,7 +691,8 @@ The formal proof flow now runs:
 3. `formal/simple_cpu_mmio_wait.sby`
 4. `formal/simple_cpu_mmio_wait_faults.sby`
 5. `formal/simple_cpu_apb.sby`
-6. `formal/simple_cpu_apb_faults.sby`
+6. `formal/simple_cpu_wishbone.sby`
+7. `formal/simple_cpu_apb_faults.sby`
 
 The formal cover flow runs:
 
@@ -646,6 +700,7 @@ The formal cover flow runs:
 2. `formal/simple_cpu_mmio_cover.sby`
 3. `formal/simple_cpu_mmio_wait_cover.sby`
 4. `formal/simple_cpu_apb_cover.sby`
+5. `formal/simple_cpu_wishbone_cover.sby`
 
 Current formal properties cover:
 
@@ -669,6 +724,8 @@ The MMIO wait-state fault formal target is split out intentionally. `formal/simp
 The APB formal target uses an abstract MMIO stub instead of the full MMIO wrapper. MMIO semantics are already proved in `formal/simple_cpu_mmio.sby`; the APB proof focuses on setup/access handshake behavior and read-data pass-through so the extra protocol target stays cheap.
 
 The APB fault formal target is split out intentionally. `formal/simple_cpu_apb_faults.sby` uses a small stateful MMIO stub and a deterministic APB stimulus harness so the setup/glitch/reload corner cases are proved directly without slowing down the baseline APB shell proof.
+
+The Wishbone formal targets mirror the APB structure but prove the classic `CYC/STB/ACK` translation instead of a setup/access protocol. `formal/simple_cpu_wishbone.sby` proves the stable read/write/control mapping into the shared MMIO shell, and `formal/simple_cpu_wishbone_cover.sby` emits a compact witness trace for a representative program-load then run-to-halt flow.
 
 The cover targets use dedicated witness harnesses so `sby cover` produces fast, readable example traces instead of spending time trying to satisfy every proof-harness cover statement in one run.
 
@@ -705,7 +762,7 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 3. `formal`: `bash scripts/run-formal.sh --mode all`
 4. `cocotb-verilator`: `bash scripts/run-cocotb-verilator.sh --no-waves --coverage`
 5. `equivalence`: `bash scripts/run-equiv.sh`
-6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, `bash scripts/run-mmio-wait-uvm.sh --no-waves`, `bash scripts/run-cocotb-apb.sh --no-waves`, and `bash scripts/run-apb-uvm.sh --no-waves`
+6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, `bash scripts/run-mmio-wait-uvm.sh --no-waves`, `bash scripts/run-cocotb-apb.sh --no-waves`, `bash scripts/run-apb-uvm.sh --no-waves`, `bash scripts/run-cocotb-wishbone.sh --no-waves`, and `bash scripts/run-wishbone-uvm.sh --no-waves`
 7. `mutations`: `bash scripts/run-mutations.sh`
 8. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
 
@@ -717,8 +774,10 @@ Uploaded artifacts include:
 4. `sim_build/mmio_coverage.csv`
 5. `sim_build/apb_coverage.json`
 6. `sim_build/apb_coverage.csv`
-7. `sim_build/apb_fault_coverage.json`
-8. `sim_build/apb_fault_coverage.csv`
+7. `sim_build/wishbone_coverage.json`
+8. `sim_build/wishbone_coverage.csv`
+9. `sim_build/apb_fault_coverage.json`
+10. `sim_build/apb_fault_coverage.csv`
 9. `sim_build/static_analysis/`
 10. `sim_build/pyuvm_coverage.json`
 11. `sim_build/uvm_results.xml`
@@ -728,6 +787,8 @@ Uploaded artifacts include:
 15. `sim_build/mmio_wait_uvm_results.xml`
 16. `sim_build/apb_cocotb_results.xml`
 17. `sim_build/apb_uvm_results.xml`
+18. `sim_build/wishbone_cocotb_results.xml`
+19. `sim_build/wishbone_uvm_results.xml`
 18. `sim_build/verilator_results.xml`
 19. `sim_build/verilator_coverage/`
 20. `sim_build/asm_corpus/`
@@ -738,6 +799,8 @@ Uploaded artifacts include:
 25. `formal/simple_cpu_mmio_wait_cover/`
 26. `formal/simple_cpu_apb/`
 27. `formal/simple_cpu_apb_cover/`
+28. `formal/simple_cpu_wishbone/`
+29. `formal/simple_cpu_wishbone_cover/`
 28. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
@@ -898,6 +961,8 @@ The wait-state wrapper now also has dedicated SymbiYosys prove/cover targets. Th
 
 `rtl/simple_cpu_apb.sv` is the third wrapper protocol. It exposes the same address map through a minimal APB-style setup/access handshake and translates APB transfers into the internal MMIO transaction model.
 
+`rtl/simple_cpu_wishbone.sv` is the fourth wrapper protocol. It exposes the same address map through a classic Wishbone `CYC/STB/WE/ACK` handshake and translates Wishbone transfers into the internal MMIO transaction model.
+
 Address map:
 
 1. `0x00..0x0F`: shadow instruction image read/write window
@@ -927,6 +992,7 @@ The native wrapper testbench in `tb/simple_cpu_mmio_tb.sv` checks:
 8. a matching cocotb MMIO regression in `tb/test_simple_cpu_mmio.py` for Python-side bus-level checking
 9. the same cocotb/pyuvm MMIO suites can also run against `rtl/simple_cpu_mmio_wait.sv`, proving the reusable Python bus-functional layer handles delayed `bus_ready`
 10. a separate APB cocotb/pyuvm stack in `tb/test_simple_cpu_apb.py` and `tb/test_simple_cpu_apb_pyuvm.py`, proving the same shadow/control semantics under a different bus protocol
+11. a parallel Wishbone cocotb/pyuvm stack in `tb/test_simple_cpu_wishbone.py` and `tb/test_simple_cpu_wishbone_pyuvm.py`, proving the same programming model under classic `CYC/STB/ACK` semantics
 
 It also writes wrapper-specific coverage artifacts:
 
@@ -981,6 +1047,15 @@ The native APB wrapper testbench in `tb/simple_cpu_apb_tb.sv` checks:
 5. a shadow-image fault-injection test that proves APB writes during `RUN` only affect the next explicit reload
 6. external `.hex` program replay, so the tracked assembler corpus can run through the APB shell unchanged
 
+The native Wishbone wrapper testbench in `tb/simple_cpu_wishbone_tb.sv` checks:
+
+1. Wishbone cycle/strobe/ack handshakes across instruction-window, control, status, and debug-data reads
+2. Wishbone-side programming, reprogramming, and loader start/stop sequencing
+3. a focused `SUB/CMP/JMP` replay against the same reference model used by the direct, MMIO, and APB benches
+4. assertion-based protocol checks via `tb/simple_cpu_wishbone_assertions.sv`
+5. a shadow-image fault-injection test that proves Wishbone writes during `RUN` only affect the next explicit reload
+6. external `.hex` program replay, so the tracked assembler corpus can run through the Wishbone shell unchanged
+
 The dedicated APB fault-injection testbench in `tb/simple_cpu_apb_fault_tb.sv` checks:
 
 1. setup-only shadow writes have no side effects until a real access phase occurs
@@ -993,6 +1068,11 @@ It also writes APB-specific coverage artifacts:
 
 1. `sim_build/apb_coverage.json`
 2. `sim_build/apb_coverage.csv`
+
+It also writes Wishbone-specific coverage artifacts:
+
+1. `sim_build/wishbone_coverage.json`
+2. `sim_build/wishbone_coverage.csv`
 
 It also writes APB fault-specific coverage artifacts:
 
@@ -1017,6 +1097,15 @@ Current APB coverage goals:
 2. shadow writes/reads cover the full 16-byte image on every run
 3. status, `ACC`, `PC`, and control reads occur on every run
 4. APB setup and access phases are both observed on read and write traffic
+5. start/stop control writes occur on every run
+6. `HOLD`, `LOAD`, and `RUN` wrapper states are all observed
+
+Current Wishbone coverage goals:
+
+1. at least 4 wrapper program runs
+2. shadow writes/reads cover the full 16-byte image on every run
+3. status, `ACC`, `PC`, and control reads occur on every run
+4. Wishbone setup and access phases are both observed on read and write traffic
 5. start/stop control writes occur on every run
 6. `HOLD`, `LOAD`, and `RUN` wrapper states are all observed
 
@@ -1059,6 +1148,7 @@ The replay target can be either:
 2. the MMIO wrapper testbench (`mmio`)
 3. the MMIO wait-state wrapper testbench (`mmio_wait`)
 4. the APB wrapper testbench (`apb`)
+5. the Wishbone wrapper testbench (`wishbone`)
 
 Artifacts:
 
@@ -1246,7 +1336,7 @@ The status export now includes:
 2. the EQY equivalence workdir status,
 3. the optional Verilator coverage summary,
 4. the static-analysis summary from `sim_build/static_analysis/summary.json`,
-5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, and `mutations`.
+5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, and `mutations`.
 
 ## Known benign warnings
 
@@ -1257,7 +1347,7 @@ The status export now includes:
 5. Verilator structural coverage can report a lower overall percentage than the functional coverage gate because it measures line/toggle/expression activity, not intent-level bins.
 6. The Windows equivalence wrapper intentionally prefers WSL because some OSS CAD Suite `eqy.exe` builds are unstable.
 7. `svlint` is intentionally scoped to the synthesizable RTL so the secondary checker stays focused on real coding hazards instead of tutorial/testbench naming conventions.
-8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, and `rtl/simple_cpu_apb.sv` because the current release used in this tutorial does not parse that wrapper family cleanly enough.
+8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, and `rtl/simple_cpu_wishbone.sv` because the current release used in this tutorial does not parse that wrapper family cleanly enough.
 9. If WSL itself reports `Bash/Service/E_UNEXPECTED` during a long-running command, restart WSL or rerun from PowerShell; that is a host-side shell-service failure, not a proof result.
 10. WSL runs from `/mnt/c/...` can be materially slower than native Linux or GitHub Actions due to mounted-filesystem I/O overhead.
 
@@ -1266,7 +1356,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 ## Next extensions
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
-2. Add a fourth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, and APB shells.
+2. Add a fifth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, APB, and Wishbone shells.
 3. Extend the mutation set beyond the current MMIO wait-state and APB shell set, for example with formal-harness or Python-lane regressions.
 4. Track lane-level JUnit summaries for more optional suites such as native SV smoke or assembler-corpus replay.
 

@@ -1,0 +1,16 @@
+[options]
+mode bmc
+depth 24
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal -D FORMAL simple_cpu_wishbone_mmio_stub.sv simple_cpu_wishbone.sv simple_cpu_wishbone_formal.sv
+prep -top simple_cpu_wishbone_formal
+
+[files]
+formal/simple_cpu_wishbone_mmio_stub.sv
+rtl/simple_cpu_wishbone.sv
+formal/simple_cpu_wishbone_formal.sv
+

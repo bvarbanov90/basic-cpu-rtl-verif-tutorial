@@ -20,6 +20,7 @@ VERILATOR_FILES = [
     Path("rtl/simple_cpu_mmio.sv"),
     Path("rtl/simple_cpu_mmio_wait.sv"),
     Path("rtl/simple_cpu_apb.sv"),
+    Path("rtl/simple_cpu_wishbone.sv"),
 ]
 
 VERIBLE_FILES = [
@@ -51,10 +52,11 @@ SVLINT_FILES = [
     Path("rtl/simple_cpu_mmio.sv"),
     Path("rtl/simple_cpu_mmio_wait.sv"),
     Path("rtl/simple_cpu_apb.sv"),
+    Path("rtl/simple_cpu_wishbone.sv"),
 ]
 
 STATIC_ANALYSIS_NOTES = [
-    "Verible is intentionally scoped to the hand-written SV set that the current release parses cleanly; rtl/simple_cpu_mmio.sv, rtl/simple_cpu_mmio_wait.sv, and rtl/simple_cpu_apb.sv remain covered by Verilator lint and svlint.",
+    "Verible is intentionally scoped to the hand-written SV set that the current release parses cleanly; rtl/simple_cpu_mmio.sv, rtl/simple_cpu_mmio_wait.sv, rtl/simple_cpu_apb.sv, and rtl/simple_cpu_wishbone.sv remain covered by Verilator lint and svlint.",
     "Verilator lint runs the wrapper-family RTL together, so MULTITOP is intentionally disabled there; the project keeps multiple protocol shells in one repo on purpose.",
     "svlint is intentionally scoped to synthesizable RTL so the secondary checker stays focused on design hazards instead of tutorial bench naming/style noise.",
 ]

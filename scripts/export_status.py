@@ -35,6 +35,7 @@ def parse_args() -> argparse.Namespace:
         help="MMIO wait-state coverage JSON path.",
     )
     parser.add_argument("--apb", default="sim_build/apb_coverage.json", help="APB coverage JSON path.")
+    parser.add_argument("--wishbone", default="sim_build/wishbone_coverage.json", help="Wishbone coverage JSON path.")
     parser.add_argument(
         "--apb-fault",
         default="sim_build/apb_fault_coverage.json",
@@ -75,6 +76,16 @@ def parse_args() -> argparse.Namespace:
         "--apb-pyuvm",
         default="sim_build/apb_uvm_results.xml",
         help="APB pyuvm JUnit XML path.",
+    )
+    parser.add_argument(
+        "--wishbone-cocotb",
+        default="sim_build/wishbone_cocotb_results.xml",
+        help="Wishbone cocotb JUnit XML path.",
+    )
+    parser.add_argument(
+        "--wishbone-pyuvm",
+        default="sim_build/wishbone_uvm_results.xml",
+        help="Wishbone pyuvm JUnit XML path.",
     )
     parser.add_argument(
         "--mutations",
@@ -163,6 +174,15 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             setup=payload.get("setup_phases", 0),
             access=payload.get("access_phases", 0),
         )
+    if name == "wishbone":
+        if status == "MISSING":
+            return "artifact missing"
+        return "program_runs={runs}, shadow_writes={writes}, setup_phases={setup}, access_phases={access}".format(
+            runs=payload.get("program_runs", 0),
+            writes=payload.get("shadow_writes", 0),
+            setup=payload.get("setup_phases", 0),
+            access=payload.get("access_phases", 0),
+        )
     if name == "apb_fault":
         if status == "MISSING":
             return "artifact missing"
@@ -193,6 +213,8 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
         "mmio_wait_pyuvm",
         "apb_cocotb",
         "apb_pyuvm",
+        "wishbone_cocotb",
+        "wishbone_pyuvm",
     }:
         if status == "MISSING":
             return "artifact missing"
@@ -277,6 +299,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("mmio_coverage", "mmio"),
         ("mmio_wait_coverage", "mmio_wait"),
         ("apb_coverage", "apb"),
+        ("wishbone_coverage", "wishbone"),
         ("apb_fault_coverage", "apb_fault"),
         ("formal", "formal"),
         ("equivalence", "equivalence"),
@@ -289,6 +312,8 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("mmio_wait_pyuvm", "mmio_wait_pyuvm"),
         ("apb_cocotb", "apb_cocotb"),
         ("apb_pyuvm", "apb_pyuvm"),
+        ("wishbone_cocotb", "wishbone_cocotb"),
+        ("wishbone_pyuvm", "wishbone_pyuvm"),
         ("verilator_coverage", "verilator"),
         ("mutations", "mutations"),
     ]
@@ -392,6 +417,13 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["apb_coverage"]["status"],
             status["apb_coverage"]["status"],
         ),
+        "wishbone-coverage": (
+            "wishbone coverage",
+            "PASS {runs} runs".format(runs=status["wishbone_coverage"].get("program_runs", 0))
+            if status["wishbone_coverage"]["status"] == STATUS_PASS
+            else status["wishbone_coverage"]["status"],
+            status["wishbone_coverage"]["status"],
+        ),
         "apb-fault-coverage": (
             "apb fault",
             "PASS {cases} cases".format(
@@ -472,6 +504,20 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["apb_pyuvm"]["status"],
             status["apb_pyuvm"]["status"],
         ),
+        "wishbone-cocotb": (
+            "wishbone cocotb",
+            "PASS {tests} tests".format(tests=status["wishbone_cocotb"].get("tests", 0))
+            if status["wishbone_cocotb"]["status"] == STATUS_PASS
+            else status["wishbone_cocotb"]["status"],
+            status["wishbone_cocotb"]["status"],
+        ),
+        "wishbone-pyuvm": (
+            "wishbone pyuvm",
+            "PASS {tests} tests".format(tests=status["wishbone_pyuvm"].get("tests", 0))
+            if status["wishbone_pyuvm"]["status"] == STATUS_PASS
+            else status["wishbone_pyuvm"]["status"],
+            status["wishbone_pyuvm"]["status"],
+        ),
         "verilator-coverage": (
             "verilator cov",
             "{overall}% overall".format(overall=status["verilator_coverage"].get("overall_percent", "-"))
@@ -546,17 +592,20 @@ def main() -> int:
         "formal/simple_cpu_mmio_wait",
         "formal/simple_cpu_mmio_wait_faults",
         "formal/simple_cpu_apb",
+        "formal/simple_cpu_wishbone",
         "formal/simple_cpu_apb_faults",
         "formal/simple_cpu_cover",
         "formal/simple_cpu_mmio_cover",
         "formal/simple_cpu_mmio_wait_cover",
         "formal/simple_cpu_apb_cover",
+        "formal/simple_cpu_wishbone_cover",
     ]
 
     core = coverage_summary(Path(args.core).resolve(), "core")
     mmio = coverage_summary(Path(args.mmio).resolve(), "mmio")
     mmio_wait = coverage_summary(Path(args.mmio_wait).resolve(), "mmio_wait")
     apb = coverage_summary(Path(args.apb).resolve(), "apb")
+    wishbone = coverage_summary(Path(args.wishbone).resolve(), "wishbone")
     apb_fault = coverage_summary(Path(args.apb_fault).resolve(), "apb_fault")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
     cocotb_verilator = junit_summary(Path(args.cocotb_verilator).resolve(), required=False)
@@ -566,6 +615,8 @@ def main() -> int:
     mmio_wait_pyuvm = junit_summary(Path(args.mmio_wait_pyuvm).resolve(), required=False)
     apb_cocotb = junit_summary(Path(args.apb_cocotb).resolve(), required=False)
     apb_pyuvm = junit_summary(Path(args.apb_pyuvm).resolve(), required=False)
+    wishbone_cocotb = junit_summary(Path(args.wishbone_cocotb).resolve(), required=False)
+    wishbone_pyuvm = junit_summary(Path(args.wishbone_pyuvm).resolve(), required=False)
     formal = summarize_formal([Path(target).resolve() for target in formal_targets])
     formal["required"] = True
     equivalence = equivalence_summary(Path(args.equivalence).resolve())
@@ -587,6 +638,7 @@ def main() -> int:
         "mmio_coverage": mmio,
         "mmio_wait_coverage": mmio_wait,
         "apb_coverage": apb,
+        "wishbone_coverage": wishbone,
         "apb_fault_coverage": apb_fault,
         "pyuvm_coverage": pyuvm,
         "cocotb_verilator": cocotb_verilator,
@@ -596,6 +648,8 @@ def main() -> int:
         "mmio_wait_pyuvm": mmio_wait_pyuvm,
         "apb_cocotb": apb_cocotb,
         "apb_pyuvm": apb_pyuvm,
+        "wishbone_cocotb": wishbone_cocotb,
+        "wishbone_pyuvm": wishbone_pyuvm,
         "verilator_coverage": verilator_coverage,
         "formal": formal,
         "equivalence": equivalence,

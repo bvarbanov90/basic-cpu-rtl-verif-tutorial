@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-04-14T09:41:06Z",
+  "generated_utc": "2026-04-14T17:35:14Z",
   "label": "tutorial-regression",
   "git_branch": "main",
-  "git_commit": "9085aae",
-  "git_dirty": 0,
+  "git_commit": "b66c6f2",
+  "git_dirty": 1,
   "overall_required_status": "PASS",
   "core_coverage": {
     "path": "sim_build/coverage.json",
@@ -41,6 +41,18 @@
   },
   "apb_coverage": {
     "path": "sim_build/apb_coverage.json",
+    "status": "PASS",
+    "required": false,
+    "program_runs": 8,
+    "shadow_writes": 129,
+    "shadow_reads": 129,
+    "status_reads": 71,
+    "setup_phases": 514,
+    "access_phases": 514,
+    "coverage_pass": 1
+  },
+  "wishbone_coverage": {
+    "path": "sim_build/wishbone_coverage.json",
     "status": "PASS",
     "required": false,
     "program_runs": 8,
@@ -138,6 +150,24 @@
     "errors": 0,
     "skipped": 0
   },
+  "wishbone_cocotb": {
+    "path": "sim_build/wishbone_cocotb_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "wishbone_pyuvm": {
+    "path": "sim_build/wishbone_uvm_results.xml",
+    "status": "PASS",
+    "required": false,
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
   "verilator_coverage": {
     "path": "sim_build/verilator_coverage/summary.json",
     "status": "PASS",
@@ -149,8 +179,8 @@
   },
   "formal": {
     "status": "PASS",
-    "passed": 10,
-    "total": 10,
+    "passed": 12,
+    "total": 12,
     "targets": [
       {
         "name": "simple_cpu",
@@ -165,7 +195,7 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:01:09",
+        "elapsed": "0:01:12",
         "raw_status": "PASS 0 0"
       },
       {
@@ -187,6 +217,14 @@
       {
         "name": "simple_cpu_apb",
         "path": "formal/simple_cpu_apb",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_wishbone",
+        "path": "formal/simple_cpu_wishbone",
         "status": "PASS",
         "solver": "cvc5",
         "elapsed": "0:00:00",
@@ -231,6 +269,14 @@
         "solver": "cvc5",
         "elapsed": "0:00:00",
         "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_wishbone_cover",
+        "path": "formal/simple_cpu_wishbone_cover",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
+        "raw_status": "PASS 0 0"
       }
     ],
     "required": true
@@ -254,12 +300,13 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/verilator.log",
-        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall -Wno-MULTITOP 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_apb.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\oss-cad-suite\\oss-cad-suite\\bin\\verilator_bin.exe' --lint-only -Wall -Wno-MULTITOP 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_apb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_wishbone.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "rtl/simple_cpu_mmio.sv",
           "rtl/simple_cpu_mmio_wait.sv",
-          "rtl/simple_cpu_apb.sv"
+          "rtl/simple_cpu_apb.sv",
+          "rtl/simple_cpu_wishbone.sv"
         ]
       },
       {
@@ -327,12 +374,13 @@
         "status": "PASS",
         "returncode": 0,
         "log": "sim_build/static_analysis/svlint.log",
-        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_apb.sv'",
+        "command": "'C:\\Users\\bvarb\\tools\\svlint\\bin\\svlint.exe' --config 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\.svlint.toml' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_mmio_wait.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_apb.sv' 'C:\\Users\\bvarb\\vscode_ws\\basic-cpu-rlt--verif-tutorial\\rtl\\simple_cpu_wishbone.sv'",
         "files": [
           "rtl/simple_cpu.sv",
           "rtl/simple_cpu_mmio.sv",
           "rtl/simple_cpu_mmio_wait.sv",
-          "rtl/simple_cpu_apb.sv"
+          "rtl/simple_cpu_apb.sv",
+          "rtl/simple_cpu_wishbone.sv"
         ]
       }
     ]
@@ -429,6 +477,12 @@
       "message": "PASS 8 runs",
       "status": "PASS"
     },
+    "wishbone-coverage": {
+      "path": "docs/status/badges/wishbone-coverage.json",
+      "label": "wishbone coverage",
+      "message": "PASS 8 runs",
+      "status": "PASS"
+    },
     "apb-fault-coverage": {
       "path": "docs/status/badges/apb-fault-coverage.json",
       "label": "apb fault",
@@ -438,7 +492,7 @@
     "formal": {
       "path": "docs/status/badges/formal.json",
       "label": "formal",
-      "message": "10/10 PASS",
+      "message": "12/12 PASS",
       "status": "PASS"
     },
     "pyuvm": {
@@ -489,6 +543,18 @@
       "message": "PASS 4 tests",
       "status": "PASS"
     },
+    "wishbone-cocotb": {
+      "path": "docs/status/badges/wishbone-cocotb.json",
+      "label": "wishbone cocotb",
+      "message": "PASS 5 tests",
+      "status": "PASS"
+    },
+    "wishbone-pyuvm": {
+      "path": "docs/status/badges/wishbone-pyuvm.json",
+      "label": "wishbone pyuvm",
+      "message": "PASS 4 tests",
+      "status": "PASS"
+    },
     "verilator-coverage": {
       "path": "docs/status/badges/verilator-coverage.json",
       "label": "verilator cov",
@@ -522,7 +588,7 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:01:09",
+      "message": "PASS cvc5 0:01:12",
       "status": "PASS"
     },
     "formal-simple_cpu_mmio_wait": {
@@ -540,6 +606,12 @@
     "formal-simple_cpu_apb": {
       "path": "docs/status/badges/formal-simple_cpu_apb.json",
       "label": "formal simple_cpu_apb",
+      "message": "PASS cvc5 0:00:00",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_wishbone": {
+      "path": "docs/status/badges/formal-simple_cpu_wishbone.json",
+      "label": "formal simple_cpu_wishbone",
       "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     },
@@ -570,6 +642,12 @@
     "formal-simple_cpu_apb_cover": {
       "path": "docs/status/badges/formal-simple_cpu_apb_cover.json",
       "label": "formal simple_cpu_apb_cover",
+      "message": "PASS cvc5 0:00:00",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_wishbone_cover": {
+      "path": "docs/status/badges/formal-simple_cpu_wishbone_cover.json",
+      "label": "formal simple_cpu_wishbone_cover",
       "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     }

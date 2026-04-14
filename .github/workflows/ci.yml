@@ -28,6 +28,9 @@ jobs:
       - name: Run assembler regression corpus through APB
         run: bash scripts/run-asm-corpus.sh --runner apb
 
+      - name: Run assembler regression corpus through Wishbone
+        run: bash scripts/run-asm-corpus.sh --runner wishbone
+
       - name: Run assembler regression corpus through MMIO wait-state
         run: bash scripts/run-asm-corpus.sh --runner mmio_wait
 
@@ -44,6 +47,8 @@ jobs:
             sim_build/mmio_wait_coverage.csv
             sim_build/apb_coverage.json
             sim_build/apb_coverage.csv
+            sim_build/wishbone_coverage.json
+            sim_build/wishbone_coverage.csv
             sim_build/apb_fault_coverage.json
             sim_build/apb_fault_coverage.csv
             sim_build/asm_corpus
@@ -91,10 +96,13 @@ jobs:
             formal/simple_cpu_mmio_wait
             formal/simple_cpu_mmio_wait_faults
             formal/simple_cpu_apb
+            formal/simple_cpu_apb_faults
+            formal/simple_cpu_wishbone
             formal/simple_cpu_cover
             formal/simple_cpu_mmio_cover
             formal/simple_cpu_mmio_wait_cover
             formal/simple_cpu_apb_cover
+            formal/simple_cpu_wishbone_cover
 
   cocotb-verilator:
     runs-on: ubuntu-latest
@@ -194,6 +202,12 @@ jobs:
       - name: Run APB pyuvm regression
         run: bash scripts/run-apb-uvm.sh --no-waves
 
+      - name: Run cocotb Wishbone regression
+        run: bash scripts/run-cocotb-wishbone.sh --no-waves
+
+      - name: Run Wishbone pyuvm regression
+        run: bash scripts/run-wishbone-uvm.sh --no-waves
+
       - name: Upload pyuvm artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -207,6 +221,8 @@ jobs:
             sim_build/mmio_wait_cocotb_results.xml
             sim_build/apb_uvm_results.xml
             sim_build/apb_cocotb_results.xml
+            sim_build/wishbone_uvm_results.xml
+            sim_build/wishbone_cocotb_results.xml
 
   mutations:
     runs-on: ubuntu-latest

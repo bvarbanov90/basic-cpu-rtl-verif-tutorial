@@ -226,6 +226,19 @@ def coverage_summary(path: Path, kind: str) -> dict[str, Any]:
                 "coverage_pass": int(report.get("coverage_pass", 0)),
             }
         )
+    elif kind == "wishbone":
+        payload["required"] = False
+        payload.update(
+            {
+                "program_runs": int(report.get("program_runs", 0)),
+                "shadow_writes": int(report.get("shadow_writes", 0)),
+                "shadow_reads": int(report.get("shadow_reads", 0)),
+                "status_reads": int(report.get("status_reads", 0)),
+                "setup_phases": int(report.get("setup_phases", 0)),
+                "access_phases": int(report.get("access_phases", 0)),
+                "coverage_pass": int(report.get("coverage_pass", 0)),
+            }
+        )
     elif kind == "apb_fault":
         payload["required"] = False
         payload.update(

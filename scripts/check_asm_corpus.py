@@ -29,7 +29,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--runner",
-        choices=("direct", "mmio", "mmio_wait", "apb"),
+        choices=("direct", "mmio", "mmio_wait", "apb", "wishbone"),
         default="direct",
         help="Simulation runner to use when replaying programs through RTL.",
     )
@@ -68,6 +68,9 @@ def run_simulation(hex_path: Path, runner: str) -> None:
     elif runner == "apb":
         win_script = PROJECT_ROOT / "scripts" / "run-apb.ps1"
         linux_script = "scripts/run-apb.sh"
+    elif runner == "wishbone":
+        win_script = PROJECT_ROOT / "scripts" / "run-wishbone.ps1"
+        linux_script = "scripts/run-wishbone.sh"
     else:
         win_script = PROJECT_ROOT / "scripts" / "run.ps1"
         linux_script = "scripts/run.sh"

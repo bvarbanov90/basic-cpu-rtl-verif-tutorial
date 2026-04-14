@@ -59,6 +59,7 @@ if ($Mode -in @("prove", "all")) {
         @{ Source = "formal/simple_cpu_mmio_wait.sby"; OutputDir = "formal/simple_cpu_mmio_wait"; Temp = "formal/simple_cpu_mmio_wait.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_mmio_wait_faults.sby"; OutputDir = "formal/simple_cpu_mmio_wait_faults"; Temp = "formal/simple_cpu_mmio_wait_faults.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_apb.sby"; OutputDir = "formal/simple_cpu_apb"; Temp = "formal/simple_cpu_apb.$Solver.tmp.sby" },
+        @{ Source = "formal/simple_cpu_wishbone.sby"; OutputDir = "formal/simple_cpu_wishbone"; Temp = "formal/simple_cpu_wishbone.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_apb_faults.sby"; OutputDir = "formal/simple_cpu_apb_faults"; Temp = "formal/simple_cpu_apb_faults.$Solver.tmp.sby" }
     )
 }
@@ -67,7 +68,8 @@ if ($Mode -in @("cover", "all")) {
         @{ Source = "formal/simple_cpu_cover.sby"; OutputDir = "formal/simple_cpu_cover"; Temp = "formal/simple_cpu_cover.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_mmio_cover.sby"; OutputDir = "formal/simple_cpu_mmio_cover"; Temp = "formal/simple_cpu_mmio_cover.$Solver.tmp.sby" },
         @{ Source = "formal/simple_cpu_mmio_wait_cover.sby"; OutputDir = "formal/simple_cpu_mmio_wait_cover"; Temp = "formal/simple_cpu_mmio_wait_cover.$Solver.tmp.sby" },
-        @{ Source = "formal/simple_cpu_apb_cover.sby"; OutputDir = "formal/simple_cpu_apb_cover"; Temp = "formal/simple_cpu_apb_cover.$Solver.tmp.sby" }
+        @{ Source = "formal/simple_cpu_apb_cover.sby"; OutputDir = "formal/simple_cpu_apb_cover"; Temp = "formal/simple_cpu_apb_cover.$Solver.tmp.sby" },
+        @{ Source = "formal/simple_cpu_wishbone_cover.sby"; OutputDir = "formal/simple_cpu_wishbone_cover"; Temp = "formal/simple_cpu_wishbone_cover.$Solver.tmp.sby" }
     )
 }
 

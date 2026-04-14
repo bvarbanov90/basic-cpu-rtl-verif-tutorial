@@ -105,6 +105,7 @@ if [[ "${MODE}" == "prove" || "${MODE}" == "all" ]]; then
     run_sby formal/simple_cpu_mmio_wait.sby formal/simple_cpu_mmio_wait
     run_sby formal/simple_cpu_mmio_wait_faults.sby formal/simple_cpu_mmio_wait_faults
     run_sby formal/simple_cpu_apb.sby formal/simple_cpu_apb
+    run_sby formal/simple_cpu_wishbone.sby formal/simple_cpu_wishbone
     run_sby formal/simple_cpu_apb_faults.sby formal/simple_cpu_apb_faults
 fi
 
@@ -113,6 +114,7 @@ if [[ "${MODE}" == "cover" || "${MODE}" == "all" ]]; then
     run_sby formal/simple_cpu_mmio_cover.sby formal/simple_cpu_mmio_cover
     run_sby formal/simple_cpu_mmio_wait_cover.sby formal/simple_cpu_mmio_wait_cover
     run_sby formal/simple_cpu_apb_cover.sby formal/simple_cpu_apb_cover
+    run_sby formal/simple_cpu_wishbone_cover.sby formal/simple_cpu_wishbone_cover
 fi
 
 echo "Formal run complete with solver '${SOLVER}' in mode '${MODE}'."
