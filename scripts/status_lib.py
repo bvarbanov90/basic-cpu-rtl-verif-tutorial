@@ -255,6 +255,22 @@ def coverage_summary(path: Path, kind: str) -> dict[str, Any]:
                 "coverage_pass": int(report.get("coverage_pass", 0)),
             }
         )
+    elif kind == "wishbone_fault":
+        payload["required"] = False
+        payload.update(
+            {
+                "cycle_only_writes_ignored": int(report.get("cycle_only_writes_ignored", 0)),
+                "aborted_writes_ignored": int(report.get("aborted_writes_ignored", 0)),
+                "cycle_only_starts_ignored": int(report.get("cycle_only_starts_ignored", 0)),
+                "strobe_without_cycle_ignored": int(report.get("strobe_without_cycle_ignored", 0)),
+                "shadow_fault_write_observed": int(report.get("shadow_fault_write_observed", 0)),
+                "deferred_shadow_updates": int(report.get("deferred_shadow_updates", 0)),
+                "reload_observed_updates": int(report.get("reload_observed_updates", 0)),
+                "program_runs": int(report.get("program_runs", 0)),
+                "fault_readbacks": int(report.get("fault_readbacks", 0)),
+                "coverage_pass": int(report.get("coverage_pass", 0)),
+            }
+        )
     elif kind == "mmio_wait":
         payload["required"] = False
         payload.update(

@@ -1,13 +1,13 @@
 # Verification Status
 
-Generated UTC: `2026-04-14T18:12:29Z`
+Generated UTC: `2026-04-24T17:57:12Z`
 
 | Field | Value |
 |---|---|
-| Label | tutorial-regression |
+| Label | wishbone-fault-regression |
 | Git branch | `main` |
-| Git commit | `19bc17f` |
-| Git dirty | `0` |
+| Git commit | `c3b450e` |
+| Git dirty | `1` |
 | Overall required-suite status | `PASS` |
 
 Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence`. Optional suites are reported separately.
@@ -22,7 +22,8 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 | apb_coverage | no | `PASS` | program_runs=8, shadow_writes=129, setup_phases=514, access_phases=514 | `sim_build/apb_coverage.json` |
 | wishbone_coverage | no | `PASS` | program_runs=8, shadow_writes=129, setup_phases=514, access_phases=514 | `sim_build/wishbone_coverage.json` |
 | apb_fault_coverage | no | `PASS` | fault_cases=4, deferred_updates=1, reload_updates=1, readbacks=39 | `sim_build/apb_fault_coverage.json` |
-| formal | yes | `PASS` | simple_cpu:PASS solver=cvc5 elapsed=0:00:03; simple_cpu_mmio:PASS solver=cvc5 elapsed=0:01:12; simple_cpu_mmio_wait:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_wait_faults:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_wishbone:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb_faults:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_cover:PASS solver=cvc5 elapsed=0:00:02; simple_cpu_mmio_wait_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_wishbone_cover:PASS solver=cvc5 elapsed=0:00:00 | `-` |
+| wishbone_fault_coverage | no | `PASS` | fault_cases=4, deferred_updates=1, reload_updates=1, readbacks=39 | `sim_build/wishbone_fault_coverage.json` |
+| formal | yes | `PASS` | simple_cpu:PASS solver=cvc5 elapsed=0:00:03; simple_cpu_mmio:PASS solver=cvc5 elapsed=0:01:12; simple_cpu_mmio_wait:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_wait_faults:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_wishbone:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb_faults:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_wishbone_faults:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_mmio_cover:PASS solver=cvc5 elapsed=0:00:02; simple_cpu_mmio_wait_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_apb_cover:PASS solver=cvc5 elapsed=0:00:00; simple_cpu_wishbone_cover:PASS solver=cvc5 elapsed=0:00:00 | `-` |
 | equivalence | yes | `PASS` | partitions=93, elapsed=0:00:12 | `equiv/simple_cpu_eqy` |
 | static_analysis | no | `PASS` | tools=4/4 | `sim_build/static_analysis/summary.json` |
 | pyuvm_coverage | no | `PASS` | program_runs=11, total_cycles=131, opcode_hits=15 | `sim_build/pyuvm_coverage.json` |
@@ -36,7 +37,7 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 | wishbone_cocotb | no | `PASS` | tests=5, failures=0, errors=0, skipped=0 | `sim_build/wishbone_cocotb_results.xml` |
 | wishbone_pyuvm | no | `PASS` | tests=4, failures=0, errors=0, skipped=0 | `sim_build/wishbone_uvm_results.xml` |
 | verilator_coverage | no | `PASS` | overall=61.76%, line=100.0%, toggle=55.92%, expr=62.5% | `sim_build/verilator_coverage/summary.json` |
-| mutations | no | `PASS` | killed_mutations=17/17 | `sim_build/mutations/mutation_summary.json` |
+| mutations | no | `PASS` | killed_mutations=21/21 | `sim_build/mutations/mutation_summary.json` |
 
 ## Formal Targets
 
@@ -49,6 +50,7 @@ Required suites are `core_coverage`, `mmio_coverage`, `formal`, and `equivalence
 | simple_cpu_apb | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_apb` |
 | simple_cpu_wishbone | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_wishbone` |
 | simple_cpu_apb_faults | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_apb_faults` |
+| simple_cpu_wishbone_faults | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_wishbone_faults` |
 | simple_cpu_cover | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_cover` |
 | simple_cpu_mmio_cover | `PASS` | `cvc5` | `0:00:02` | `formal/simple_cpu_mmio_cover` |
 | simple_cpu_mmio_wait_cover | `PASS` | `cvc5` | `0:00:00` | `formal/simple_cpu_mmio_wait_cover` |
@@ -88,6 +90,7 @@ Generated shields-compatible endpoint JSON files:
 1. `docs/status/badges/formal-simple_cpu_mmio_wait_faults.json`
 1. `docs/status/badges/formal-simple_cpu_wishbone.json`
 1. `docs/status/badges/formal-simple_cpu_wishbone_cover.json`
+1. `docs/status/badges/formal-simple_cpu_wishbone_faults.json`
 1. `docs/status/badges/mmio-cocotb.json`
 1. `docs/status/badges/mmio-coverage.json`
 1. `docs/status/badges/mmio-pyuvm.json`
@@ -101,4 +104,5 @@ Generated shields-compatible endpoint JSON files:
 1. `docs/status/badges/verilator-coverage.json`
 1. `docs/status/badges/wishbone-cocotb.json`
 1. `docs/status/badges/wishbone-coverage.json`
+1. `docs/status/badges/wishbone-fault-coverage.json`
 1. `docs/status/badges/wishbone-pyuvm.json`

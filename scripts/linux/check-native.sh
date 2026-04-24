@@ -11,10 +11,12 @@ bash scripts/run-mmio-wait.sh --no-waves
 bash scripts/run-apb.sh --no-waves
 bash scripts/run-wishbone.sh --no-waves
 bash scripts/run-apb-fault.sh --no-waves
+bash scripts/run-wishbone-fault.sh --no-waves
 bash scripts/show-coverage.sh
 bash scripts/show-apb-coverage.sh
 bash scripts/show-wishbone-coverage.sh
 bash scripts/show-apb-fault-coverage.sh
+bash scripts/show-wishbone-fault-coverage.sh
 bash scripts/show-mmio-wait-coverage.sh
 bash scripts/check-coverage-delta.sh
 bash scripts/run-asm-corpus.sh --no-simulate

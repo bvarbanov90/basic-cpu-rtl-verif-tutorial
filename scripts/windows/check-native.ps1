@@ -30,6 +30,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-wishbone-fault.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\show-coverage.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -46,6 +51,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\show-apb-fault-coverage.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\show-wishbone-fault-coverage.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

@@ -51,6 +51,8 @@ jobs:
             sim_build/wishbone_coverage.csv
             sim_build/apb_fault_coverage.json
             sim_build/apb_fault_coverage.csv
+            sim_build/wishbone_fault_coverage.json
+            sim_build/wishbone_fault_coverage.csv
             sim_build/asm_corpus
 
   lint:
@@ -98,6 +100,7 @@ jobs:
             formal/simple_cpu_apb
             formal/simple_cpu_apb_faults
             formal/simple_cpu_wishbone
+            formal/simple_cpu_wishbone_faults
             formal/simple_cpu_cover
             formal/simple_cpu_mmio_cover
             formal/simple_cpu_mmio_wait_cover

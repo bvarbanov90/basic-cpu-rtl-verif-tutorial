@@ -34,6 +34,7 @@ VERIBLE_FILES = [
     Path("tb/simple_cpu_mmio_wait_tb.sv"),
     Path("tb/simple_cpu_apb_tb.sv"),
     Path("tb/simple_cpu_apb_fault_tb.sv"),
+    Path("tb/simple_cpu_wishbone_fault_tb.sv"),
     Path("formal/simple_cpu_formal.sv"),
     Path("formal/simple_cpu_mmio_formal.sv"),
     Path("formal/simple_cpu_mmio_wait_formal.sv"),

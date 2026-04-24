@@ -9,7 +9,7 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (April 14, 2026)
+## Current status (April 24, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
@@ -41,6 +41,8 @@
 26. `.\scripts\run-apb.ps1 -NoWaves`: PASS
 27. `.\scripts\run-wishbone.ps1 -NoWaves`: PASS
 28. `.\scripts\run-apb-fault.ps1 -NoWaves`: PASS
+29. `.\scripts\run-wishbone-fault.ps1 -NoWaves`: PASS
+30. `.\scripts\show-wishbone-fault-coverage.ps1`: PASS
 29. `.\scripts\check-native.ps1`: PASS
 30. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
 31. `.\scripts\run-asm-corpus.ps1 -Runner mmio_wait`: PASS
@@ -84,6 +86,7 @@
 69. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
 70. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
 71. `bash scripts/export-status.sh --label tutorial-regression`: PASS
+72. Target-only `formal/simple_cpu_wishbone_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
 
 ## Test strategy
 
@@ -156,6 +159,12 @@
 | `test_penable_without_select_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves `PENABLE` glitches without `PSEL` do not create hidden APB side effects. |
 | `test_run_phase_shadow_update_requires_reload` | `tb/simple_cpu_apb_fault_tb.sv` | Proves APB shadow updates during `RUN` are visible in shadow readback immediately but only affect execution after the next explicit reload. |
 | `report_and_check_apb_fault_coverage` | `tb/simple_cpu_apb_fault_tb.sv` | APB fault-injection coverage thresholds and artifact emission. |
+| `test_cycle_only_shadow_write_ignored` | `tb/simple_cpu_wishbone_fault_tb.sv` | Proves `CYC` without `STB` does not update the Wishbone wrapper shadow image. |
+| `test_aborted_shadow_write_ignored` | `tb/simple_cpu_wishbone_fault_tb.sv` | Proves an aborted Wishbone cycle does not update the wrapper shadow image. |
+| `test_cycle_only_control_start_ignored` | `tb/simple_cpu_wishbone_fault_tb.sv` | Proves `CONTROL=1` writes with `CYC` only do not start the loader. |
+| `test_strobe_without_cycle_ignored` | `tb/simple_cpu_wishbone_fault_tb.sv` | Proves `STB` glitches without `CYC` do not create hidden Wishbone side effects. |
+| `test_run_phase_shadow_update_requires_reload` | `tb/simple_cpu_wishbone_fault_tb.sv` | Proves Wishbone shadow updates during `RUN` are visible in shadow readback immediately but only affect execution after the next explicit reload. |
+| `report_and_check_wishbone_fault_coverage` | `tb/simple_cpu_wishbone_fault_tb.sv` | Wishbone fault-injection coverage thresholds and artifact emission. |
 | `directed_arithmetic_and_branch` | `tb/test_simple_cpu.py` | Optional cocotb directed test mirroring simulator-native checks. |
 | `randomized_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb randomized/reference-model check. |
 | `branch_stress_program_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb bounded-loop branch-stress/reference-model check. |
@@ -203,7 +212,7 @@
 | `SimpleCpuUvmCoverageRegressionTest` | `tb/test_simple_cpu_pyuvm.py` | Deterministic + randomized pyuvm regression with subscriber-based coverage report emission. |
 | `SimpleCpuUvmProgramWriteStallTest` | `tb/test_simple_cpu_pyuvm.py` | pyuvm BFM-level proof that asserted `prog_we` stalls architectural state while a future instruction patch is staged. |
 | `run-asm-corpus` | `scripts/check_asm_corpus.py` + wrappers | Manifest-driven assembler regression corpus; checks bytes, final state, and coverage signatures. |
-| `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants across the core and APB shell, then confirms the direct, MMIO, and APB native benches kill them. |
+| `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants across the core, APB, Wishbone, and wait-state shells, then confirms the native benches kill them. |
 | `run-formal --mode cover` | `scripts/run-formal.*` + `formal/*cover*` | Generates witness traces for representative core/MMIO reachable scenarios. |
 | `run-equiv` | `scripts/run-equiv.*` + `equiv/simple_cpu.eqy` | Proves the current core matches the tracked golden RTL snapshot. |
 | `lint` / `show-static-analysis` | `scripts/static_analysis.py` + wrappers | Aggregates Verilator, Verible lint, Verible format verification, and svlint into repo-friendly logs plus JSON/Markdown summaries. |
@@ -236,7 +245,8 @@ Coverage artifacts:
 12. `sim_build/apb_coverage.json` / `sim_build/apb_coverage.csv` (APB wrapper transaction coverage)
 13. `sim_build/wishbone_coverage.json` / `sim_build/wishbone_coverage.csv` (Wishbone wrapper transaction coverage)
 14. `sim_build/apb_fault_coverage.json` / `sim_build/apb_fault_coverage.csv` (APB fault-injection coverage)
-14. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
+15. `sim_build/wishbone_fault_coverage.json` / `sim_build/wishbone_fault_coverage.csv` (Wishbone fault-injection coverage)
+16. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
 15. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
 16. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
 17. `sim_build/mmio_cocotb_results.xml` (MMIO cocotb regression results)
@@ -257,7 +267,7 @@ Additional outputs:
 Implementation note:
 
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
-2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`, `formal/simple_cpu_mmio.sby`, `formal/simple_cpu_mmio_wait.sby`, `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb.sby`, `formal/simple_cpu_apb_faults.sby`, and `formal/simple_cpu_wishbone.sby`) in bounded mode.
+2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`, `formal/simple_cpu_mmio.sby`, `formal/simple_cpu_mmio_wait.sby`, `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb.sby`, `formal/simple_cpu_apb_faults.sby`, `formal/simple_cpu_wishbone.sby`, and `formal/simple_cpu_wishbone_faults.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
 4. The Python `CoverageModel` mirrors the native SV coverage pass/fail conditions, including reachability checks for impossible bins.
 5. `rtl/simple_cpu_mmio.sv` adds a tiny wrapper state machine that loads a shadow program image into the core over the existing programming interface before releasing execution.
@@ -270,11 +280,12 @@ Implementation note:
 12. `scripts/show-mmio-wait-coverage.ps1` / `scripts/show-mmio-wait-coverage.sh` summarize the wait-state MMIO wrapper coverage report without opening JSON manually.
 13. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
 14. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
+15. `scripts/show-wishbone-fault-coverage.ps1` / `scripts/show-wishbone-fault-coverage.sh` summarize the Wishbone fault-injection coverage report without opening JSON manually.
 15. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, and APB fault native lanes plus corpus replay through APB, Wishbone, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, and Wishbone pyuvm regressions.
+16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, APB fault, and Wishbone fault native lanes plus corpus replay through APB, Wishbone, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, and Wishbone pyuvm regressions.
 17. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
-18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, and Wishbone prove/cover targets.
-19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_cocotb`, and `wishbone_pyuvm`.
+18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, and cover targets.
+19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, and `wishbone_pyuvm`.
 20. `tb/protocol_conformance.py` is the shared scenario library that replays the same smoke, logic, loop, branch-stress, and randomized programs across the direct core, MMIO, APB, and Wishbone buses.
 21. `tb/core_bus.py`, `tb/mmio_bus.py`, `tb/apb_bus.py`, and `tb/wishbone_bus.py` expose the same high-level load/start/sample interface so the shared conformance suite can verify wrapper parity instead of only per-wrapper local tests.
 22. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
@@ -287,7 +298,8 @@ Implementation note:
 29. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
 30. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
 31. `formal/simple_cpu_wishbone.sby` swaps in an abstract `simple_cpu_mmio` stub so the Wishbone proof focuses on `CYC/STB/ACK` translation and MMIO read-data pass-through instead of re-proving MMIO internals.
-32. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, and `rtl/simple_cpu_wishbone.sv`; those files remain covered by Verilator lint and svlint.
+32. `formal/simple_cpu_wishbone_faults.sby` keeps Wishbone fault proofs separate from the baseline Wishbone shell contract by driving deterministic `CYC`-only, `STB`-without-`CYC`, and reload sequences through a small stateful MMIO stub.
+33. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, and `rtl/simple_cpu_wishbone.sv`; those files remain covered by Verilator lint and svlint.
 33. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
 34. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
 35. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.

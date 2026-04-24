@@ -110,7 +110,7 @@ def make_localparam_mutation(
 def build_core_mutations() -> tuple[Mutation, ...]:
     common = {
         "target_file": "rtl/simple_cpu.sv",
-        "bench_names": ("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb"),
+        "bench_names": ("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb", "wishbone_tb"),
     }
     return (
         make_mutation(
@@ -371,7 +371,53 @@ def build_wait_protocol_mutations() -> tuple[Mutation, ...]:
     )
 
 
-MUTATIONS = build_core_mutations() + build_apb_protocol_mutations() + build_wait_protocol_mutations()
+def build_wishbone_protocol_mutations() -> tuple[Mutation, ...]:
+    common = {
+        "target_file": "rtl/simple_cpu_wishbone.sv",
+        "bench_names": ("wishbone_tb", "wishbone_fault_tb"),
+    }
+    return (
+        make_assign_mutation(
+            name="wishbone_cycle_acts_like_strobe",
+            description="Drive the inner MMIO bus when CYC is high even if STB is low.",
+            lhs="mmio_valid",
+            old_rhs="wb_cyc_i && wb_stb_i",
+            new_rhs="wb_cyc_i",
+            **common,
+        ),
+        make_assign_mutation(
+            name="wishbone_ack_ignores_valid",
+            description="Let ACK ignore the Wishbone valid phase.",
+            lhs="wb_ack_o",
+            old_rhs="mmio_valid && mmio_ready",
+            new_rhs="mmio_ready",
+            **common,
+        ),
+        make_assign_mutation(
+            name="wishbone_readback_zeroed",
+            description="Break Wishbone readback by forcing DAT_O low.",
+            lhs="wb_dat_o",
+            old_rhs="mmio_rdata",
+            new_rhs="8'h00",
+            **common,
+        ),
+        make_port_mutation(
+            name="wishbone_write_polarity_inverted",
+            description="Invert Wishbone write polarity before it reaches the MMIO shell.",
+            port_name="bus_write",
+            old_expr="wb_we_i",
+            new_expr="~wb_we_i",
+            **common,
+        ),
+    )
+
+
+MUTATIONS = (
+    build_core_mutations()
+    + build_apb_protocol_mutations()
+    + build_wait_protocol_mutations()
+    + build_wishbone_protocol_mutations()
+)
 
 BENCHES = (
     Bench(
@@ -396,6 +442,17 @@ BENCHES = (
         binary_name="simple_cpu_apb_tb.vvp",
     ),
     Bench(
+        name="wishbone_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_wishbone.sv",
+            "tb/simple_cpu_wishbone_assertions.sv",
+            "tb/simple_cpu_wishbone_tb.sv",
+        ),
+        binary_name="simple_cpu_wishbone_tb.vvp",
+    ),
+    Bench(
         name="mmio_wait_tb",
         sources=(
             "rtl/simple_cpu.sv",
@@ -416,6 +473,17 @@ BENCHES = (
             "tb/simple_cpu_apb_fault_tb.sv",
         ),
         binary_name="simple_cpu_apb_fault_tb.vvp",
+    ),
+    Bench(
+        name="wishbone_fault_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_wishbone.sv",
+            "tb/simple_cpu_wishbone_assertions.sv",
+            "tb/simple_cpu_wishbone_fault_tb.sv",
+        ),
+        binary_name="simple_cpu_wishbone_fault_tb.vvp",
     ),
 )
 

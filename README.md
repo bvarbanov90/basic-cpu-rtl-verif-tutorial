@@ -7,7 +7,9 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![mmio coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-coverage.json)](docs/status/status.md)
 [![mmio wait coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/mmio-wait-coverage.json)](docs/status/status.md)
 [![apb coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-coverage.json)](docs/status/status.md)
+[![wishbone coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/wishbone-coverage.json)](docs/status/status.md)
 [![apb fault coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-fault-coverage.json)](docs/status/status.md)
+[![wishbone fault coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/wishbone-fault-coverage.json)](docs/status/status.md)
 [![formal](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/formal.json)](docs/status/status.md)
 [![equivalence](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/equivalence.json)](docs/status/status.md)
 [![static analysis](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/static-analysis.json)](docs/status/status.md)
@@ -84,16 +86,19 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_apb.sby
 |  |- simple_cpu_wishbone.sby
 |  |- simple_cpu_apb_faults.sby
+|  |- simple_cpu_wishbone_faults.sby
 |  |- simple_cpu_apb_cover.sby
 |  |- simple_cpu_wishbone_cover.sby
 |  |- simple_cpu_apb_formal.sv
 |  |- simple_cpu_wishbone_formal.sv
 |  |- simple_cpu_apb_fault_formal.sv
+|  |- simple_cpu_wishbone_fault_formal.sv
 |  |- simple_cpu_apb_cover_formal.sv
 |  |- simple_cpu_wishbone_cover_formal.sv
 |  |- simple_cpu_apb_mmio_stub.sv
 |  |- simple_cpu_wishbone_mmio_stub.sv
 |  |- simple_cpu_apb_fault_mmio_stub.sv
+|  |- simple_cpu_wishbone_fault_mmio_stub.sv
 |  |- simple_cpu_cover_formal.sv
 |  |- simple_cpu_mmio_cover_formal.sv
 |- equiv/
@@ -118,6 +123,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_apb_fault_tb.sv
 |  |- simple_cpu_apb_tb.sv
 |  |- simple_cpu_wishbone_assertions.sv
+|  |- simple_cpu_wishbone_fault_tb.sv
 |  |- simple_cpu_wishbone_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_wait_assertions.sv
@@ -153,6 +159,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-apb.ps1
 |  |  |- run-wishbone.ps1
 |  |  |- run-apb-fault.ps1
+|  |  |- run-wishbone-fault.ps1
 |  |  |- run-mutations.ps1
 |  |  |- run-uvm.ps1
 |  |  |- run-mmio-uvm.ps1
@@ -176,6 +183,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-apb-coverage.ps1
 |  |  |- show-wishbone-coverage.ps1
 |  |  |- show-apb-fault-coverage.ps1
+|  |  |- show-wishbone-fault-coverage.ps1
 |  |  |- show-mmio-wait-coverage.ps1
 |  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
@@ -190,6 +198,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-apb.sh
 |  |  |- run-wishbone.sh
 |  |  |- run-apb-fault.sh
+|  |  |- run-wishbone-fault.sh
 |  |  |- run-mutations.sh
 |  |  |- run-uvm.sh
 |  |  |- run-mmio-uvm.sh
@@ -212,6 +221,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-apb-coverage.sh
 |  |  |- show-wishbone-coverage.sh
 |  |  |- show-apb-fault-coverage.sh
+|  |  |- show-wishbone-fault-coverage.sh
 |  |  |- show-mmio-wait-coverage.sh
 |  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
@@ -225,6 +235,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-apb.ps1 / run-apb.sh (wrappers)
 |  |- run-wishbone.ps1 / run-wishbone.sh (wrappers)
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
+|  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
@@ -246,6 +257,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
 |  |- show-wishbone-coverage.ps1 / show-wishbone-coverage.sh (wrappers)
 |  |- show-apb-fault-coverage.ps1 / show-apb-fault-coverage.sh (wrappers)
+|  |- show-wishbone-fault-coverage.ps1 / show-wishbone-fault-coverage.sh (wrappers)
 |  |- show-mmio-wait-coverage.ps1 / show-mmio-wait-coverage.sh (wrappers)
 |  |- show-formal-status.ps1 / show-formal-status.sh (wrappers)
 |  |- show-static-analysis.ps1 / show-static-analysis.sh (wrappers)
@@ -352,6 +364,12 @@ To run the APB fault-injection native regression:
 .\scripts\run-apb-fault.ps1 -NoWaves
 ```
 
+To run the Wishbone fault-injection native regression:
+
+```powershell
+.\scripts\run-wishbone-fault.ps1 -NoWaves
+```
+
 To summarize the wrapper coverage report:
 
 ```powershell
@@ -374,6 +392,12 @@ To summarize the APB fault-coverage report:
 
 ```powershell
 .\scripts\show-apb-fault-coverage.ps1
+```
+
+To summarize the Wishbone fault-coverage report:
+
+```powershell
+.\scripts\show-wishbone-fault-coverage.ps1
 ```
 
 To run the tracked assembler corpus:
@@ -535,6 +559,12 @@ Run the APB fault-injection native regression:
 bash scripts/run-apb-fault.sh --no-waves
 ```
 
+Run the Wishbone fault-injection native regression:
+
+```bash
+bash scripts/run-wishbone-fault.sh --no-waves
+```
+
 Run the cocotb regression on Verilator and collect structural coverage:
 
 ```bash
@@ -587,6 +617,12 @@ Show the APB fault-coverage report:
 
 ```bash
 bash scripts/show-apb-fault-coverage.sh
+```
+
+Show the Wishbone fault-coverage report:
+
+```bash
+bash scripts/show-wishbone-fault-coverage.sh
 ```
 
 Show the formal target summary:
@@ -693,6 +729,7 @@ The formal proof flow now runs:
 5. `formal/simple_cpu_apb.sby`
 6. `formal/simple_cpu_wishbone.sby`
 7. `formal/simple_cpu_apb_faults.sby`
+8. `formal/simple_cpu_wishbone_faults.sby`
 
 The formal cover flow runs:
 
@@ -713,7 +750,8 @@ Current formal properties cover:
 7. MMIO wait-state fault-focused guarantees that no later bus glitch can overwrite a captured request and no early `bus_ready` pulse can escape before the programmed delay,
 8. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
 9. APB pass-through mapping of the MMIO readback model onto the APB shell,
-10. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload.
+10. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload,
+11. targeted Wishbone fault scenarios for `CYC`-only writes, `STB`-without-`CYC` glitches, and run-time shadow updates that only take effect after explicit reload.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
 
@@ -725,7 +763,7 @@ The APB formal target uses an abstract MMIO stub instead of the full MMIO wrappe
 
 The APB fault formal target is split out intentionally. `formal/simple_cpu_apb_faults.sby` uses a small stateful MMIO stub and a deterministic APB stimulus harness so the setup/glitch/reload corner cases are proved directly without slowing down the baseline APB shell proof.
 
-The Wishbone formal targets mirror the APB structure but prove the classic `CYC/STB/ACK` translation instead of a setup/access protocol. `formal/simple_cpu_wishbone.sby` proves the stable read/write/control mapping into the shared MMIO shell, and `formal/simple_cpu_wishbone_cover.sby` emits a compact witness trace for a representative program-load then run-to-halt flow.
+The Wishbone formal targets mirror the APB structure but prove the classic `CYC/STB/ACK` translation instead of a setup/access protocol. `formal/simple_cpu_wishbone.sby` proves the stable read/write/control mapping into the shared MMIO shell, `formal/simple_cpu_wishbone_faults.sby` proves the `CYC`-only and `STB`-without-`CYC` fault paths, and `formal/simple_cpu_wishbone_cover.sby` emits a compact witness trace for a representative program-load then run-to-halt flow.
 
 The cover targets use dedicated witness harnesses so `sby cover` produces fast, readable example traces instead of spending time trying to satisfy every proof-harness cover statement in one run.
 
@@ -1064,6 +1102,14 @@ The dedicated APB fault-injection testbench in `tb/simple_cpu_apb_fault_tb.sv` c
 4. `PENABLE` glitches without `PSEL` do not cause hidden writes or starts
 5. shadow writes during `RUN` are staged for the next reload and do not perturb the in-flight program
 
+The dedicated Wishbone fault-injection testbench in `tb/simple_cpu_wishbone_fault_tb.sv` checks:
+
+1. `CYC`-only shadow writes have no side effects until `STB` is asserted
+2. aborted Wishbone writes do not update the wrapper shadow image
+3. `CYC`-only `CONTROL=1` writes do not start the loader
+4. `STB` glitches without `CYC` do not cause hidden writes or starts
+5. shadow writes during `RUN` are staged for the next reload and do not perturb the in-flight program
+
 It also writes APB-specific coverage artifacts:
 
 1. `sim_build/apb_coverage.json`
@@ -1079,16 +1125,25 @@ It also writes APB fault-specific coverage artifacts:
 1. `sim_build/apb_fault_coverage.json`
 2. `sim_build/apb_fault_coverage.csv`
 
+It also writes Wishbone fault-specific coverage artifacts:
+
+1. `sim_build/wishbone_fault_coverage.json`
+2. `sim_build/wishbone_fault_coverage.csv`
+
 Quick summary commands:
 
 ```powershell
 .\scripts\show-apb-coverage.ps1
 .\scripts\show-apb-fault-coverage.ps1
+.\scripts\show-wishbone-coverage.ps1
+.\scripts\show-wishbone-fault-coverage.ps1
 ```
 
 ```bash
 bash scripts/show-apb-coverage.sh
 bash scripts/show-apb-fault-coverage.sh
+bash scripts/show-wishbone-coverage.sh
+bash scripts/show-wishbone-fault-coverage.sh
 ```
 
 Current APB coverage goals:
@@ -1115,6 +1170,14 @@ Current APB fault-coverage goals:
 2. at least one aborted write is proven to be ignored
 3. at least one setup-only start command is proven to be ignored
 4. at least one `PENABLE`-without-`PSEL` glitch is proven to be ignored
+5. a run-time shadow update is observed immediately in shadow readback but only affects execution after an explicit reload
+
+Current Wishbone fault-coverage goals:
+
+1. at least one `CYC`-only shadow write is proven to be ignored
+2. at least one aborted write is proven to be ignored
+3. at least one `CYC`-only start command is proven to be ignored
+4. at least one `STB`-without-`CYC` glitch is proven to be ignored
 5. a run-time shadow update is observed immediately in shadow readback but only affects execution after an explicit reload
 
 ## Assembler regression corpus
@@ -1199,6 +1262,10 @@ Current mutants:
 15. MMIO-wait `bus_ready` asserted one cycle too early
 16. MMIO-wait readback forced low
 17. MMIO-wait write data dropped before the inner MMIO shell
+18. Wishbone `CYC` incorrectly acting like a complete `CYC/STB` request
+19. Wishbone `ACK` incorrectly ignoring the valid phase
+20. Wishbone readback forced low
+21. Wishbone write polarity inverted before the MMIO shell
 
 Artifacts:
 
@@ -1207,7 +1274,7 @@ Artifacts:
 3. `sim_build/mutations/<mutant>/*_compile.log`
 4. `sim_build/mutations/<mutant>/*_run.log`
 
-The current campaign is expected to be killed by the direct-core, MMIO-wrapper, MMIO wait-state, native APB-wrapper, and APB fault-injection benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` and `apb_fault_tb` are the deciding benches for setup/access and readback faults, while the MMIO-wait protocol mutants are intentionally scoped so `mmio_wait_tb` is the deciding bench for delayed-handshake faults.
+The current campaign is expected to be killed by the direct-core, MMIO-wrapper, MMIO wait-state, native APB-wrapper, native Wishbone-wrapper, APB fault-injection, and Wishbone fault-injection benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` and `apb_fault_tb` are the deciding benches for setup/access and readback faults, the Wishbone protocol-shell mutants are intentionally scoped so `wishbone_tb` and `wishbone_fault_tb` are the deciding benches for `CYC/STB/ACK` faults, and the MMIO-wait protocol mutants are intentionally scoped so `mmio_wait_tb` is the deciding bench for delayed-handshake faults.
 
 ## Suggested learning path
 

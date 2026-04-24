@@ -41,6 +41,11 @@ def parse_args() -> argparse.Namespace:
         default="sim_build/apb_fault_coverage.json",
         help="APB fault-coverage JSON path.",
     )
+    parser.add_argument(
+        "--wishbone-fault",
+        default="sim_build/wishbone_fault_coverage.json",
+        help="Wishbone fault-coverage JSON path.",
+    )
     parser.add_argument("--pyuvm", default="sim_build/pyuvm_coverage.json", help="pyuvm coverage JSON path.")
     parser.add_argument(
         "--cocotb-verilator",
@@ -197,6 +202,20 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             reloads=payload.get("reload_observed_updates", 0),
             readbacks=payload.get("fault_readbacks", 0),
         )
+    if name == "wishbone_fault":
+        if status == "MISSING":
+            return "artifact missing"
+        return "fault_cases={faults}, deferred_updates={deferred}, reload_updates={reloads}, readbacks={readbacks}".format(
+            faults=(
+                payload.get("cycle_only_writes_ignored", 0)
+                + payload.get("aborted_writes_ignored", 0)
+                + payload.get("cycle_only_starts_ignored", 0)
+                + payload.get("strobe_without_cycle_ignored", 0)
+            ),
+            deferred=payload.get("deferred_shadow_updates", 0),
+            reloads=payload.get("reload_observed_updates", 0),
+            readbacks=payload.get("fault_readbacks", 0),
+        )
     if name == "pyuvm":
         if status == "MISSING":
             return "artifact missing"
@@ -301,6 +320,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("apb_coverage", "apb"),
         ("wishbone_coverage", "wishbone"),
         ("apb_fault_coverage", "apb_fault"),
+        ("wishbone_fault_coverage", "wishbone_fault"),
         ("formal", "formal"),
         ("equivalence", "equivalence"),
         ("static_analysis", "static_analysis"),
@@ -437,6 +457,20 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             if status["apb_fault_coverage"]["status"] == STATUS_PASS
             else status["apb_fault_coverage"]["status"],
             status["apb_fault_coverage"]["status"],
+        ),
+        "wishbone-fault-coverage": (
+            "wishbone fault",
+            "PASS {cases} cases".format(
+                cases=(
+                    status["wishbone_fault_coverage"].get("cycle_only_writes_ignored", 0)
+                    + status["wishbone_fault_coverage"].get("aborted_writes_ignored", 0)
+                    + status["wishbone_fault_coverage"].get("cycle_only_starts_ignored", 0)
+                    + status["wishbone_fault_coverage"].get("strobe_without_cycle_ignored", 0)
+                )
+            )
+            if status["wishbone_fault_coverage"]["status"] == STATUS_PASS
+            else status["wishbone_fault_coverage"]["status"],
+            status["wishbone_fault_coverage"]["status"],
         ),
         "formal": (
             "formal",
@@ -594,6 +628,7 @@ def main() -> int:
         "formal/simple_cpu_apb",
         "formal/simple_cpu_wishbone",
         "formal/simple_cpu_apb_faults",
+        "formal/simple_cpu_wishbone_faults",
         "formal/simple_cpu_cover",
         "formal/simple_cpu_mmio_cover",
         "formal/simple_cpu_mmio_wait_cover",
@@ -607,6 +642,7 @@ def main() -> int:
     apb = coverage_summary(Path(args.apb).resolve(), "apb")
     wishbone = coverage_summary(Path(args.wishbone).resolve(), "wishbone")
     apb_fault = coverage_summary(Path(args.apb_fault).resolve(), "apb_fault")
+    wishbone_fault = coverage_summary(Path(args.wishbone_fault).resolve(), "wishbone_fault")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
     cocotb_verilator = junit_summary(Path(args.cocotb_verilator).resolve(), required=False)
     mmio_cocotb = junit_summary(Path(args.mmio_cocotb).resolve(), required=False)
@@ -640,6 +676,7 @@ def main() -> int:
         "apb_coverage": apb,
         "wishbone_coverage": wishbone,
         "apb_fault_coverage": apb_fault,
+        "wishbone_fault_coverage": wishbone_fault,
         "pyuvm_coverage": pyuvm,
         "cocotb_verilator": cocotb_verilator,
         "mmio_cocotb": mmio_cocotb,
