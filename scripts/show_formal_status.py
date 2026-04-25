@@ -18,6 +18,7 @@ def parse_args() -> argparse.Namespace:
             "formal/simple_cpu_mmio_wait_faults",
             "formal/simple_cpu_apb",
             "formal/simple_cpu_wishbone",
+            "formal/simple_cpu_axi_lite",
             "formal/simple_cpu_apb_faults",
             "formal/simple_cpu_wishbone_faults",
             "formal/simple_cpu_cover",
@@ -25,6 +26,7 @@ def parse_args() -> argparse.Namespace:
             "formal/simple_cpu_mmio_wait_cover",
             "formal/simple_cpu_apb_cover",
             "formal/simple_cpu_wishbone_cover",
+            "formal/simple_cpu_axi_lite_cover",
         ],
         help="Formal output directories to inspect.",
     )

@@ -31,6 +31,9 @@ jobs:
       - name: Run assembler regression corpus through Wishbone
         run: bash scripts/run-asm-corpus.sh --runner wishbone
 
+      - name: Run assembler regression corpus through AXI-Lite
+        run: bash scripts/run-asm-corpus.sh --runner axi_lite
+
       - name: Run assembler regression corpus through MMIO wait-state
         run: bash scripts/run-asm-corpus.sh --runner mmio_wait
 
@@ -49,6 +52,8 @@ jobs:
             sim_build/apb_coverage.csv
             sim_build/wishbone_coverage.json
             sim_build/wishbone_coverage.csv
+            sim_build/axi_lite_coverage.json
+            sim_build/axi_lite_coverage.csv
             sim_build/apb_fault_coverage.json
             sim_build/apb_fault_coverage.csv
             sim_build/wishbone_fault_coverage.json
@@ -101,11 +106,13 @@ jobs:
             formal/simple_cpu_apb_faults
             formal/simple_cpu_wishbone
             formal/simple_cpu_wishbone_faults
+            formal/simple_cpu_axi_lite
             formal/simple_cpu_cover
             formal/simple_cpu_mmio_cover
             formal/simple_cpu_mmio_wait_cover
             formal/simple_cpu_apb_cover
             formal/simple_cpu_wishbone_cover
+            formal/simple_cpu_axi_lite_cover
 
   cocotb-verilator:
     runs-on: ubuntu-latest
@@ -211,6 +218,12 @@ jobs:
       - name: Run Wishbone pyuvm regression
         run: bash scripts/run-wishbone-uvm.sh --no-waves
 
+      - name: Run cocotb AXI-Lite regression
+        run: bash scripts/run-cocotb-axi-lite.sh --no-waves
+
+      - name: Run AXI-Lite pyuvm regression
+        run: bash scripts/run-axi-lite-uvm.sh --no-waves
+
       - name: Upload pyuvm artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -226,6 +239,8 @@ jobs:
             sim_build/apb_cocotb_results.xml
             sim_build/wishbone_uvm_results.xml
             sim_build/wishbone_cocotb_results.xml
+            sim_build/axi_lite_uvm_results.xml
+            sim_build/axi_lite_cocotb_results.xml
 
   mutations:
     runs-on: ubuntu-latest

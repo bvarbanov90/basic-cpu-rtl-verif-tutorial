@@ -35,6 +35,16 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-cocotb-wishbone.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-cocotb-axi-lite.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\run-uvm.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -51,6 +61,16 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\run-apb-uvm.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-wishbone-uvm.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-axi-lite-uvm.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

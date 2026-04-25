@@ -110,7 +110,7 @@ def make_localparam_mutation(
 def build_core_mutations() -> tuple[Mutation, ...]:
     common = {
         "target_file": "rtl/simple_cpu.sv",
-        "bench_names": ("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb", "wishbone_tb"),
+        "bench_names": ("core_tb", "mmio_tb", "mmio_wait_tb", "apb_tb", "wishbone_tb", "axi_lite_tb"),
     }
     return (
         make_mutation(
@@ -412,11 +412,53 @@ def build_wishbone_protocol_mutations() -> tuple[Mutation, ...]:
     )
 
 
+def build_axi_lite_protocol_mutations() -> tuple[Mutation, ...]:
+    common = {
+        "target_file": "rtl/simple_cpu_axi_lite.sv",
+        "bench_names": ("axi_lite_tb",),
+    }
+    return (
+        make_assign_mutation(
+            name="axi_lite_aw_only_write_accept",
+            description="Accept an AXI-Lite write when only AWVALID is present.",
+            lhs="write_accept",
+            old_rhs="mmio_ready && !write_resp_valid && axi_awvalid && axi_wvalid",
+            new_rhs="mmio_ready && !write_resp_valid && axi_awvalid",
+            **common,
+        ),
+        make_assign_mutation(
+            name="axi_lite_bvalid_stuck_low",
+            description="Drop AXI-Lite write responses.",
+            lhs="axi_bvalid",
+            old_rhs="write_resp_valid",
+            new_rhs="1'b0",
+            **common,
+        ),
+        make_assign_mutation(
+            name="axi_lite_readback_zeroed",
+            description="Break AXI-Lite readback by forcing RDATA low.",
+            lhs="axi_rdata",
+            old_rhs="read_data_q",
+            new_rhs="8'h00",
+            **common,
+        ),
+        make_port_mutation(
+            name="axi_lite_write_polarity_inverted",
+            description="Invert AXI-Lite write polarity before it reaches the MMIO shell.",
+            port_name="bus_write",
+            old_expr="mmio_write",
+            new_expr="~mmio_write",
+            **common,
+        ),
+    )
+
+
 MUTATIONS = (
     build_core_mutations()
     + build_apb_protocol_mutations()
     + build_wait_protocol_mutations()
     + build_wishbone_protocol_mutations()
+    + build_axi_lite_protocol_mutations()
 )
 
 BENCHES = (
@@ -451,6 +493,17 @@ BENCHES = (
             "tb/simple_cpu_wishbone_tb.sv",
         ),
         binary_name="simple_cpu_wishbone_tb.vvp",
+    ),
+    Bench(
+        name="axi_lite_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_axi_lite.sv",
+            "tb/simple_cpu_axi_lite_assertions.sv",
+            "tb/simple_cpu_axi_lite_tb.sv",
+        ),
+        binary_name="simple_cpu_axi_lite_tb.vvp",
     ),
     Bench(
         name="mmio_wait_tb",

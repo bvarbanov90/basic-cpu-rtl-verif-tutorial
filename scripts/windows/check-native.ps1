@@ -25,6 +25,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-axi-lite.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\run-apb-fault.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -46,6 +51,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\show-wishbone-coverage.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\show-axi-lite-coverage.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
@@ -81,6 +91,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\run-asm-corpus.ps1 -Runner wishbone
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\run-asm-corpus.ps1 -Runner axi_lite
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

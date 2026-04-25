@@ -36,6 +36,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--apb", default="sim_build/apb_coverage.json", help="APB coverage JSON path.")
     parser.add_argument("--wishbone", default="sim_build/wishbone_coverage.json", help="Wishbone coverage JSON path.")
+    parser.add_argument("--axi-lite", default="sim_build/axi_lite_coverage.json", help="AXI-Lite coverage JSON path.")
     parser.add_argument(
         "--apb-fault",
         default="sim_build/apb_fault_coverage.json",
@@ -91,6 +92,16 @@ def parse_args() -> argparse.Namespace:
         "--wishbone-pyuvm",
         default="sim_build/wishbone_uvm_results.xml",
         help="Wishbone pyuvm JUnit XML path.",
+    )
+    parser.add_argument(
+        "--axi-lite-cocotb",
+        default="sim_build/axi_lite_cocotb_results.xml",
+        help="AXI-Lite cocotb JUnit XML path.",
+    )
+    parser.add_argument(
+        "--axi-lite-pyuvm",
+        default="sim_build/axi_lite_uvm_results.xml",
+        help="AXI-Lite pyuvm JUnit XML path.",
     )
     parser.add_argument(
         "--mutations",
@@ -188,6 +199,15 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             setup=payload.get("setup_phases", 0),
             access=payload.get("access_phases", 0),
         )
+    if name == "axi_lite":
+        if status == "MISSING":
+            return "artifact missing"
+        return "program_runs={runs}, shadow_writes={writes}, transactions={transactions}, partial_writes={partial}".format(
+            runs=payload.get("program_runs", 0),
+            writes=payload.get("shadow_writes", 0),
+            transactions=payload.get("access_phases", 0),
+            partial=payload.get("partial_write_attempts", 0),
+        )
     if name == "apb_fault":
         if status == "MISSING":
             return "artifact missing"
@@ -234,6 +254,8 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
         "apb_pyuvm",
         "wishbone_cocotb",
         "wishbone_pyuvm",
+        "axi_lite_cocotb",
+        "axi_lite_pyuvm",
     }:
         if status == "MISSING":
             return "artifact missing"
@@ -319,6 +341,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("mmio_wait_coverage", "mmio_wait"),
         ("apb_coverage", "apb"),
         ("wishbone_coverage", "wishbone"),
+        ("axi_lite_coverage", "axi_lite"),
         ("apb_fault_coverage", "apb_fault"),
         ("wishbone_fault_coverage", "wishbone_fault"),
         ("formal", "formal"),
@@ -334,6 +357,8 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("apb_pyuvm", "apb_pyuvm"),
         ("wishbone_cocotb", "wishbone_cocotb"),
         ("wishbone_pyuvm", "wishbone_pyuvm"),
+        ("axi_lite_cocotb", "axi_lite_cocotb"),
+        ("axi_lite_pyuvm", "axi_lite_pyuvm"),
         ("verilator_coverage", "verilator"),
         ("mutations", "mutations"),
     ]
@@ -444,6 +469,13 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["wishbone_coverage"]["status"],
             status["wishbone_coverage"]["status"],
         ),
+        "axi-lite-coverage": (
+            "axi-lite coverage",
+            "PASS {runs} runs".format(runs=status["axi_lite_coverage"].get("program_runs", 0))
+            if status["axi_lite_coverage"]["status"] == STATUS_PASS
+            else status["axi_lite_coverage"]["status"],
+            status["axi_lite_coverage"]["status"],
+        ),
         "apb-fault-coverage": (
             "apb fault",
             "PASS {cases} cases".format(
@@ -552,6 +584,20 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             else status["wishbone_pyuvm"]["status"],
             status["wishbone_pyuvm"]["status"],
         ),
+        "axi-lite-cocotb": (
+            "axi-lite cocotb",
+            "PASS {tests} tests".format(tests=status["axi_lite_cocotb"].get("tests", 0))
+            if status["axi_lite_cocotb"]["status"] == STATUS_PASS
+            else status["axi_lite_cocotb"]["status"],
+            status["axi_lite_cocotb"]["status"],
+        ),
+        "axi-lite-pyuvm": (
+            "axi-lite pyuvm",
+            "PASS {tests} tests".format(tests=status["axi_lite_pyuvm"].get("tests", 0))
+            if status["axi_lite_pyuvm"]["status"] == STATUS_PASS
+            else status["axi_lite_pyuvm"]["status"],
+            status["axi_lite_pyuvm"]["status"],
+        ),
         "verilator-coverage": (
             "verilator cov",
             "{overall}% overall".format(overall=status["verilator_coverage"].get("overall_percent", "-"))
@@ -627,6 +673,7 @@ def main() -> int:
         "formal/simple_cpu_mmio_wait_faults",
         "formal/simple_cpu_apb",
         "formal/simple_cpu_wishbone",
+        "formal/simple_cpu_axi_lite",
         "formal/simple_cpu_apb_faults",
         "formal/simple_cpu_wishbone_faults",
         "formal/simple_cpu_cover",
@@ -634,6 +681,7 @@ def main() -> int:
         "formal/simple_cpu_mmio_wait_cover",
         "formal/simple_cpu_apb_cover",
         "formal/simple_cpu_wishbone_cover",
+        "formal/simple_cpu_axi_lite_cover",
     ]
 
     core = coverage_summary(Path(args.core).resolve(), "core")
@@ -641,6 +689,7 @@ def main() -> int:
     mmio_wait = coverage_summary(Path(args.mmio_wait).resolve(), "mmio_wait")
     apb = coverage_summary(Path(args.apb).resolve(), "apb")
     wishbone = coverage_summary(Path(args.wishbone).resolve(), "wishbone")
+    axi_lite = coverage_summary(Path(args.axi_lite).resolve(), "axi_lite")
     apb_fault = coverage_summary(Path(args.apb_fault).resolve(), "apb_fault")
     wishbone_fault = coverage_summary(Path(args.wishbone_fault).resolve(), "wishbone_fault")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
@@ -653,6 +702,8 @@ def main() -> int:
     apb_pyuvm = junit_summary(Path(args.apb_pyuvm).resolve(), required=False)
     wishbone_cocotb = junit_summary(Path(args.wishbone_cocotb).resolve(), required=False)
     wishbone_pyuvm = junit_summary(Path(args.wishbone_pyuvm).resolve(), required=False)
+    axi_lite_cocotb = junit_summary(Path(args.axi_lite_cocotb).resolve(), required=False)
+    axi_lite_pyuvm = junit_summary(Path(args.axi_lite_pyuvm).resolve(), required=False)
     formal = summarize_formal([Path(target).resolve() for target in formal_targets])
     formal["required"] = True
     equivalence = equivalence_summary(Path(args.equivalence).resolve())
@@ -675,6 +726,7 @@ def main() -> int:
         "mmio_wait_coverage": mmio_wait,
         "apb_coverage": apb,
         "wishbone_coverage": wishbone,
+        "axi_lite_coverage": axi_lite,
         "apb_fault_coverage": apb_fault,
         "wishbone_fault_coverage": wishbone_fault,
         "pyuvm_coverage": pyuvm,
@@ -687,6 +739,8 @@ def main() -> int:
         "apb_pyuvm": apb_pyuvm,
         "wishbone_cocotb": wishbone_cocotb,
         "wishbone_pyuvm": wishbone_pyuvm,
+        "axi_lite_cocotb": axi_lite_cocotb,
+        "axi_lite_pyuvm": axi_lite_pyuvm,
         "verilator_coverage": verilator_coverage,
         "formal": formal,
         "equivalence": equivalence,

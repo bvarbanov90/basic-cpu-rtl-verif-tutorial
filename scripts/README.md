@@ -16,40 +16,44 @@ Common entrypoints:
 6. `run-mmio-wait` (`run-mmio-wait.ps1` / `run-mmio-wait.sh`)
 7. `run-apb` (`run-apb.ps1` / `run-apb.sh`)
 8. `run-wishbone` (`run-wishbone.ps1` / `run-wishbone.sh`)
-9. `run-apb-fault` (`run-apb-fault.ps1` / `run-apb-fault.sh`)
-10. `run-wishbone-fault` (`run-wishbone-fault.ps1` / `run-wishbone-fault.sh`)
-11. `run-mutations` (`run-mutations.ps1` / `run-mutations.sh`)
-12. `check-native` (`check-native.ps1` / `check-native.sh`)
-13. `check-all` (`check-all.ps1` / `check-all.sh`)
-14. `check-coverage-delta` (`check-coverage-delta.ps1` / `check-coverage-delta.sh`)
-15. `update-coverage-baseline` (`update-coverage-baseline.ps1` / `update-coverage-baseline.sh`)
-16. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
-17. `run-cocotb-verilator` (`run-cocotb-verilator.ps1` / `run-cocotb-verilator.sh`)
-18. `run-cocotb-mmio` (`run-cocotb-mmio.ps1` / `run-cocotb-mmio.sh`)
-19. `run-mmio-uvm` (`run-mmio-uvm.ps1` / `run-mmio-uvm.sh`)
-20. `run-cocotb-mmio-wait` (`run-cocotb-mmio-wait.ps1` / `run-cocotb-mmio-wait.sh`)
-21. `run-mmio-wait-uvm` (`run-mmio-wait-uvm.ps1` / `run-mmio-wait-uvm.sh`)
-22. `run-cocotb-apb` (`run-cocotb-apb.ps1` / `run-cocotb-apb.sh`)
-23. `run-apb-uvm` (`run-apb-uvm.ps1` / `run-apb-uvm.sh`)
-24. `run-cocotb-wishbone` (`run-cocotb-wishbone.ps1` / `run-cocotb-wishbone.sh`)
-25. `run-wishbone-uvm` (`run-wishbone-uvm.ps1` / `run-wishbone-uvm.sh`)
-26. `run-equiv` (`run-equiv.ps1` / `run-equiv.sh`)
-27. `update-equivalence-golden` (`update-equivalence-golden.ps1` / `update-equivalence-golden.sh`)
-28. `format-sv` (`format-sv.ps1` / `format-sv.sh`)
-29. `show-static-analysis` (`show-static-analysis.ps1` / `show-static-analysis.sh`)
-30. `show-coverage` (`show-coverage.ps1` / `show-coverage.sh`)
-31. `show-mmio-coverage` (`show-mmio-coverage.ps1` / `show-mmio-coverage.sh`)
-32. `show-mmio-wait-coverage` (`show-mmio-wait-coverage.ps1` / `show-mmio-wait-coverage.sh`)
-33. `show-apb-coverage` (`show-apb-coverage.ps1` / `show-apb-coverage.sh`)
-34. `show-wishbone-coverage` (`show-wishbone-coverage.ps1` / `show-wishbone-coverage.sh`)
-35. `show-apb-fault-coverage` (`show-apb-fault-coverage.ps1` / `show-apb-fault-coverage.sh`)
-36. `show-wishbone-fault-coverage` (`show-wishbone-fault-coverage.ps1` / `show-wishbone-fault-coverage.sh`)
-37. `show-verilator-coverage` (`show-verilator-coverage.ps1` / `show-verilator-coverage.sh`)
-38. `record-coverage-history` (`record-coverage-history.ps1` / `record-coverage-history.sh`)
-39. `show-coverage-trend` (`show-coverage-trend.ps1` / `show-coverage-trend.sh`)
-40. `show-mutations` (`show-mutations.ps1` / `show-mutations.sh`)
-41. `show-formal-status` (`show-formal-status.ps1` / `show-formal-status.sh`)
-42. `export-status` (`export-status.ps1` / `export-status.sh`)
+9. `run-axi-lite` (`run-axi-lite.ps1` / `run-axi-lite.sh`)
+10. `run-apb-fault` (`run-apb-fault.ps1` / `run-apb-fault.sh`)
+11. `run-wishbone-fault` (`run-wishbone-fault.ps1` / `run-wishbone-fault.sh`)
+12. `run-mutations` (`run-mutations.ps1` / `run-mutations.sh`)
+13. `check-native` (`check-native.ps1` / `check-native.sh`)
+14. `check-all` (`check-all.ps1` / `check-all.sh`)
+15. `check-coverage-delta` (`check-coverage-delta.ps1` / `check-coverage-delta.sh`)
+16. `update-coverage-baseline` (`update-coverage-baseline.ps1` / `update-coverage-baseline.sh`)
+17. `run-formal` (`run-formal.ps1` / `run-formal.sh`)
+18. `run-cocotb-verilator` (`run-cocotb-verilator.ps1` / `run-cocotb-verilator.sh`)
+19. `run-cocotb-mmio` (`run-cocotb-mmio.ps1` / `run-cocotb-mmio.sh`)
+20. `run-mmio-uvm` (`run-mmio-uvm.ps1` / `run-mmio-uvm.sh`)
+21. `run-cocotb-mmio-wait` (`run-cocotb-mmio-wait.ps1` / `run-cocotb-mmio-wait.sh`)
+22. `run-mmio-wait-uvm` (`run-mmio-wait-uvm.ps1` / `run-mmio-wait-uvm.sh`)
+23. `run-cocotb-apb` (`run-cocotb-apb.ps1` / `run-cocotb-apb.sh`)
+24. `run-apb-uvm` (`run-apb-uvm.ps1` / `run-apb-uvm.sh`)
+25. `run-cocotb-wishbone` (`run-cocotb-wishbone.ps1` / `run-cocotb-wishbone.sh`)
+26. `run-wishbone-uvm` (`run-wishbone-uvm.ps1` / `run-wishbone-uvm.sh`)
+27. `run-cocotb-axi-lite` (`run-cocotb-axi-lite.ps1` / `run-cocotb-axi-lite.sh`)
+28. `run-axi-lite-uvm` (`run-axi-lite-uvm.ps1` / `run-axi-lite-uvm.sh`)
+29. `run-equiv` (`run-equiv.ps1` / `run-equiv.sh`)
+30. `update-equivalence-golden` (`update-equivalence-golden.ps1` / `update-equivalence-golden.sh`)
+31. `format-sv` (`format-sv.ps1` / `format-sv.sh`)
+32. `show-static-analysis` (`show-static-analysis.ps1` / `show-static-analysis.sh`)
+33. `show-coverage` (`show-coverage.ps1` / `show-coverage.sh`)
+34. `show-mmio-coverage` (`show-mmio-coverage.ps1` / `show-mmio-coverage.sh`)
+35. `show-mmio-wait-coverage` (`show-mmio-wait-coverage.ps1` / `show-mmio-wait-coverage.sh`)
+36. `show-apb-coverage` (`show-apb-coverage.ps1` / `show-apb-coverage.sh`)
+37. `show-wishbone-coverage` (`show-wishbone-coverage.ps1` / `show-wishbone-coverage.sh`)
+38. `show-axi-lite-coverage` (`show-axi-lite-coverage.ps1` / `show-axi-lite-coverage.sh`)
+39. `show-apb-fault-coverage` (`show-apb-fault-coverage.ps1` / `show-apb-fault-coverage.sh`)
+40. `show-wishbone-fault-coverage` (`show-wishbone-fault-coverage.ps1` / `show-wishbone-fault-coverage.sh`)
+41. `show-verilator-coverage` (`show-verilator-coverage.ps1` / `show-verilator-coverage.sh`)
+42. `record-coverage-history` (`record-coverage-history.ps1` / `record-coverage-history.sh`)
+43. `show-coverage-trend` (`show-coverage-trend.ps1` / `show-coverage-trend.sh`)
+44. `show-mutations` (`show-mutations.ps1` / `show-mutations.sh`)
+45. `show-formal-status` (`show-formal-status.ps1` / `show-formal-status.sh`)
+46. `export-status` (`export-status.ps1` / `export-status.sh`)
 
 When adding a new automation flow:
 
@@ -63,12 +67,12 @@ Static-analysis note:
 
 Formal note:
 
-1. `run-formal` now includes the dedicated `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb_faults.sby`, and `formal/simple_cpu_wishbone_faults.sby` targets in prove mode, plus the APB/Wishbone prove/cover targets, so protocol-specific fault scenarios stay separated from the lighter baseline wrapper contracts.
+1. `run-formal` now includes the dedicated `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb_faults.sby`, and `formal/simple_cpu_wishbone_faults.sby` targets in prove mode, plus the APB/Wishbone/AXI-Lite prove/cover targets, so protocol-specific fault scenarios stay separated from the lighter baseline wrapper contracts.
 
 Conformance note:
 
-1. The shared wrapper conformance layer in `tb/protocol_conformance.py` assumes each Python bus adapter exposes the same high-level methods (`reset`, `load_program`, `verify_loaded_program`, `begin_execution`, `run_until_halt`, `sample_state`). Keep new wrapper adapters aligned with that interface so the same scenario suite can run across MMIO, MMIO-wait, APB, Wishbone, and future protocols unchanged.
+1. The shared wrapper conformance layer in `tb/protocol_conformance.py` assumes each Python bus adapter exposes the same high-level methods (`reset`, `load_program`, `verify_loaded_program`, `begin_execution`, `run_until_halt`, `sample_state`). Keep new wrapper adapters aligned with that interface so the same scenario suite can run across MMIO, MMIO-wait, APB, Wishbone, AXI-Lite, and future protocols unchanged.
 
 Mutation note:
 
-1. `scripts/run_mutation_campaign.py` now builds APB, Wishbone, and MMIO-wait protocol-shell mutants through helper templates (`make_assign_mutation`, `make_port_mutation`, `make_localparam_mutation`) so extending a new wrapper family does not require hand-writing every mutation block.
+1. `scripts/run_mutation_campaign.py` now builds APB, Wishbone, AXI-Lite, and MMIO-wait protocol-shell mutants through helper templates (`make_assign_mutation`, `make_port_mutation`, `make_localparam_mutation`) so extending a new wrapper family does not require hand-writing every mutation block.
