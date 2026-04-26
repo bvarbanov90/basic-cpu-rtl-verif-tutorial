@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-04-25T08:48:33Z",
-  "label": "axi-lite-python-regression",
+  "generated_utc": "2026-04-26T09:55:43Z",
+  "label": "axi-lite-fault-regression",
   "git_branch": "main",
-  "git_commit": "5d1acb5",
+  "git_commit": "301739d",
   "git_dirty": 1,
   "overall_required_status": "PASS",
   "core_coverage": {
@@ -67,12 +67,12 @@
     "path": "sim_build/axi_lite_coverage.json",
     "status": "PASS",
     "required": false,
-    "program_runs": 7,
-    "shadow_writes": 113,
-    "shadow_reads": 116,
-    "status_reads": 64,
-    "setup_phases": 455,
-    "access_phases": 455,
+    "program_runs": 8,
+    "shadow_writes": 129,
+    "shadow_reads": 132,
+    "status_reads": 71,
+    "setup_phases": 517,
+    "access_phases": 517,
     "partial_write_attempts": 2,
     "coverage_pass": 1
   },
@@ -104,6 +104,21 @@
     "reload_observed_updates": 1,
     "program_runs": 2,
     "fault_readbacks": 39,
+    "coverage_pass": 1
+  },
+  "axi_lite_fault_coverage": {
+    "path": "sim_build/axi_lite_fault_coverage.json",
+    "status": "PASS",
+    "required": false,
+    "aw_only_writes_ignored": 2,
+    "w_only_writes_ignored": 2,
+    "split_write_attempts_ignored": 1,
+    "pending_response_blocks_writes": 1,
+    "shadow_fault_write_observed": 1,
+    "deferred_shadow_updates": 1,
+    "reload_observed_updates": 1,
+    "program_runs": 2,
+    "fault_readbacks": 40,
     "coverage_pass": 1
   },
   "pyuvm_coverage": {
@@ -464,8 +479,8 @@
     "status": "PASS",
     "required": false,
     "campaign_pass": 1,
-    "total_mutations": 25,
-    "killed_mutations": 25
+    "total_mutations": 26,
+    "killed_mutations": 26
   },
   "latest_history": {
     "timestamp_utc": "2026-04-14T18:12:20Z",
@@ -560,7 +575,7 @@
     "axi-lite-coverage": {
       "path": "docs/status/badges/axi-lite-coverage.json",
       "label": "axi-lite coverage",
-      "message": "PASS 7 runs",
+      "message": "PASS 8 runs",
       "status": "PASS"
     },
     "apb-fault-coverage": {
@@ -573,6 +588,12 @@
       "path": "docs/status/badges/wishbone-fault-coverage.json",
       "label": "wishbone fault",
       "message": "PASS 4 cases",
+      "status": "PASS"
+    },
+    "axi-lite-fault-coverage": {
+      "path": "docs/status/badges/axi-lite-fault-coverage.json",
+      "label": "axi-lite fault",
+      "message": "PASS 6 cases",
       "status": "PASS"
     },
     "formal": {
@@ -674,7 +695,7 @@
     "mutations": {
       "path": "docs/status/badges/mutations.json",
       "label": "mutations",
-      "message": "25/25 killed",
+      "message": "26/26 killed",
       "status": "PASS"
     },
     "formal-simple_cpu": {

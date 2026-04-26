@@ -9,7 +9,7 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (April 25, 2026)
+## Current status (April 26, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
@@ -44,6 +44,8 @@
 27. `.\scripts\run-wishbone.ps1 -NoWaves`: PASS
 28. `.\scripts\run-axi-lite.ps1 -NoWaves`: PASS
 29. `.\scripts\show-axi-lite-coverage.ps1`: PASS
+30. `.\scripts\run-axi-lite-fault.ps1 -NoWaves`: PASS
+31. `.\scripts\show-axi-lite-fault-coverage.ps1`: PASS
 30. `.\scripts\run-asm-corpus.ps1 -Runner axi_lite`: PASS
 31. Target-only `formal/simple_cpu_axi_lite.sby` and `formal/simple_cpu_axi_lite_cover.sby`: PASS
 32. `.\scripts\run-apb-fault.ps1 -NoWaves`: PASS
@@ -81,6 +83,8 @@
 58. `bash scripts/run-wishbone-uvm.sh --no-waves` (WSL Ubuntu): PASS
 58. `bash scripts/run-cocotb-axi-lite.sh --no-waves` (WSL Ubuntu): PASS
 58. `bash scripts/run-axi-lite-uvm.sh --no-waves` (WSL Ubuntu): PASS
+58. `bash scripts/run-axi-lite-fault.sh --no-waves` (WSL Ubuntu): PASS
+58. `bash scripts/show-axi-lite-fault-coverage.sh` (WSL Ubuntu): PASS
 59. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
 60. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
 61. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
@@ -170,6 +174,13 @@
 | `test_external_program` | `tb/simple_cpu_axi_lite_tb.sv` | Optional `.hex` replay through the AXI-Lite-style wrapper against the reference model. |
 | `report_and_check_axi_lite_coverage` | `tb/simple_cpu_axi_lite_tb.sv` | AXI-Lite protocol/transaction coverage thresholds and artifact emission. |
 | `simple_cpu_axi_lite_assertions` | `tb/simple_cpu_axi_lite_assertions.sv` | Assertion-based checker for coupled `AW/W`, response hold/clear, read-response, and common wrapper invariants. |
+| `test_aw_only_shadow_write_ignored` | `tb/simple_cpu_axi_lite_fault_tb.sv` | Proves `AWVALID` without `WVALID` does not update the AXI-Lite wrapper shadow image or produce a write response. |
+| `test_w_only_shadow_write_ignored` | `tb/simple_cpu_axi_lite_fault_tb.sv` | Proves `WVALID` without `AWVALID` does not update the AXI-Lite wrapper shadow image or produce a write response. |
+| `test_split_write_attempt_ignored` | `tb/simple_cpu_axi_lite_fault_tb.sv` | Proves separated `AW` then `W` attempts are not paired across cycles in the coupled-channel tutorial shell. |
+| `test_partial_control_start_ignored` | `tb/simple_cpu_axi_lite_fault_tb.sv` | Proves partial control writes do not start the loader or release the core. |
+| `test_pending_response_blocks_new_write` | `tb/simple_cpu_axi_lite_fault_tb.sv` | Proves a pending `BVALID` response blocks new write acceptance until `BREADY`. |
+| `test_run_phase_shadow_update_requires_reload` | `tb/simple_cpu_axi_lite_fault_tb.sv` | Proves AXI-Lite shadow updates during `RUN` only affect execution after an explicit reload. |
+| `report_and_check_axi_lite_fault_coverage` | `tb/simple_cpu_axi_lite_fault_tb.sv` | AXI-Lite fault-injection coverage thresholds and artifact emission. |
 | `test_setup_only_shadow_write_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves setup-only shadow writes do not update the APB wrapper shadow image. |
 | `test_aborted_shadow_write_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves setup then abort traffic does not update the APB wrapper shadow image. |
 | `test_setup_only_control_start_ignored` | `tb/simple_cpu_apb_fault_tb.sv` | Proves setup-only `CONTROL=1` writes do not start the loader. |
@@ -277,6 +288,7 @@ Coverage artifacts:
 14. `sim_build/axi_lite_coverage.json` / `sim_build/axi_lite_coverage.csv` (AXI-Lite wrapper transaction coverage)
 15. `sim_build/apb_fault_coverage.json` / `sim_build/apb_fault_coverage.csv` (APB fault-injection coverage)
 16. `sim_build/wishbone_fault_coverage.json` / `sim_build/wishbone_fault_coverage.csv` (Wishbone fault-injection coverage)
+17. `sim_build/axi_lite_fault_coverage.json` / `sim_build/axi_lite_fault_coverage.csv` (AXI-Lite fault-injection coverage)
 16. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
 15. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
 16. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
@@ -315,11 +327,12 @@ Implementation note:
 13. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
 14. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
 15. `scripts/show-wishbone-fault-coverage.ps1` / `scripts/show-wishbone-fault-coverage.sh` summarize the Wishbone fault-injection coverage report without opening JSON manually.
+15. `scripts/show-axi-lite-fault-coverage.ps1` / `scripts/show-axi-lite-fault-coverage.sh` summarize the AXI-Lite fault-injection coverage report without opening JSON manually.
 15. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, and Wishbone fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
+16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, Wishbone fault, and AXI-Lite fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
 17. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, AXI-Lite, and cover targets.
-19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_cocotb`, and `axi_lite_pyuvm`.
+19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_fault_coverage`, `axi_lite_cocotb`, and `axi_lite_pyuvm`.
 20. `tb/protocol_conformance.py` is the shared scenario library that replays the same smoke, logic, loop, branch-stress, and randomized programs across the direct core, MMIO, APB, Wishbone, and AXI-Lite buses.
 21. `tb/core_bus.py`, `tb/mmio_bus.py`, `tb/apb_bus.py`, `tb/wishbone_bus.py`, and `tb/axi_lite_bus.py` expose the same high-level load/start/sample interface so the shared conformance suite can verify wrapper parity instead of only per-wrapper local tests.
 22. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
@@ -376,6 +389,6 @@ Known toolchain notes (non-fatal when runs pass):
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
 2. Add a fifth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, APB, and Wishbone shells.
-3. Extend the mutation set beyond the current MMIO wait-state and APB shell set, for example with proof-harness or Python-lane regressions.
+3. Extend the mutation set beyond the current MMIO wait-state, APB, Wishbone, and AXI-Lite shell set, for example with proof-harness or Python-lane regressions.
 4. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
 5. Extend the reusable Python bus-functional layer beyond this register-mapped interface once the project grows into a distinct protocol family.

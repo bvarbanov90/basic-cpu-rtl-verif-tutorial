@@ -417,6 +417,10 @@ def build_axi_lite_protocol_mutations() -> tuple[Mutation, ...]:
         "target_file": "rtl/simple_cpu_axi_lite.sv",
         "bench_names": ("axi_lite_tb",),
     }
+    fault_common = {
+        "target_file": "rtl/simple_cpu_axi_lite.sv",
+        "bench_names": ("axi_lite_fault_tb",),
+    }
     return (
         make_assign_mutation(
             name="axi_lite_aw_only_write_accept",
@@ -441,6 +445,14 @@ def build_axi_lite_protocol_mutations() -> tuple[Mutation, ...]:
             old_rhs="read_data_q",
             new_rhs="8'h00",
             **common,
+        ),
+        make_assign_mutation(
+            name="axi_lite_pending_b_allows_write",
+            description="Allow a second AXI-Lite write while a B response is still pending.",
+            lhs="write_accept",
+            old_rhs="mmio_ready && !write_resp_valid && axi_awvalid && axi_wvalid",
+            new_rhs="mmio_ready && axi_awvalid && axi_wvalid",
+            **fault_common,
         ),
         make_port_mutation(
             name="axi_lite_write_polarity_inverted",
@@ -504,6 +516,17 @@ BENCHES = (
             "tb/simple_cpu_axi_lite_tb.sv",
         ),
         binary_name="simple_cpu_axi_lite_tb.vvp",
+    ),
+    Bench(
+        name="axi_lite_fault_tb",
+        sources=(
+            "rtl/simple_cpu.sv",
+            "rtl/simple_cpu_mmio.sv",
+            "rtl/simple_cpu_axi_lite.sv",
+            "tb/simple_cpu_axi_lite_assertions.sv",
+            "tb/simple_cpu_axi_lite_fault_tb.sv",
+        ),
+        binary_name="simple_cpu_axi_lite_fault_tb.vvp",
     ),
     Bench(
         name="mmio_wait_tb",

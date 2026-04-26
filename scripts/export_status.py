@@ -47,6 +47,11 @@ def parse_args() -> argparse.Namespace:
         default="sim_build/wishbone_fault_coverage.json",
         help="Wishbone fault-coverage JSON path.",
     )
+    parser.add_argument(
+        "--axi-lite-fault",
+        default="sim_build/axi_lite_fault_coverage.json",
+        help="AXI-Lite fault-coverage JSON path.",
+    )
     parser.add_argument("--pyuvm", default="sim_build/pyuvm_coverage.json", help="pyuvm coverage JSON path.")
     parser.add_argument(
         "--cocotb-verilator",
@@ -236,6 +241,20 @@ def format_domain_details(name: str, payload: dict[str, Any]) -> str:
             reloads=payload.get("reload_observed_updates", 0),
             readbacks=payload.get("fault_readbacks", 0),
         )
+    if name == "axi_lite_fault":
+        if status == "MISSING":
+            return "artifact missing"
+        return "fault_cases={faults}, deferred_updates={deferred}, reload_updates={reloads}, readbacks={readbacks}".format(
+            faults=(
+                payload.get("aw_only_writes_ignored", 0)
+                + payload.get("w_only_writes_ignored", 0)
+                + payload.get("split_write_attempts_ignored", 0)
+                + payload.get("pending_response_blocks_writes", 0)
+            ),
+            deferred=payload.get("deferred_shadow_updates", 0),
+            reloads=payload.get("reload_observed_updates", 0),
+            readbacks=payload.get("fault_readbacks", 0),
+        )
     if name == "pyuvm":
         if status == "MISSING":
             return "artifact missing"
@@ -344,6 +363,7 @@ def render_markdown(status: dict[str, Any]) -> str:
         ("axi_lite_coverage", "axi_lite"),
         ("apb_fault_coverage", "apb_fault"),
         ("wishbone_fault_coverage", "wishbone_fault"),
+        ("axi_lite_fault_coverage", "axi_lite_fault"),
         ("formal", "formal"),
         ("equivalence", "equivalence"),
         ("static_analysis", "static_analysis"),
@@ -503,6 +523,20 @@ def build_badges(status: dict[str, Any], badge_dir: Path) -> dict[str, dict[str,
             if status["wishbone_fault_coverage"]["status"] == STATUS_PASS
             else status["wishbone_fault_coverage"]["status"],
             status["wishbone_fault_coverage"]["status"],
+        ),
+        "axi-lite-fault-coverage": (
+            "axi-lite fault",
+            "PASS {cases} cases".format(
+                cases=(
+                    status["axi_lite_fault_coverage"].get("aw_only_writes_ignored", 0)
+                    + status["axi_lite_fault_coverage"].get("w_only_writes_ignored", 0)
+                    + status["axi_lite_fault_coverage"].get("split_write_attempts_ignored", 0)
+                    + status["axi_lite_fault_coverage"].get("pending_response_blocks_writes", 0)
+                )
+            )
+            if status["axi_lite_fault_coverage"]["status"] == STATUS_PASS
+            else status["axi_lite_fault_coverage"]["status"],
+            status["axi_lite_fault_coverage"]["status"],
         ),
         "formal": (
             "formal",
@@ -692,6 +726,7 @@ def main() -> int:
     axi_lite = coverage_summary(Path(args.axi_lite).resolve(), "axi_lite")
     apb_fault = coverage_summary(Path(args.apb_fault).resolve(), "apb_fault")
     wishbone_fault = coverage_summary(Path(args.wishbone_fault).resolve(), "wishbone_fault")
+    axi_lite_fault = coverage_summary(Path(args.axi_lite_fault).resolve(), "axi_lite_fault")
     pyuvm = coverage_summary(Path(args.pyuvm).resolve(), "pyuvm")
     cocotb_verilator = junit_summary(Path(args.cocotb_verilator).resolve(), required=False)
     mmio_cocotb = junit_summary(Path(args.mmio_cocotb).resolve(), required=False)
@@ -729,6 +764,7 @@ def main() -> int:
         "axi_lite_coverage": axi_lite,
         "apb_fault_coverage": apb_fault,
         "wishbone_fault_coverage": wishbone_fault,
+        "axi_lite_fault_coverage": axi_lite_fault,
         "pyuvm_coverage": pyuvm,
         "cocotb_verilator": cocotb_verilator,
         "mmio_cocotb": mmio_cocotb,

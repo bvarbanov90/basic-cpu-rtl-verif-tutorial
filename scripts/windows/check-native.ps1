@@ -30,6 +30,11 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+& .\scripts\run-axi-lite-fault.ps1 -NoWaves
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 & .\scripts\run-apb-fault.ps1 -NoWaves
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -56,6 +61,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 & .\scripts\show-axi-lite-coverage.ps1
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+& .\scripts\show-axi-lite-fault-coverage.ps1
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

@@ -9,6 +9,7 @@ This project is a from-scratch tutorial for verifying a tiny CPU using only open
 [![apb coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-coverage.json)](docs/status/status.md)
 [![wishbone coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/wishbone-coverage.json)](docs/status/status.md)
 [![axi-lite coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/axi-lite-coverage.json)](docs/status/status.md)
+[![axi-lite fault coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/axi-lite-fault-coverage.json)](docs/status/status.md)
 [![apb fault coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/apb-fault-coverage.json)](docs/status/status.md)
 [![wishbone fault coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/wishbone-fault-coverage.json)](docs/status/status.md)
 [![formal](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/bvarbanov90/basic-cpu-rtl-verif-tutorial/main/docs/status/badges/formal.json)](docs/status/status.md)
@@ -138,6 +139,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_wishbone_fault_tb.sv
 |  |- simple_cpu_wishbone_tb.sv
 |  |- simple_cpu_axi_lite_assertions.sv
+|  |- simple_cpu_axi_lite_fault_tb.sv
 |  |- simple_cpu_axi_lite_tb.sv
 |  |- simple_cpu_mmio_assertions.sv
 |  |- simple_cpu_mmio_wait_assertions.sv
@@ -175,6 +177,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-apb.ps1
 |  |  |- run-wishbone.ps1
 |  |  |- run-axi-lite.ps1
+|  |  |- run-axi-lite-fault.ps1
 |  |  |- run-apb-fault.ps1
 |  |  |- run-wishbone-fault.ps1
 |  |  |- run-mutations.ps1
@@ -218,6 +221,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- run-apb.sh
 |  |  |- run-wishbone.sh
 |  |  |- run-axi-lite.sh
+|  |  |- run-axi-lite-fault.sh
 |  |  |- run-apb-fault.sh
 |  |  |- run-wishbone-fault.sh
 |  |  |- run-mutations.sh
@@ -259,6 +263,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-apb.ps1 / run-apb.sh (wrappers)
 |  |- run-wishbone.ps1 / run-wishbone.sh (wrappers)
 |  |- run-axi-lite.ps1 / run-axi-lite.sh (wrappers)
+|  |- run-axi-lite-fault.ps1 / run-axi-lite-fault.sh (wrappers)
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
@@ -284,6 +289,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
 |  |- show-wishbone-coverage.ps1 / show-wishbone-coverage.sh (wrappers)
 |  |- show-axi-lite-coverage.ps1 / show-axi-lite-coverage.sh (wrappers)
+|  |- show-axi-lite-fault-coverage.ps1 / show-axi-lite-fault-coverage.sh (wrappers)
 |  |- show-apb-fault-coverage.ps1 / show-apb-fault-coverage.sh (wrappers)
 |  |- show-wishbone-fault-coverage.ps1 / show-wishbone-fault-coverage.sh (wrappers)
 |  |- show-mmio-wait-coverage.ps1 / show-mmio-wait-coverage.sh (wrappers)
@@ -392,6 +398,12 @@ To run the AXI-Lite-style wrapper regression:
 .\scripts\run-axi-lite.ps1 -NoWaves
 ```
 
+To run the AXI-Lite fault-injection native regression:
+
+```powershell
+.\scripts\run-axi-lite-fault.ps1 -NoWaves
+```
+
 To run the APB fault-injection native regression:
 
 ```powershell
@@ -426,6 +438,12 @@ To summarize the AXI-Lite wrapper coverage report:
 
 ```powershell
 .\scripts\show-axi-lite-coverage.ps1
+```
+
+To summarize the AXI-Lite fault-coverage report:
+
+```powershell
+.\scripts\show-axi-lite-fault-coverage.ps1
 ```
 
 To summarize the APB fault-coverage report:
@@ -605,6 +623,12 @@ Run the AXI-Lite-style wrapper regression:
 bash scripts/run-axi-lite.sh --no-waves
 ```
 
+Run the AXI-Lite fault-injection native regression:
+
+```bash
+bash scripts/run-axi-lite-fault.sh --no-waves
+```
+
 Run the APB fault-injection native regression:
 
 ```bash
@@ -669,6 +693,12 @@ Show the AXI-Lite wrapper coverage report:
 
 ```bash
 bash scripts/show-axi-lite-coverage.sh
+```
+
+Show the AXI-Lite fault-coverage report:
+
+```bash
+bash scripts/show-axi-lite-fault-coverage.sh
 ```
 
 Show the APB fault-coverage report:
@@ -812,7 +842,7 @@ Current formal properties cover:
 8. APB setup/access gating (`PREADY` low unless `PSEL && PENABLE`),
 9. APB pass-through mapping of the MMIO readback model onto the APB shell,
 10. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload,
-11. targeted Wishbone fault scenarios for `CYC`-only writes, `STB`-without-`CYC` glitches, and run-time shadow updates that only take effect after explicit reload.
+11. targeted Wishbone fault scenarios for `CYC`-only writes, `STB`-without-`CYC` glitches, and run-time shadow updates that only take effect after explicit reload,
 12. AXI-Lite coupled `AW/W` write acceptance, response-valid hold behavior, read-data capture, partial-write rejection, and cover witness generation for write/read/start traffic.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
@@ -880,8 +910,10 @@ Uploaded artifacts include:
 8. `sim_build/wishbone_coverage.csv`
 9. `sim_build/axi_lite_coverage.json`
 10. `sim_build/axi_lite_coverage.csv`
-11. `sim_build/apb_fault_coverage.json`
-12. `sim_build/apb_fault_coverage.csv`
+11. `sim_build/axi_lite_fault_coverage.json`
+12. `sim_build/axi_lite_fault_coverage.csv`
+13. `sim_build/apb_fault_coverage.json`
+14. `sim_build/apb_fault_coverage.csv`
 9. `sim_build/static_analysis/`
 10. `sim_build/pyuvm_coverage.json`
 11. `sim_build/uvm_results.xml`
@@ -1203,6 +1235,15 @@ The native AXI-Lite wrapper testbench in `tb/simple_cpu_axi_lite_tb.sv` checks:
 5. assertion-based protocol checks via `tb/simple_cpu_axi_lite_assertions.sv`
 6. external `.hex` program replay, so the tracked assembler corpus can run through the AXI-Lite-style shell unchanged
 
+The dedicated AXI-Lite fault-injection testbench in `tb/simple_cpu_axi_lite_fault_tb.sv` checks:
+
+1. `AWVALID`-only shadow writes have no side effects and do not create `BVALID`
+2. `WVALID`-only shadow writes have no side effects and do not create `BVALID`
+3. split `AW` then `W` attempts are not paired across cycles in this coupled-channel tutorial shell
+4. partial `CONTROL=1` writes do not start the loader or release the core
+5. a pending `BVALID` response blocks a new write until `BREADY`
+6. shadow writes during `RUN` are staged for the next reload and do not perturb the in-flight program
+
 The dedicated APB fault-injection testbench in `tb/simple_cpu_apb_fault_tb.sv` checks:
 
 1. setup-only shadow writes have no side effects until a real access phase occurs
@@ -1234,6 +1275,11 @@ It also writes AXI-Lite-specific coverage artifacts:
 1. `sim_build/axi_lite_coverage.json`
 2. `sim_build/axi_lite_coverage.csv`
 
+It also writes AXI-Lite fault-specific coverage artifacts:
+
+1. `sim_build/axi_lite_fault_coverage.json`
+2. `sim_build/axi_lite_fault_coverage.csv`
+
 It also writes APB fault-specific coverage artifacts:
 
 1. `sim_build/apb_fault_coverage.json`
@@ -1251,6 +1297,7 @@ Quick summary commands:
 .\scripts\show-apb-fault-coverage.ps1
 .\scripts\show-wishbone-coverage.ps1
 .\scripts\show-axi-lite-coverage.ps1
+.\scripts\show-axi-lite-fault-coverage.ps1
 .\scripts\show-wishbone-fault-coverage.ps1
 ```
 
@@ -1259,6 +1306,7 @@ bash scripts/show-apb-coverage.sh
 bash scripts/show-apb-fault-coverage.sh
 bash scripts/show-wishbone-coverage.sh
 bash scripts/show-axi-lite-coverage.sh
+bash scripts/show-axi-lite-fault-coverage.sh
 bash scripts/show-wishbone-fault-coverage.sh
 ```
 
@@ -1289,6 +1337,14 @@ Current AXI-Lite coverage goals:
 5. at least two partial write attempts are rejected
 6. start/stop control writes occur on every run
 7. `HOLD`, `LOAD`, and `RUN` wrapper states are all observed
+
+Current AXI-Lite fault-coverage goals:
+
+1. at least two `AWVALID`-only write attempts are proven to be ignored
+2. at least two `WVALID`-only write attempts are proven to be ignored
+3. at least one split `AW` then `W` attempt is proven to be ignored
+4. at least one pending `BVALID` response is proven to block a new write
+5. a run-time shadow update is observed immediately in shadow readback but only affects execution after an explicit reload
 
 Current APB fault-coverage goals:
 
@@ -1396,7 +1452,8 @@ Current mutants:
 22. AXI-Lite write accepted with only `AWVALID`
 23. AXI-Lite write response forced low
 24. AXI-Lite readback forced low
-25. AXI-Lite write polarity inverted before the MMIO shell
+25. AXI-Lite pending `BVALID` incorrectly allowing a second write
+26. AXI-Lite write polarity inverted before the MMIO shell
 
 Artifacts:
 
@@ -1405,7 +1462,7 @@ Artifacts:
 3. `sim_build/mutations/<mutant>/*_compile.log`
 4. `sim_build/mutations/<mutant>/*_run.log`
 
-The current campaign is expected to be killed by the direct-core, MMIO-wrapper, MMIO wait-state, native APB-wrapper, native Wishbone-wrapper, native AXI-Lite-wrapper, APB fault-injection, and Wishbone fault-injection benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` and `apb_fault_tb` are the deciding benches for setup/access and readback faults, the Wishbone protocol-shell mutants are intentionally scoped so `wishbone_tb` and `wishbone_fault_tb` are the deciding benches for `CYC/STB/ACK` faults, the AXI-Lite protocol-shell mutants are intentionally scoped so `axi_lite_tb` is the deciding bench for coupled-channel and response faults, and the MMIO-wait protocol mutants are intentionally scoped so `mmio_wait_tb` is the deciding bench for delayed-handshake faults.
+The current campaign is expected to be killed by the direct-core, MMIO-wrapper, MMIO wait-state, native APB-wrapper, native Wishbone-wrapper, native AXI-Lite-wrapper, APB fault-injection, Wishbone fault-injection, and AXI-Lite fault-injection benches. The APB protocol-shell mutants are intentionally scoped so `apb_tb` and `apb_fault_tb` are the deciding benches for setup/access and readback faults, the Wishbone protocol-shell mutants are intentionally scoped so `wishbone_tb` and `wishbone_fault_tb` are the deciding benches for `CYC/STB/ACK` faults, the baseline AXI-Lite protocol-shell mutants are intentionally scoped so `axi_lite_tb` is the deciding bench for coupled-channel and response faults, the AXI-Lite response-backpressure mutant is intentionally scoped so `axi_lite_fault_tb` is the deciding bench, and the MMIO-wait protocol mutants are intentionally scoped so `mmio_wait_tb` is the deciding bench for delayed-handshake faults.
 
 ## Suggested learning path
 
@@ -1534,7 +1591,7 @@ The status export now includes:
 2. the EQY equivalence workdir status,
 3. the optional Verilator coverage summary,
 4. the static-analysis summary from `sim_build/static_analysis/summary.json`,
-5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_cocotb`, `axi_lite_pyuvm`, and `mutations`.
+5. optional suite summaries for `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_fault_coverage`, `axi_lite_cocotb`, `axi_lite_pyuvm`, and `mutations`.
 
 ## Known benign warnings
 
@@ -1554,7 +1611,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 ## Next extensions
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
-2. Add AXI-Lite fault-injection coverage parallel to the APB/Wishbone fault benches, focused on decoupled channel glitches, held responses, and reload semantics.
+2. Add formal fault proofs for AXI-Lite response-backpressure and partial-channel rejection, parallel to the existing APB/Wishbone fault proof split.
 3. Extend the mutation set beyond the current MMIO wait-state, APB, Wishbone, and AXI-Lite shell set, for example with formal-harness or Python-lane regressions.
 4. Track lane-level JUnit summaries for native SV smoke or assembler-corpus replay, not just cocotb/pyuvm XML results.
 
