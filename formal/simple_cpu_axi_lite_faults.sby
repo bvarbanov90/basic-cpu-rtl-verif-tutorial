@@ -1,0 +1,15 @@
+[options]
+mode bmc
+depth 28
+
+[engines]
+smtbmc z3
+
+[script]
+read -formal -D FORMAL simple_cpu_axi_lite_fault_mmio_stub.sv simple_cpu_axi_lite.sv simple_cpu_axi_lite_fault_formal.sv
+prep -top simple_cpu_axi_lite_fault_formal
+
+[files]
+formal/simple_cpu_axi_lite_fault_mmio_stub.sv
+rtl/simple_cpu_axi_lite.sv
+formal/simple_cpu_axi_lite_fault_formal.sv

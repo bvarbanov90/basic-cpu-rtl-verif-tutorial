@@ -47,7 +47,7 @@
 30. `.\scripts\run-axi-lite-fault.ps1 -NoWaves`: PASS
 31. `.\scripts\show-axi-lite-fault-coverage.ps1`: PASS
 30. `.\scripts\run-asm-corpus.ps1 -Runner axi_lite`: PASS
-31. Target-only `formal/simple_cpu_axi_lite.sby` and `formal/simple_cpu_axi_lite_cover.sby`: PASS
+31. Target-only `formal/simple_cpu_axi_lite.sby`, `formal/simple_cpu_axi_lite_faults.sby`, and `formal/simple_cpu_axi_lite_cover.sby`: PASS
 32. `.\scripts\run-apb-fault.ps1 -NoWaves`: PASS
 33. `.\scripts\run-wishbone-fault.ps1 -NoWaves`: PASS
 34. `.\scripts\show-wishbone-fault-coverage.ps1`: PASS
@@ -99,6 +99,7 @@
 70. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
 71. `bash scripts/export-status.sh --label tutorial-regression`: PASS
 72. Target-only `formal/simple_cpu_wishbone_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
+73. Target-only `formal/simple_cpu_axi_lite_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
 
 ## Test strategy
 
@@ -312,7 +313,7 @@ Additional outputs:
 Implementation note:
 
 1. Native `covergroup` syntax is not supported by the open-source simulator combo used here, so coverage is modeled with explicit sampled bins/cross-bins in SV tasks.
-2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`, `formal/simple_cpu_mmio.sby`, `formal/simple_cpu_mmio_wait.sby`, `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb.sby`, `formal/simple_cpu_apb_faults.sby`, `formal/simple_cpu_wishbone.sby`, `formal/simple_cpu_wishbone_faults.sby`, and `formal/simple_cpu_axi_lite.sby`) in bounded mode.
+2. Formal properties are checked with SymbiYosys (`formal/simple_cpu.sby`, `formal/simple_cpu_mmio.sby`, `formal/simple_cpu_mmio_wait.sby`, `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb.sby`, `formal/simple_cpu_apb_faults.sby`, `formal/simple_cpu_wishbone.sby`, `formal/simple_cpu_wishbone_faults.sby`, `formal/simple_cpu_axi_lite.sby`, and `formal/simple_cpu_axi_lite_faults.sby`) in bounded mode.
 3. Automation scripts are organized by platform under `scripts/windows` and `scripts/linux`, with top-level wrappers in `scripts/`.
 4. The Python `CoverageModel` mirrors the native SV coverage pass/fail conditions, including reachability checks for impossible bins.
 5. `rtl/simple_cpu_mmio.sv` adds a tiny wrapper state machine that loads a shadow program image into the core over the existing programming interface before releasing execution.
@@ -331,7 +332,7 @@ Implementation note:
 15. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
 16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, Wishbone fault, and AXI-Lite fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
 17. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
-18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, AXI-Lite, and cover targets.
+18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, AXI-Lite, AXI-Lite-fault, and cover targets.
 19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_fault_coverage`, `axi_lite_cocotb`, and `axi_lite_pyuvm`.
 20. `tb/protocol_conformance.py` is the shared scenario library that replays the same smoke, logic, loop, branch-stress, and randomized programs across the direct core, MMIO, APB, Wishbone, and AXI-Lite buses.
 21. `tb/core_bus.py`, `tb/mmio_bus.py`, `tb/apb_bus.py`, `tb/wishbone_bus.py`, and `tb/axi_lite_bus.py` expose the same high-level load/start/sample interface so the shared conformance suite can verify wrapper parity instead of only per-wrapper local tests.
@@ -347,7 +348,8 @@ Implementation note:
 31. `formal/simple_cpu_wishbone.sby` swaps in an abstract `simple_cpu_mmio` stub so the Wishbone proof focuses on `CYC/STB/ACK` translation and MMIO read-data pass-through instead of re-proving MMIO internals.
 32. `formal/simple_cpu_wishbone_faults.sby` keeps Wishbone fault proofs separate from the baseline Wishbone shell contract by driving deterministic `CYC`-only, `STB`-without-`CYC`, and reload sequences through a small stateful MMIO stub.
 33. `formal/simple_cpu_axi_lite.sby` swaps in an abstract `simple_cpu_mmio` stub so the AXI-Lite proof focuses on coupled-channel write acceptance, response hold/clear, partial-write rejection, and registered read-data capture.
-34. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
+34. `formal/simple_cpu_axi_lite_faults.sby` keeps AXI-Lite fault proofs separate from the baseline AXI-Lite shell contract by driving deterministic `AWVALID`-only, `WVALID`-only, split-channel, pending-response, and reload sequences through a small stateful MMIO stub.
+35. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
 33. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
 34. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
 35. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
@@ -372,7 +374,8 @@ Formal properties currently checked:
 16. Wishbone `ACK` stays low when `CYC` is low or when `CYC` is high without `STB`, and matches the translated MMIO ready signal on active Wishbone transfers.
 17. Wishbone status, `ACC`, `PC`, control, DMEM-window, and representative shadow-window reads match the abstract MMIO model.
 18. AXI-Lite accepts writes only when `AWVALID` and `WVALID` are present together, blocks partial writes, holds `BVALID/RVALID` until ready, and returns the data captured at read-address acceptance.
-19. Cover mode produces one core witness showing program-write then execute-to-halt, one MMIO witness showing start-to-run-to-halt, one MMIO wait-state witness showing request-to-delay-to-service, one APB witness showing setup-to-access-to-start-to-halt behavior, one Wishbone witness showing cycle-to-strobe-to-run-to-halt behavior, and one AXI-Lite witness showing partial/write/read/start traffic.
+19. AXI-Lite fault proofs show `AWVALID`-only, `WVALID`-only, and split-channel attempts cannot write shadow state or start execution, a pending `BVALID` blocks a second write, and a shadow update made during `RUN` is only reloaded after an explicit stop/start sequence.
+20. Cover mode produces one core witness showing program-write then execute-to-halt, one MMIO witness showing start-to-run-to-halt, one MMIO wait-state witness showing request-to-delay-to-service, one APB witness showing setup-to-access-to-start-to-halt behavior, one Wishbone witness showing cycle-to-strobe-to-run-to-halt behavior, and one AXI-Lite witness showing partial/write/read/start traffic.
 
 Known toolchain notes (non-fatal when runs pass):
 
@@ -388,7 +391,7 @@ Known toolchain notes (non-fatal when runs pass):
 ## Remaining exercises
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage over the full 16-byte shadow image.
-2. Add a fifth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, APB, and Wishbone shells.
-3. Extend the mutation set beyond the current MMIO wait-state, APB, Wishbone, and AXI-Lite shell set, for example with proof-harness or Python-lane regressions.
+2. Add a sixth wrapper protocol beyond the current MMIO always-ready, MMIO wait-state, APB, Wishbone, and AXI-Lite shells.
+3. Extend the mutation set beyond the current MMIO wait-state, APB, Wishbone, and AXI-Lite shell set, for example with formal-harness or Python-lane regressions.
 4. Grow the mutation set further with automatically generated arithmetic/control-flow variants.
 5. Extend the reusable Python bus-functional layer beyond this register-mapped interface once the project grows into a distinct protocol family.

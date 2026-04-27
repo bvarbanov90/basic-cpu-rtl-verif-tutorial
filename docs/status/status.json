@@ -1,8 +1,8 @@
 {
-  "generated_utc": "2026-04-26T09:55:43Z",
-  "label": "axi-lite-fault-regression",
+  "generated_utc": "2026-04-27T19:22:08Z",
+  "label": "axi-lite-formal-fault-regression",
   "git_branch": "main",
-  "git_commit": "301739d",
+  "git_commit": "533ba4e",
   "git_dirty": 1,
   "overall_required_status": "PASS",
   "core_coverage": {
@@ -240,8 +240,8 @@
   },
   "formal": {
     "status": "PASS",
-    "passed": 15,
-    "total": 15,
+    "passed": 16,
+    "total": 16,
     "targets": [
       {
         "name": "simple_cpu",
@@ -256,7 +256,7 @@
         "path": "formal/simple_cpu_mmio",
         "status": "PASS",
         "solver": "cvc5",
-        "elapsed": "0:01:12",
+        "elapsed": "0:01:09",
         "raw_status": "PASS 0 0"
       },
       {
@@ -310,6 +310,14 @@
       {
         "name": "simple_cpu_wishbone_faults",
         "path": "formal/simple_cpu_wishbone_faults",
+        "status": "PASS",
+        "solver": "cvc5",
+        "elapsed": "0:00:00",
+        "raw_status": "PASS 0 0"
+      },
+      {
+        "name": "simple_cpu_axi_lite_faults",
+        "path": "formal/simple_cpu_axi_lite_faults",
         "status": "PASS",
         "solver": "cvc5",
         "elapsed": "0:00:00",
@@ -599,7 +607,7 @@
     "formal": {
       "path": "docs/status/badges/formal.json",
       "label": "formal",
-      "message": "15/15 PASS",
+      "message": "16/16 PASS",
       "status": "PASS"
     },
     "pyuvm": {
@@ -707,7 +715,7 @@
     "formal-simple_cpu_mmio": {
       "path": "docs/status/badges/formal-simple_cpu_mmio.json",
       "label": "formal simple_cpu_mmio",
-      "message": "PASS cvc5 0:01:12",
+      "message": "PASS cvc5 0:01:09",
       "status": "PASS"
     },
     "formal-simple_cpu_mmio_wait": {
@@ -749,6 +757,12 @@
     "formal-simple_cpu_wishbone_faults": {
       "path": "docs/status/badges/formal-simple_cpu_wishbone_faults.json",
       "label": "formal simple_cpu_wishbone_faults",
+      "message": "PASS cvc5 0:00:00",
+      "status": "PASS"
+    },
+    "formal-simple_cpu_axi_lite_faults": {
+      "path": "docs/status/badges/formal-simple_cpu_axi_lite_faults.json",
+      "label": "formal simple_cpu_axi_lite_faults",
       "message": "PASS cvc5 0:00:00",
       "status": "PASS"
     },

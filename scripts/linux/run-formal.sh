@@ -109,6 +109,7 @@ if [[ "${MODE}" == "prove" || "${MODE}" == "all" ]]; then
     run_sby formal/simple_cpu_axi_lite.sby formal/simple_cpu_axi_lite
     run_sby formal/simple_cpu_apb_faults.sby formal/simple_cpu_apb_faults
     run_sby formal/simple_cpu_wishbone_faults.sby formal/simple_cpu_wishbone_faults
+    run_sby formal/simple_cpu_axi_lite_faults.sby formal/simple_cpu_axi_lite_faults
 fi
 
 if [[ "${MODE}" == "cover" || "${MODE}" == "all" ]]; then

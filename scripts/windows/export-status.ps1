@@ -35,6 +35,7 @@ param(
         "formal/simple_cpu_axi_lite",
         "formal/simple_cpu_apb_faults",
         "formal/simple_cpu_wishbone_faults",
+        "formal/simple_cpu_axi_lite_faults",
         "formal/simple_cpu_cover",
         "formal/simple_cpu_mmio_cover",
         "formal/simple_cpu_mmio_wait_cover",

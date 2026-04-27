@@ -95,6 +95,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_axi_lite.sby
 |  |- simple_cpu_apb_faults.sby
 |  |- simple_cpu_wishbone_faults.sby
+|  |- simple_cpu_axi_lite_faults.sby
 |  |- simple_cpu_apb_cover.sby
 |  |- simple_cpu_wishbone_cover.sby
 |  |- simple_cpu_axi_lite_cover.sby
@@ -103,6 +104,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_axi_lite_formal.sv
 |  |- simple_cpu_apb_fault_formal.sv
 |  |- simple_cpu_wishbone_fault_formal.sv
+|  |- simple_cpu_axi_lite_fault_formal.sv
 |  |- simple_cpu_apb_cover_formal.sv
 |  |- simple_cpu_wishbone_cover_formal.sv
 |  |- simple_cpu_axi_lite_cover_formal.sv
@@ -111,6 +113,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- simple_cpu_axi_lite_mmio_stub.sv
 |  |- simple_cpu_apb_fault_mmio_stub.sv
 |  |- simple_cpu_wishbone_fault_mmio_stub.sv
+|  |- simple_cpu_axi_lite_fault_mmio_stub.sv
 |  |- simple_cpu_cover_formal.sv
 |  |- simple_cpu_mmio_cover_formal.sv
 |- equiv/
@@ -820,6 +823,7 @@ The formal proof flow now runs:
 7. `formal/simple_cpu_axi_lite.sby`
 8. `formal/simple_cpu_apb_faults.sby`
 9. `formal/simple_cpu_wishbone_faults.sby`
+10. `formal/simple_cpu_axi_lite_faults.sby`
 
 The formal cover flow runs:
 
@@ -843,7 +847,8 @@ Current formal properties cover:
 9. APB pass-through mapping of the MMIO readback model onto the APB shell,
 10. targeted APB fault scenarios for setup-only writes, aborted writes, `PENABLE`-without-`PSEL` glitches, and run-time shadow updates that only take effect after explicit reload,
 11. targeted Wishbone fault scenarios for `CYC`-only writes, `STB`-without-`CYC` glitches, and run-time shadow updates that only take effect after explicit reload,
-12. AXI-Lite coupled `AW/W` write acceptance, response-valid hold behavior, read-data capture, partial-write rejection, and cover witness generation for write/read/start traffic.
+12. AXI-Lite coupled `AW/W` write acceptance, response-valid hold behavior, read-data capture, partial-write rejection, and cover witness generation for write/read/start traffic,
+13. targeted AXI-Lite fault scenarios for `AWVALID`-only writes, `WVALID`-only writes, split-channel attempts, pending-`BVALID` backpressure, and reload-after-run-time-shadow-update behavior.
 
 The MMIO formal target uses an abstract debug-core stub instead of the full CPU implementation. Core behavior is already proved separately in `formal/simple_cpu.sby`; the wrapper proof focuses on MMIO loader/control/address-map logic so the CI formal step stays short.
 
@@ -857,7 +862,7 @@ The APB fault formal target is split out intentionally. `formal/simple_cpu_apb_f
 
 The Wishbone formal targets mirror the APB structure but prove the classic `CYC/STB/ACK` translation instead of a setup/access protocol. `formal/simple_cpu_wishbone.sby` proves the stable read/write/control mapping into the shared MMIO shell, `formal/simple_cpu_wishbone_faults.sby` proves the `CYC`-only and `STB`-without-`CYC` fault paths, and `formal/simple_cpu_wishbone_cover.sby` emits a compact witness trace for a representative program-load then run-to-halt flow.
 
-The AXI-Lite formal targets prove the intentionally small coupled-channel subset used in the tutorial. `formal/simple_cpu_axi_lite.sby` proves `AWVALID/WVALID` are accepted together, partial writes are ignored, responses hold until ready, and reads capture MMIO data into the registered `RDATA` path; `formal/simple_cpu_axi_lite_cover.sby` emits a compact witness for partial/write/read/start traffic.
+The AXI-Lite formal targets prove the intentionally small coupled-channel subset used in the tutorial. `formal/simple_cpu_axi_lite.sby` proves `AWVALID/WVALID` are accepted together, partial writes are ignored, responses hold until ready, and reads capture MMIO data into the registered `RDATA` path; `formal/simple_cpu_axi_lite_faults.sby` proves deterministic partial-channel, response-backpressure, and reload-after-shadow-update fault scenarios through a stateful MMIO stub; `formal/simple_cpu_axi_lite_cover.sby` emits a compact witness for partial/write/read/start traffic.
 
 The cover targets use dedicated witness harnesses so `sby cover` produces fast, readable example traces instead of spending time trying to satisfy every proof-harness cover statement in one run.
 
@@ -940,8 +945,9 @@ Uploaded artifacts include:
 28. `formal/simple_cpu_wishbone/`
 29. `formal/simple_cpu_wishbone_cover/`
 30. `formal/simple_cpu_axi_lite/`
-31. `formal/simple_cpu_axi_lite_cover/`
-32. `equiv/simple_cpu_eqy/`
+31. `formal/simple_cpu_axi_lite_faults/`
+32. `formal/simple_cpu_axi_lite_cover/`
+33. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 
@@ -1611,7 +1617,7 @@ These warnings are expected for this toolchain/tutorial and are non-fatal when a
 ## Next extensions
 
 1. Strengthen the MMIO formal harness from representative boundary checks to wider symbolic coverage of the 16-byte shadow image and read windows.
-2. Add formal fault proofs for AXI-Lite response-backpressure and partial-channel rejection, parallel to the existing APB/Wishbone fault proof split.
+2. Strengthen the AXI-Lite fault formal harness from deterministic scenarios to wider symbolic address/data sweeps.
 3. Extend the mutation set beyond the current MMIO wait-state, APB, Wishbone, and AXI-Lite shell set, for example with formal-harness or Python-lane regressions.
 4. Track lane-level JUnit summaries for native SV smoke or assembler-corpus replay, not just cocotb/pyuvm XML results.
 
