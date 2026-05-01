@@ -71,6 +71,10 @@ Formal note:
 
 1. `run-formal` now includes the dedicated `formal/simple_cpu_mmio_wait_faults.sby`, `formal/simple_cpu_apb_faults.sby`, `formal/simple_cpu_wishbone_faults.sby`, and `formal/simple_cpu_axi_lite_faults.sby` targets in prove mode, plus the APB/Wishbone/AXI-Lite prove/cover targets, so protocol-specific fault scenarios stay separated from the lighter baseline wrapper contracts.
 
+Toolchain note:
+
+1. `scripts/linux/oss-cad-suite.sh` is shared by Linux EQY and cocotb/Verilator flows. Export `OSS_CAD_SUITE_RELEASE_TAG=YYYY-MM-DD` to pin a daily Linux OSS CAD Suite build; leave it unset to use the latest release.
+
 Conformance note:
 
 1. The shared wrapper conformance layer in `tb/protocol_conformance.py` assumes each Python bus adapter exposes the same high-level methods (`reset`, `load_program`, `verify_loaded_program`, `begin_execution`, `run_until_halt`, `sample_state`). Keep new wrapper adapters aligned with that interface so the same scenario suite can run across MMIO, MMIO-wait, APB, Wishbone, AXI-Lite, and future protocols unchanged.

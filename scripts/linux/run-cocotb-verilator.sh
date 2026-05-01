@@ -12,7 +12,7 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd)"
 cd "${PROJECT_ROOT}"
 
 MIN_VERILATOR_VERSION="5.036"
-OSS_SUITE_ROOT="${OSS_CAD_SUITE_ROOT:-$HOME/tools/oss-cad-suite/oss-cad-suite}"
+source "${SCRIPT_DIR}/oss-cad-suite.sh"
 
 NO_WAVES=0
 ENABLE_COVERAGE=0
@@ -66,61 +66,29 @@ verilator_version() {
 }
 
 ensure_linux_oss_suite_verilator() {
-    local suite_bin
     local suite_verilator
     local suite_version
-    local tmpdir
-    local archive
-    local asset_url
-    local asset_name
+    local force_install
 
-    suite_bin="${OSS_SUITE_ROOT}/bin"
-    suite_verilator="${suite_bin}/verilator"
+    suite_verilator="${OSS_SUITE_ROOT}/bin/verilator"
+    force_install=0
 
     if [[ -x "${suite_verilator}" ]]; then
         suite_version="$(verilator_version "${suite_verilator}")"
         if version_at_least "${suite_version}" "${MIN_VERILATOR_VERSION}"; then
-            export PATH="${suite_bin}:${OSS_SUITE_ROOT}/lib:${PATH}"
+            oss_cad_suite_prepend_path
             return
         fi
+        force_install=1
     fi
 
-    tmpdir="$(mktemp -d)"
-    trap 'rm -rf "${tmpdir}"' RETURN
+    ensure_linux_oss_cad_suite "verilator" "system Verilator is older than ${MIN_VERILATOR_VERSION}" "${force_install}"
 
-    mapfile -t ASSET_INFO < <(python3 - <<'PY'
-import json
-import urllib.request
-
-release = json.load(urllib.request.urlopen("https://api.github.com/repos/YosysHQ/oss-cad-suite-build/releases/latest"))
-for asset in release["assets"]:
-    name = asset["name"]
-    if name.startswith("oss-cad-suite-linux-x64-") and (name.endswith(".tgz") or name.endswith(".tar.xz")):
-        print(asset["browser_download_url"])
-        print(name)
-        break
-else:
-    raise SystemExit("No linux-x64 OSS CAD Suite asset found in the latest release.")
-PY
-)
-
-    asset_url="${ASSET_INFO[0]}"
-    asset_name="${ASSET_INFO[1]}"
-    archive="${tmpdir}/${asset_name}"
-
-    echo "Installing Linux OSS CAD Suite because system Verilator is older than ${MIN_VERILATOR_VERSION}."
-    python3 - "${asset_url}" "${archive}" <<'PY'
-import sys
-import urllib.request
-
-urllib.request.urlretrieve(sys.argv[1], sys.argv[2])
-PY
-
-    mkdir -p "$(dirname "${OSS_SUITE_ROOT}")"
-    rm -rf "${OSS_SUITE_ROOT}"
-    tar -C "$(dirname "${OSS_SUITE_ROOT}")" -xf "${archive}"
-
-    export PATH="${suite_bin}:${OSS_SUITE_ROOT}/lib:${PATH}"
+    suite_version="$(verilator_version "${suite_verilator}")"
+    if ! version_at_least "${suite_version}" "${MIN_VERILATOR_VERSION}"; then
+        echo "Linux OSS CAD Suite Verilator ${suite_version} is older than required ${MIN_VERILATOR_VERSION}." >&2
+        exit 1
+    fi
 }
 
 if ! command -v make >/dev/null 2>&1; then

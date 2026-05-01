@@ -733,15 +733,16 @@ Notes:
 1. `scripts/run-formal.sh` auto-selects `cvc5` first, then `z3`, then `boolector`.
 2. `.\scripts\run-formal.ps1` follows the same rule and accepts `-Solver cvc5`, `-Solver z3`, or `-Solver boolector`.
 3. `scripts/run-cocotb-verilator.sh` auto-installs and uses a Linux OSS CAD Suite Verilator under `~/tools/oss-cad-suite/oss-cad-suite` when the distro package is older than the cocotb minimum.
-4. `scripts/lint.sh` resolves Verible from `~/tools/verible` and svlint from `~/tools/svlint` when they are not already on `PATH`.
-5. `.\scripts\run-equiv.ps1` routes the EQY flow through WSL for stability; the native Windows `eqy.exe` shipped in some OSS CAD Suite builds is unreliable.
-6. Open waves in WSLg with: `bash scripts/open-waves.sh`.
-7. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
-8. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
-9. Use `bash scripts/run-asm-corpus.sh --runner apb` to replay the same corpus through the APB shell.
-10. Use `bash scripts/run-asm-corpus.sh --runner axi_lite` to replay the same corpus through the AXI-Lite-style shell.
-10. The MMIO cocotb runner uses Icarus and the dedicated `tb/test_simple_cpu_mmio.py` bus-level suite.
-11. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
+4. Linux OSS CAD Suite auto-installs are handled by `scripts/linux/oss-cad-suite.sh`; export `OSS_CAD_SUITE_RELEASE_TAG=YYYY-MM-DD` to pin a daily build instead of using the moving latest release.
+5. `scripts/lint.sh` resolves Verible from `~/tools/verible` and svlint from `~/tools/svlint` when they are not already on `PATH`.
+6. `.\scripts\run-equiv.ps1` routes the EQY flow through WSL for stability; the native Windows `eqy.exe` shipped in some OSS CAD Suite builds is unreliable.
+7. Open waves in WSLg with: `bash scripts/open-waves.sh`.
+8. Use `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checking without overwriting the main regression coverage report.
+9. Use `bash scripts/run-asm-corpus.sh --runner mmio` to replay the corpus through the wrapper instead of the direct core testbench.
+10. Use `bash scripts/run-asm-corpus.sh --runner apb` to replay the same corpus through the APB shell.
+11. Use `bash scripts/run-asm-corpus.sh --runner axi_lite` to replay the same corpus through the AXI-Lite-style shell.
+12. The MMIO cocotb runner uses Icarus and the dedicated `tb/test_simple_cpu_mmio.py` bus-level suite.
+13. If you want WSL formal timings closer to GitHub Actions, keep the repo under the Linux filesystem (for example `~/basic-cpu-rlt--verif-tutorial`) instead of `/mnt/c/...`.
 
 If you saw `libcairo-2.dll` or GTK `libpixbufloader-svg.dll` errors before, these launcher scripts apply a compatibility workaround automatically.
 
@@ -902,6 +903,8 @@ GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.ym
 6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, `bash scripts/run-mmio-wait-uvm.sh --no-waves`, `bash scripts/run-cocotb-apb.sh --no-waves`, `bash scripts/run-apb-uvm.sh --no-waves`, `bash scripts/run-cocotb-wishbone.sh --no-waves`, `bash scripts/run-wishbone-uvm.sh --no-waves`, `bash scripts/run-cocotb-axi-lite.sh --no-waves`, and `bash scripts/run-axi-lite-uvm.sh --no-waves`
 7. `mutations`: `bash scripts/run-mutations.sh`
 8. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
+
+The CI workflow pins `OSS_CAD_SUITE_RELEASE_TAG` so the Verilator coverage and EQY jobs do not break when a new daily OSS CAD Suite build is published. Refresh the pinned tag deliberately after running the affected lanes locally or in a branch.
 
 Uploaded artifacts include:
 

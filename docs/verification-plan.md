@@ -343,13 +343,14 @@ Implementation note:
 26. `formal/simple_cpu_apb_faults.sby` keeps APB fault proofs separate from the baseline APB shell contract by driving deterministic setup/glitch/reload sequences through a small stateful MMIO stub.
 27. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
 28. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
-29. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
-30. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
-31. `formal/simple_cpu_wishbone.sby` swaps in an abstract `simple_cpu_mmio` stub so the Wishbone proof focuses on `CYC/STB/ACK` translation and MMIO read-data pass-through instead of re-proving MMIO internals.
-32. `formal/simple_cpu_wishbone_faults.sby` keeps Wishbone fault proofs separate from the baseline Wishbone shell contract by driving deterministic `CYC`-only, `STB`-without-`CYC`, and reload sequences through a small stateful MMIO stub.
-33. `formal/simple_cpu_axi_lite.sby` swaps in an abstract `simple_cpu_mmio` stub so the AXI-Lite proof focuses on coupled-channel write acceptance, response hold/clear, partial-write rejection, and registered read-data capture.
-34. `formal/simple_cpu_axi_lite_faults.sby` keeps AXI-Lite fault proofs separate from the baseline AXI-Lite shell contract by driving deterministic `AWVALID`-only, `WVALID`-only, split-channel, pending-response, and reload sequences through a small stateful MMIO stub.
-35. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
+29. `scripts/linux/oss-cad-suite.sh` centralizes Linux OSS CAD Suite release selection, retrying GitHub release queries/downloads and honoring `OSS_CAD_SUITE_RELEASE_TAG` for reproducible CI runs.
+30. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
+31. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
+32. `formal/simple_cpu_wishbone.sby` swaps in an abstract `simple_cpu_mmio` stub so the Wishbone proof focuses on `CYC/STB/ACK` translation and MMIO read-data pass-through instead of re-proving MMIO internals.
+33. `formal/simple_cpu_wishbone_faults.sby` keeps Wishbone fault proofs separate from the baseline Wishbone shell contract by driving deterministic `CYC`-only, `STB`-without-`CYC`, and reload sequences through a small stateful MMIO stub.
+34. `formal/simple_cpu_axi_lite.sby` swaps in an abstract `simple_cpu_mmio` stub so the AXI-Lite proof focuses on coupled-channel write acceptance, response hold/clear, partial-write rejection, and registered read-data capture.
+35. `formal/simple_cpu_axi_lite_faults.sby` keeps AXI-Lite fault proofs separate from the baseline AXI-Lite shell contract by driving deterministic `AWVALID`-only, `WVALID`-only, split-channel, pending-response, and reload sequences through a small stateful MMIO stub.
+36. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
 33. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
 34. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
 35. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
@@ -384,9 +385,10 @@ Known toolchain notes (non-fatal when runs pass):
 3. The MMIO formal target uses an abstract core stub so the portable `cvc5` flow remains fast enough for CI without weakening the wrapper-level claims.
 4. The Windows equivalence wrapper intentionally routes through WSL because some packaged `eqy.exe` builds are unstable.
 5. `scripts/run-cocotb-verilator.sh` may download Linux OSS CAD Suite into `~/tools/oss-cad-suite/oss-cad-suite` when the system Verilator is older than the cocotb minimum.
-6. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
-7. WSL formal runs from `/mnt/c/...` can be much slower than GitHub Actions or native Linux because of mounted-filesystem I/O overhead.
-8. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files are still covered by Verilator lint and svlint.
+6. Export `OSS_CAD_SUITE_RELEASE_TAG=YYYY-MM-DD` when reproducing CI exactly; leave it unset for the moving latest daily OSS CAD Suite release during exploratory local runs.
+7. If WSL reports `Bash/Service/E_UNEXPECTED` during a long-running bash command, restart WSL or rerun from PowerShell; that is a host-shell failure rather than a DUT/proof failure.
+8. WSL formal runs from `/mnt/c/...` can be much slower than GitHub Actions or native Linux because of mounted-filesystem I/O overhead.
+9. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files are still covered by Verilator lint and svlint.
 
 ## Remaining exercises
 

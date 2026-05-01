@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+env:
+  # Keep CI reproducible; refresh intentionally after validating a newer daily OSS CAD Suite.
+  OSS_CAD_SUITE_RELEASE_TAG: "2026-04-26"
+
 jobs:
   native-sim:
     runs-on: ubuntu-latest
