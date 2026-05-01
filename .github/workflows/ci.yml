@@ -13,6 +13,37 @@ env:
   OSS_CAD_SUITE_RELEASE_TAG: "2026-04-26"
 
 jobs:
+  python-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python verification dependencies
+        run: |
+          python3 -m venv .venv_ci
+          source .venv_ci/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run reference model checks
+        run: |
+          source .venv_ci/bin/activate
+          bash scripts/check-python-model.sh
+
+      - name: Upload reference model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-model-artifacts
+          path: |
+            sim_build/model_trace
+
   native-sim:
     runs-on: ubuntu-latest
 
@@ -278,6 +309,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     needs:
+      - python-model
       - native-sim
       - lint
       - formal
@@ -294,6 +326,7 @@ jobs:
 
           | Job | Result |
           |---|---|
+          | python-model | ${{ needs.python-model.result }} |
           | native-sim | ${{ needs.native-sim.result }} |
           | lint | ${{ needs.lint.result }} |
           | formal | ${{ needs.formal.result }} |
@@ -305,7 +338,7 @@ jobs:
 
       - name: Fail summary if any required job failed
         run: |
-          results="${{ needs.native-sim.result }},${{ needs.lint.result }},${{ needs.formal.result }},${{ needs.cocotb-verilator.result }},${{ needs.equivalence.result }},${{ needs.pyuvm.result }},${{ needs.mutations.result }}"
+          results="${{ needs.python-model.result }},${{ needs.native-sim.result }},${{ needs.lint.result }},${{ needs.formal.result }},${{ needs.cocotb-verilator.result }},${{ needs.equivalence.result }},${{ needs.pyuvm.result }},${{ needs.mutations.result }}"
           case "${results}" in
             *failure*|*cancelled*)
               exit 1

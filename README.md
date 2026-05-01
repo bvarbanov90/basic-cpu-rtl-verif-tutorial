@@ -497,6 +497,18 @@ To replay the tracked assembler corpus through the AXI-Lite-style wrapper:
 .\scripts\run-asm-corpus.ps1 -Runner axi_lite
 ```
 
+To run the Python reference-model self-checks:
+
+```powershell
+.\scripts\check-python-model.ps1
+```
+
+To disassemble and trace a built-in program through the Python reference model:
+
+```powershell
+.\scripts\show-model-trace.ps1 --builtin smoke
+```
+
 To run the cocotb regression on Verilator and collect structural coverage:
 
 ```powershell
@@ -642,6 +654,18 @@ Run the Wishbone fault-injection native regression:
 
 ```bash
 bash scripts/run-wishbone-fault.sh --no-waves
+```
+
+Run the Python reference-model self-checks:
+
+```bash
+bash scripts/check-python-model.sh
+```
+
+Disassemble and trace a built-in program through the Python reference model:
+
+```bash
+bash scripts/show-model-trace.sh --builtin smoke
 ```
 
 Run the cocotb regression on Verilator and collect structural coverage:
@@ -895,14 +919,15 @@ bash scripts/check-native.sh
 
 GitHub Actions workflow `main`/PR checks are defined in `.github/workflows/ci.yml` and are split into focused jobs:
 
-1. `native-sim`: `bash scripts/check-native.sh` plus MMIO corpus replay
-2. `lint`: `bash scripts/lint.sh`
-3. `formal`: `bash scripts/run-formal.sh --mode all`
-4. `cocotb-verilator`: `bash scripts/run-cocotb-verilator.sh --no-waves --coverage`
-5. `equivalence`: `bash scripts/run-equiv.sh`
-6. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, `bash scripts/run-mmio-wait-uvm.sh --no-waves`, `bash scripts/run-cocotb-apb.sh --no-waves`, `bash scripts/run-apb-uvm.sh --no-waves`, `bash scripts/run-cocotb-wishbone.sh --no-waves`, `bash scripts/run-wishbone-uvm.sh --no-waves`, `bash scripts/run-cocotb-axi-lite.sh --no-waves`, and `bash scripts/run-axi-lite-uvm.sh --no-waves`
-7. `mutations`: `bash scripts/run-mutations.sh`
-8. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
+1. `python-model`: `bash scripts/check-python-model.sh`
+2. `native-sim`: `bash scripts/check-native.sh` plus MMIO corpus replay
+3. `lint`: `bash scripts/lint.sh`
+4. `formal`: `bash scripts/run-formal.sh --mode all`
+5. `cocotb-verilator`: `bash scripts/run-cocotb-verilator.sh --no-waves --coverage`
+6. `equivalence`: `bash scripts/run-equiv.sh`
+7. `pyuvm`: `bash scripts/run-uvm.sh --no-waves`, `bash scripts/run-mmio-uvm.sh --no-waves`, `bash scripts/run-cocotb-mmio.sh --no-waves`, `bash scripts/run-cocotb-mmio-wait.sh --no-waves`, `bash scripts/run-mmio-wait-uvm.sh --no-waves`, `bash scripts/run-cocotb-apb.sh --no-waves`, `bash scripts/run-apb-uvm.sh --no-waves`, `bash scripts/run-cocotb-wishbone.sh --no-waves`, `bash scripts/run-wishbone-uvm.sh --no-waves`, `bash scripts/run-cocotb-axi-lite.sh --no-waves`, and `bash scripts/run-axi-lite-uvm.sh --no-waves`
+8. `mutations`: `bash scripts/run-mutations.sh`
+9. `summary`: workflow-level pass/fail table in the GitHub Actions summary page
 
 The CI workflow pins `OSS_CAD_SUITE_RELEASE_TAG` so the Verilator coverage and EQY jobs do not break when a new daily OSS CAD Suite build is published. Refresh the pinned tag deliberately after running the affected lanes locally or in a branch.
 
@@ -922,35 +947,36 @@ Uploaded artifacts include:
 12. `sim_build/axi_lite_fault_coverage.csv`
 13. `sim_build/apb_fault_coverage.json`
 14. `sim_build/apb_fault_coverage.csv`
-9. `sim_build/static_analysis/`
-10. `sim_build/pyuvm_coverage.json`
-11. `sim_build/uvm_results.xml`
-12. `sim_build/mmio_uvm_results.xml`
-13. `sim_build/mmio_cocotb_results.xml`
-14. `sim_build/mmio_wait_cocotb_results.xml`
-15. `sim_build/mmio_wait_uvm_results.xml`
-16. `sim_build/apb_cocotb_results.xml`
-17. `sim_build/apb_uvm_results.xml`
-18. `sim_build/wishbone_cocotb_results.xml`
-19. `sim_build/wishbone_uvm_results.xml`
-20. `sim_build/axi_lite_cocotb_results.xml`
-21. `sim_build/axi_lite_uvm_results.xml`
-18. `sim_build/verilator_results.xml`
-19. `sim_build/verilator_coverage/`
-20. `sim_build/asm_corpus/`
-21. `sim_build/mutations/`
-22. `formal/simple_cpu_cover/`
-23. `formal/simple_cpu_mmio_cover/`
-24. `formal/simple_cpu_mmio_wait/`
-25. `formal/simple_cpu_mmio_wait_cover/`
-26. `formal/simple_cpu_apb/`
-27. `formal/simple_cpu_apb_cover/`
-28. `formal/simple_cpu_wishbone/`
-29. `formal/simple_cpu_wishbone_cover/`
-30. `formal/simple_cpu_axi_lite/`
-31. `formal/simple_cpu_axi_lite_faults/`
-32. `formal/simple_cpu_axi_lite_cover/`
-33. `equiv/simple_cpu_eqy/`
+15. `sim_build/model_trace/`
+16. `sim_build/static_analysis/`
+17. `sim_build/pyuvm_coverage.json`
+18. `sim_build/uvm_results.xml`
+19. `sim_build/mmio_uvm_results.xml`
+20. `sim_build/mmio_cocotb_results.xml`
+21. `sim_build/mmio_wait_cocotb_results.xml`
+22. `sim_build/mmio_wait_uvm_results.xml`
+23. `sim_build/apb_cocotb_results.xml`
+24. `sim_build/apb_uvm_results.xml`
+25. `sim_build/wishbone_cocotb_results.xml`
+26. `sim_build/wishbone_uvm_results.xml`
+27. `sim_build/axi_lite_cocotb_results.xml`
+28. `sim_build/axi_lite_uvm_results.xml`
+29. `sim_build/verilator_results.xml`
+30. `sim_build/verilator_coverage/`
+31. `sim_build/asm_corpus/`
+32. `sim_build/mutations/`
+33. `formal/simple_cpu_cover/`
+34. `formal/simple_cpu_mmio_cover/`
+35. `formal/simple_cpu_mmio_wait/`
+36. `formal/simple_cpu_mmio_wait_cover/`
+37. `formal/simple_cpu_apb/`
+38. `formal/simple_cpu_apb_cover/`
+39. `formal/simple_cpu_wishbone/`
+40. `formal/simple_cpu_wishbone_cover/`
+41. `formal/simple_cpu_axi_lite/`
+42. `formal/simple_cpu_axi_lite_faults/`
+43. `formal/simple_cpu_axi_lite_cover/`
+44. `equiv/simple_cpu_eqy/`
 
 ## If tools are not installed yet
 

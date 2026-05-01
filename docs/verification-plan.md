@@ -9,7 +9,7 @@
 5. Confirm end-to-end state matches a reference model.
 6. Confirm external assembled programs match the reference model.
 
-## Current status (April 26, 2026)
+## Current status (May 1, 2026)
 
 1. `.\scripts\run.ps1 -NoWaves`: PASS
 2. `.\scripts\lint.ps1`: PASS
@@ -93,6 +93,10 @@
 64. `bash scripts/run-asm-corpus.sh --runner apb` (WSL Ubuntu): PASS
 65. `bash scripts/run-asm-corpus.sh --runner wishbone` (WSL Ubuntu): PASS
 66. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
+67. `.\scripts\check-python-model.ps1`: PASS
+68. `.\scripts\show-model-trace.ps1 --bytes 0x13 0x40 0x80`: PASS
+69. `bash scripts/check-python-model.sh` (WSL Ubuntu): PASS
+70. `bash scripts/show-model-trace.sh --asm programs/counter_loop.asm --format json --output sim_build/model_trace/counter_loop.json` (WSL Ubuntu): PASS
 67. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
 68. `.\scripts\show-formal-status.ps1`: PASS
 69. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
@@ -200,6 +204,9 @@
 | `assembler_corpus_matches_reference_model` | `tb/test_simple_cpu.py` | Optional cocotb replay of the tracked assembler corpus against the DUT and reference model. |
 | `protocol_conformance_matches_reference_suite` | `tb/test_simple_cpu.py` | Shared conformance-suite replay over the direct programming interface using the same scenario set as the wrapper buses. |
 | `program_write_stalls_and_retargets_execution` | `tb/test_simple_cpu.py` | Holds `prog_we` across consecutive cycles, proves architectural state stalls, and confirms a future instruction patch is honored once execution resumes. |
+| `test_cpu_lib_unit` | `tb/test_cpu_lib_unit.py` | Pytest self-checks for the Python reference model, disassembler, trace rows, deterministic program builders, and representative flag behavior. |
+| `check-python-model` | `scripts/check-python-model.*` | Fast reference-model lane that runs pytest and emits example model traces without requiring an RTL simulator. |
+| `show-model-trace` | `scripts/model_trace.py` + wrappers | Disassembles and traces built-in, assembly, or raw-byte programs through the Python reference model for scoreboard/debug walkthroughs. |
 | `mmio_program_matches_reference_model` | `tb/test_simple_cpu_mmio.py` | Optional cocotb MMIO wrapper replay against the same `ReferenceCPU` used by the native bench. |
 | `mmio_protocol_conformance_suite` | `tb/test_simple_cpu_mmio.py` | Replays the shared conformance-suite scenarios through the MMIO wrapper and checks end state against `ReferenceCPU`. |
 | `mmio_shadow_fault_injection_requires_reload` | `tb/test_simple_cpu_mmio.py` | Python-side bus-level check that shadow writes during `RUN` do not perturb the current run and only take effect after reload. |
@@ -330,7 +337,7 @@ Implementation note:
 15. `scripts/show-wishbone-fault-coverage.ps1` / `scripts/show-wishbone-fault-coverage.sh` summarize the Wishbone fault-injection coverage report without opening JSON manually.
 15. `scripts/show-axi-lite-fault-coverage.ps1` / `scripts/show-axi-lite-fault-coverage.sh` summarize the AXI-Lite fault-injection coverage report without opening JSON manually.
 15. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-16. CI workflow is in `.github/workflows/ci.yml` and is split into native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `native-sim` job now runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, Wishbone fault, and AXI-Lite fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
+16. CI workflow is in `.github/workflows/ci.yml` and is split into python-model, native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `python-model` job checks the executable reference spec before longer simulator jobs, the `native-sim` job runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, Wishbone fault, and AXI-Lite fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
 17. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
 18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, AXI-Lite, AXI-Lite-fault, and cover targets.
 19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_fault_coverage`, `axi_lite_cocotb`, and `axi_lite_pyuvm`.
@@ -351,6 +358,7 @@ Implementation note:
 34. `formal/simple_cpu_axi_lite.sby` swaps in an abstract `simple_cpu_mmio` stub so the AXI-Lite proof focuses on coupled-channel write acceptance, response hold/clear, partial-write rejection, and registered read-data capture.
 35. `formal/simple_cpu_axi_lite_faults.sby` keeps AXI-Lite fault proofs separate from the baseline AXI-Lite shell contract by driving deterministic `AWVALID`-only, `WVALID`-only, split-channel, pending-response, and reload sequences through a small stateful MMIO stub.
 36. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
+37. `tb/cpu_lib.py` exposes disassembly and cycle-by-cycle trace helpers so the Python reference model can be used as both a scoreboard oracle and a human-readable debug tool.
 33. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
 34. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
 35. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
