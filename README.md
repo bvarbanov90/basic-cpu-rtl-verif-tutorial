@@ -163,6 +163,7 @@ basic-cpu-rlt--verif-tutorial/
 |- scripts/
 |  |- asm.py
 |  |- asm_corpus_report.py
+|  |- formal_catalog.py
 |  |- isa_report.py
 |  |- mutation_catalog.py
 |  |- README.md
@@ -273,6 +274,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
+|  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
@@ -307,6 +309,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- assembler-regressions.json
 |  |- assembler-regressions.md
 |  |- coverage-baseline.json
+|  |- formal-targets.md
 |  |- isa.md
 |  |- mutation-catalog.md
 |  |- status/
@@ -375,6 +378,18 @@ Regenerate it after intentional corpus edits:
 
 ```bash
 bash scripts/generate-asm-corpus-docs.sh
+```
+
+The formal target catalog is generated and tracked in `docs/formal-targets.md`. It is checked by the Python reference-model CI lane so root-level `.sby` targets, file references, target kinds, and `run-formal` wrapper coverage cannot drift silently.
+
+Regenerate it after intentional formal-target edits:
+
+```powershell
+.\scripts\generate-formal-catalog.ps1
+```
+
+```bash
+bash scripts/generate-formal-catalog.sh
 ```
 
 The mutation catalog is generated and tracked in `docs/mutation-catalog.md`. It is checked by the Python reference-model CI lane so mutation names, bench scopes, target paths, and replacement snippets cannot drift silently.
