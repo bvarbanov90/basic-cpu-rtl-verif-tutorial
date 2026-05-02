@@ -162,6 +162,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
+|  |- asm_corpus_report.py
 |  |- isa_report.py
 |  |- README.md
 |  |- check_asm_corpus.py
@@ -302,6 +303,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- ... (compat wrappers for old paths)
 |- docs/
 |  |- assembler-regressions.json
+|  |- assembler-regressions.md
 |  |- coverage-baseline.json
 |  |- isa.md
 |  |- status/
@@ -358,6 +360,18 @@ Regenerate it after intentional ISA edits:
 
 ```bash
 bash scripts/generate-isa-docs.sh
+```
+
+The assembler corpus report is also generated and tracked in `docs/assembler-regressions.md`.
+
+Regenerate it after intentional corpus edits:
+
+```powershell
+.\scripts\generate-asm-corpus-docs.ps1
+```
+
+```bash
+bash scripts/generate-asm-corpus-docs.sh
 ```
 
 ## Quick start (recommended path)
@@ -1413,7 +1427,7 @@ Current Wishbone fault-coverage goals:
 
 ## Assembler regression corpus
 
-The project includes a small tracked corpus of assembly programs with expected outputs in `docs/assembler-regressions.json`.
+The project includes a small tracked corpus of assembly programs with expected outputs in `docs/assembler-regressions.json`; the generated human-readable table is `docs/assembler-regressions.md`.
 
 Run it from PowerShell:
 
@@ -1427,7 +1441,7 @@ Run it from bash/WSL:
 bash scripts/run-asm-corpus.sh
 ```
 
-Use `.\scripts\run-asm-corpus.ps1 -NoSimulate` or `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checks without overwriting the main native-regression coverage report.
+Use `.\scripts\run-asm-corpus.ps1 -NoSimulate` or `bash scripts/run-asm-corpus.sh --no-simulate` when you want manifest checks without overwriting the main native-regression coverage report. The manifest check also enforces unique names/sources, uppercase 16-byte expected hex, one manifest entry per `programs/*.asm` file, valid final-state shape, and a coverage signature.
 
 What it checks:
 

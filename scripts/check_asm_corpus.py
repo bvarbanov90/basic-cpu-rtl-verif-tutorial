@@ -13,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from scripts.asm import assemble, parse_source
 from tb.coverage_utils import coverage_from_program, final_state_dict
+from tb.cpu_lib import MEM_SIZE
 
 
 def parse_args() -> argparse.Namespace:
@@ -56,6 +57,81 @@ def compare_subset(expected, observed, prefix: str, failures: list[str]) -> None
 
     if observed != expected:
         failures.append(f"{prefix}: expected {expected}, got {observed}")
+
+
+def validate_manifest(manifest: dict, manifest_path: Path) -> list[str]:
+    failures: list[str] = []
+    programs = manifest.get("programs", [])
+
+    if not isinstance(programs, list) or not programs:
+        return ["manifest.programs: expected a non-empty list"]
+
+    seen_names: set[str] = set()
+    seen_sources: set[str] = set()
+    manifest_dir = manifest_path.parent
+    project_root = manifest_dir.parent
+
+    for index, entry in enumerate(programs):
+        prefix = f"programs[{index}]"
+        name = entry.get("name")
+        source = entry.get("source")
+        if not isinstance(name, str) or not name:
+            failures.append(f"{prefix}.name: expected non-empty string")
+        elif name in seen_names:
+            failures.append(f"{prefix}.name: duplicate program name '{name}'")
+        else:
+            seen_names.add(name)
+
+        if not isinstance(source, str) or not source:
+            failures.append(f"{prefix}.source: expected non-empty string")
+        else:
+            source_path = project_root / source
+            if source in seen_sources:
+                failures.append(f"{prefix}.source: duplicate source '{source}'")
+            else:
+                seen_sources.add(source)
+            if not source_path.exists():
+                failures.append(f"{prefix}.source: file not found: {source}")
+            elif source_path.suffix != ".asm":
+                failures.append(f"{prefix}.source: expected .asm file: {source}")
+
+        expected_hex = entry.get("expected_hex")
+        if not isinstance(expected_hex, list) or len(expected_hex) != MEM_SIZE:
+            failures.append(f"{prefix}.expected_hex: expected {MEM_SIZE} byte strings")
+        else:
+            for byte_index, value in enumerate(expected_hex):
+                if not isinstance(value, str):
+                    failures.append(f"{prefix}.expected_hex[{byte_index}]: expected string byte")
+                    continue
+                try:
+                    parsed = int(value, 16)
+                except ValueError:
+                    failures.append(f"{prefix}.expected_hex[{byte_index}]: invalid hex byte '{value}'")
+                    continue
+                if value.upper() != value or len(value) != 2 or not (0 <= parsed <= 0xFF):
+                    failures.append(f"{prefix}.expected_hex[{byte_index}]: expected two uppercase hex digits, got '{value}'")
+
+        expected_final = entry.get("expected_final", {})
+        dmem = expected_final.get("dmem") if isinstance(expected_final, dict) else None
+        if not isinstance(dmem, list) or len(dmem) != MEM_SIZE:
+            failures.append(f"{prefix}.expected_final.dmem: expected {MEM_SIZE} entries")
+
+        coverage_signature = entry.get("coverage_signature")
+        if not isinstance(coverage_signature, dict) or "opcode_hit_bitmap" not in coverage_signature:
+            failures.append(f"{prefix}.coverage_signature: expected opcode_hit_bitmap")
+
+    asm_sources = {
+        str(path.relative_to(project_root)).replace("\\", "/")
+        for path in sorted((project_root / "programs").glob("*.asm"))
+    }
+    missing_from_manifest = sorted(asm_sources - seen_sources)
+    extra_in_manifest = sorted(seen_sources - asm_sources)
+    for source in missing_from_manifest:
+        failures.append(f"manifest coverage: source is not listed: {source}")
+    for source in extra_in_manifest:
+        failures.append(f"manifest coverage: listed source is not under programs/*.asm: {source}")
+
+    return failures
 
 
 def run_simulation(hex_path: Path, runner: str) -> None:
@@ -109,14 +185,15 @@ def main() -> int:
         manifest = json.load(fh)
 
     programs = manifest.get("programs", [])
-    if not programs:
-        print("[ASM-CORPUS][FAIL] No programs listed in manifest", file=sys.stderr)
+    failures: list[str] = validate_manifest(manifest, manifest_path)
+    if failures:
+        print("[ASM-CORPUS] manifest validation failed")
+        for failure in failures:
+            print(f"  - {failure}")
         return 1
 
     output_dir = PROJECT_ROOT / "sim_build" / "asm_corpus"
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    failures: list[str] = []
 
     for entry in programs:
         name = entry["name"]

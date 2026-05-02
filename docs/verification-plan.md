@@ -25,87 +25,89 @@
 12. `.\scripts\show-apb-coverage.ps1`: PASS
 13. `.\scripts\show-apb-fault-coverage.ps1`: PASS
 14. `.\scripts\record-coverage-history.ps1`: PASS
-14. `.\scripts\show-coverage-trend.ps1`: PASS
-14. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-15. `.\scripts\run-mmio-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-16. `.\scripts\run-cocotb-mmio.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-17. `.\scripts\run-cocotb-mmio-wait.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-18. `.\scripts\run-mmio-wait-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-19. `.\scripts\run-cocotb-apb.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-20. `.\scripts\run-apb-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-21. `.\scripts\run-cocotb-wishbone.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-22. `.\scripts\run-wishbone-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-22. `.\scripts\run-cocotb-axi-lite.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-22. `.\scripts\run-axi-lite-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
-23. `.\scripts\check-coverage-delta.ps1`: PASS
-24. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
-25. `.\scripts\run-mmio-wait.ps1 -NoWaves`: PASS
-26. `.\scripts\run-apb.ps1 -NoWaves`: PASS
-27. `.\scripts\run-wishbone.ps1 -NoWaves`: PASS
-28. `.\scripts\run-axi-lite.ps1 -NoWaves`: PASS
-29. `.\scripts\show-axi-lite-coverage.ps1`: PASS
-30. `.\scripts\run-axi-lite-fault.ps1 -NoWaves`: PASS
-31. `.\scripts\show-axi-lite-fault-coverage.ps1`: PASS
-30. `.\scripts\run-asm-corpus.ps1 -Runner axi_lite`: PASS
-31. Target-only `formal/simple_cpu_axi_lite.sby`, `formal/simple_cpu_axi_lite_faults.sby`, and `formal/simple_cpu_axi_lite_cover.sby`: PASS
-32. `.\scripts\run-apb-fault.ps1 -NoWaves`: PASS
-33. `.\scripts\run-wishbone-fault.ps1 -NoWaves`: PASS
-34. `.\scripts\show-wishbone-fault-coverage.ps1`: PASS
-29. `.\scripts\check-native.ps1`: PASS
-30. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
-31. `.\scripts\run-asm-corpus.ps1 -Runner mmio_wait`: PASS
-32. `.\scripts\run-asm-corpus.ps1 -Runner apb`: PASS
-33. `.\scripts\run-asm-corpus.ps1 -Runner wishbone`: PASS
-34. `.\scripts\run-mutations.ps1`: PASS
-35. `.\scripts\show-mutations.ps1`: PASS
-36. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
-37. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
-38. `bash scripts/run-mmio-wait.sh --no-waves` (WSL Ubuntu): PASS
-39. `bash scripts/run-apb.sh --no-waves` (WSL Ubuntu): PASS
-40. `bash scripts/run-wishbone.sh --no-waves` (WSL Ubuntu): PASS
-41. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
-42. `bash scripts/show-mmio-wait-coverage.sh` (WSL Ubuntu): PASS
-43. `bash scripts/show-apb-coverage.sh` (WSL Ubuntu): PASS
-44. `bash scripts/show-wishbone-coverage.sh` (WSL Ubuntu): PASS
-45. `bash scripts/show-apb-fault-coverage.sh` (WSL Ubuntu): PASS
-46. `bash scripts/check-native.sh`: PASS
-47. `bash scripts/lint.sh` (WSL Ubuntu): PASS
-48. `bash scripts/show-static-analysis.sh` (WSL Ubuntu): PASS
-49. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
-50. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
-51. `bash scripts/run-cocotb-mmio.sh --no-waves` (WSL Ubuntu): PASS
-52. `bash scripts/run-cocotb-mmio-wait.sh --no-waves` (WSL Ubuntu): PASS
-53. `bash scripts/run-cocotb-wishbone.sh --no-waves` (WSL Ubuntu): PASS
-54. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
-55. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
-56. `bash scripts/run-mmio-uvm.sh --no-waves` (WSL Ubuntu): PASS
-57. `bash scripts/run-mmio-wait-uvm.sh --no-waves` (WSL Ubuntu): PASS
-58. `bash scripts/run-wishbone-uvm.sh --no-waves` (WSL Ubuntu): PASS
-58. `bash scripts/run-cocotb-axi-lite.sh --no-waves` (WSL Ubuntu): PASS
-58. `bash scripts/run-axi-lite-uvm.sh --no-waves` (WSL Ubuntu): PASS
-58. `bash scripts/run-axi-lite-fault.sh --no-waves` (WSL Ubuntu): PASS
-58. `bash scripts/show-axi-lite-fault-coverage.sh` (WSL Ubuntu): PASS
-59. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
-60. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
-61. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
-62. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
-63. `bash scripts/run-asm-corpus.sh --runner mmio_wait` (WSL Ubuntu): PASS
-64. `bash scripts/run-asm-corpus.sh --runner apb` (WSL Ubuntu): PASS
-65. `bash scripts/run-asm-corpus.sh --runner wishbone` (WSL Ubuntu): PASS
-66. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
-67. `.\scripts\check-python-model.ps1`: PASS
-68. `.\scripts\show-model-trace.ps1 --bytes 0x13 0x40 0x80`: PASS
-69. `bash scripts/check-python-model.sh` (WSL Ubuntu): PASS
-70. `bash scripts/show-model-trace.sh --asm programs/counter_loop.asm --format json --output sim_build/model_trace/counter_loop.json` (WSL Ubuntu): PASS
-71. `.\scripts\generate-isa-docs.ps1 --check`: PASS
-72. `bash scripts/generate-isa-docs.sh --check` (WSL Ubuntu): PASS
-67. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
-68. `.\scripts\show-formal-status.ps1`: PASS
-69. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
-70. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
-71. `bash scripts/export-status.sh --label tutorial-regression`: PASS
-72. Target-only `formal/simple_cpu_wishbone_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
-73. Target-only `formal/simple_cpu_axi_lite_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
+15. `.\scripts\show-coverage-trend.ps1`: PASS
+16. `.\scripts\run-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+17. `.\scripts\run-mmio-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+18. `.\scripts\run-cocotb-mmio.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+19. `.\scripts\run-cocotb-mmio-wait.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+20. `.\scripts\run-mmio-wait-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+21. `.\scripts\run-cocotb-apb.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+22. `.\scripts\run-apb-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+23. `.\scripts\run-cocotb-wishbone.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+24. `.\scripts\run-wishbone-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+25. `.\scripts\run-cocotb-axi-lite.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+26. `.\scripts\run-axi-lite-uvm.ps1 -NoWaves`: PASS (falls back to WSL when native `make` is unavailable)
+27. `.\scripts\check-coverage-delta.ps1`: PASS
+28. `.\scripts\run-mmio.ps1 -NoWaves`: PASS
+29. `.\scripts\run-mmio-wait.ps1 -NoWaves`: PASS
+30. `.\scripts\run-apb.ps1 -NoWaves`: PASS
+31. `.\scripts\run-wishbone.ps1 -NoWaves`: PASS
+32. `.\scripts\run-axi-lite.ps1 -NoWaves`: PASS
+33. `.\scripts\show-axi-lite-coverage.ps1`: PASS
+34. `.\scripts\run-axi-lite-fault.ps1 -NoWaves`: PASS
+35. `.\scripts\show-axi-lite-fault-coverage.ps1`: PASS
+36. `.\scripts\run-asm-corpus.ps1 -Runner axi_lite`: PASS
+37. Target-only `formal/simple_cpu_axi_lite.sby`, `formal/simple_cpu_axi_lite_faults.sby`, and `formal/simple_cpu_axi_lite_cover.sby`: PASS
+38. `.\scripts\run-apb-fault.ps1 -NoWaves`: PASS
+39. `.\scripts\run-wishbone-fault.ps1 -NoWaves`: PASS
+40. `.\scripts\show-wishbone-fault-coverage.ps1`: PASS
+41. `.\scripts\check-native.ps1`: PASS
+42. `.\scripts\run-asm-corpus.ps1 -NoSimulate`: PASS
+43. `.\scripts\run-asm-corpus.ps1 -Runner mmio_wait`: PASS
+44. `.\scripts\run-asm-corpus.ps1 -Runner apb`: PASS
+45. `.\scripts\run-asm-corpus.ps1 -Runner wishbone`: PASS
+46. `.\scripts\run-mutations.ps1`: PASS
+47. `.\scripts\show-mutations.ps1`: PASS
+48. `bash scripts/run.sh --no-waves` (WSL Ubuntu): PASS
+49. `bash scripts/run-mmio.sh --no-waves` (WSL Ubuntu): PASS
+50. `bash scripts/run-mmio-wait.sh --no-waves` (WSL Ubuntu): PASS
+51. `bash scripts/run-apb.sh --no-waves` (WSL Ubuntu): PASS
+52. `bash scripts/run-wishbone.sh --no-waves` (WSL Ubuntu): PASS
+53. `bash scripts/show-mmio-coverage.sh` (WSL Ubuntu): PASS
+54. `bash scripts/show-mmio-wait-coverage.sh` (WSL Ubuntu): PASS
+55. `bash scripts/show-apb-coverage.sh` (WSL Ubuntu): PASS
+56. `bash scripts/show-wishbone-coverage.sh` (WSL Ubuntu): PASS
+57. `bash scripts/show-apb-fault-coverage.sh` (WSL Ubuntu): PASS
+58. `bash scripts/check-native.sh`: PASS
+59. `bash scripts/lint.sh` (WSL Ubuntu): PASS
+60. `bash scripts/show-static-analysis.sh` (WSL Ubuntu): PASS
+61. `bash scripts/run-formal.sh --mode all` (WSL Ubuntu, `cvc5`): PASS
+62. `bash scripts/run-cocotb-verilator.sh --no-waves --coverage` (WSL Ubuntu): PASS
+63. `bash scripts/run-cocotb-mmio.sh --no-waves` (WSL Ubuntu): PASS
+64. `bash scripts/run-cocotb-mmio-wait.sh --no-waves` (WSL Ubuntu): PASS
+65. `bash scripts/run-cocotb-wishbone.sh --no-waves` (WSL Ubuntu): PASS
+66. `bash scripts/run-equiv.sh` (WSL Ubuntu): PASS
+67. `bash scripts/run-uvm.sh --no-waves` (WSL Ubuntu): PASS
+68. `bash scripts/run-mmio-uvm.sh --no-waves` (WSL Ubuntu): PASS
+69. `bash scripts/run-mmio-wait-uvm.sh --no-waves` (WSL Ubuntu): PASS
+70. `bash scripts/run-wishbone-uvm.sh --no-waves` (WSL Ubuntu): PASS
+71. `bash scripts/run-cocotb-axi-lite.sh --no-waves` (WSL Ubuntu): PASS
+72. `bash scripts/run-axi-lite-uvm.sh --no-waves` (WSL Ubuntu): PASS
+73. `bash scripts/run-axi-lite-fault.sh --no-waves` (WSL Ubuntu): PASS
+74. `bash scripts/show-axi-lite-fault-coverage.sh` (WSL Ubuntu): PASS
+75. `bash scripts/check-coverage-delta.sh` (WSL Ubuntu): PASS
+76. `bash scripts/show-coverage-trend.sh` (WSL Ubuntu): PASS
+77. `bash scripts/run-asm-corpus.sh --no-simulate` (WSL Ubuntu): PASS
+78. `bash scripts/run-asm-corpus.sh --runner mmio` (WSL Ubuntu): PASS
+79. `bash scripts/run-asm-corpus.sh --runner mmio_wait` (WSL Ubuntu): PASS
+80. `bash scripts/run-asm-corpus.sh --runner apb` (WSL Ubuntu): PASS
+81. `bash scripts/run-asm-corpus.sh --runner wishbone` (WSL Ubuntu): PASS
+82. `bash scripts/run-mutations.sh` (WSL Ubuntu): PASS
+83. `.\scripts\check-python-model.ps1`: PASS
+84. `.\scripts\show-model-trace.ps1 --bytes 0x13 0x40 0x80`: PASS
+85. `bash scripts/check-python-model.sh` (WSL Ubuntu): PASS
+86. `bash scripts/show-model-trace.sh --asm programs/counter_loop.asm --format json --output sim_build/model_trace/counter_loop.json` (WSL Ubuntu): PASS
+87. `.\scripts\generate-isa-docs.ps1 --check`: PASS
+88. `bash scripts/generate-isa-docs.sh --check` (WSL Ubuntu): PASS
+89. `.\scripts\generate-asm-corpus-docs.ps1 --check`: PASS
+90. `bash scripts/generate-asm-corpus-docs.sh --check` (WSL Ubuntu): PASS
+91. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
+92. `.\scripts\show-formal-status.ps1`: PASS
+93. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
+94. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
+95. `bash scripts/export-status.sh --label tutorial-regression`: PASS
+96. Target-only `formal/simple_cpu_wishbone_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
+97. Target-only `formal/simple_cpu_axi_lite_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
 
 ## Test strategy
 
@@ -264,6 +266,8 @@
 | `SimpleCpuUvmCoverageRegressionTest` | `tb/test_simple_cpu_pyuvm.py` | Deterministic + randomized pyuvm regression with subscriber-based coverage report emission. |
 | `SimpleCpuUvmProgramWriteStallTest` | `tb/test_simple_cpu_pyuvm.py` | pyuvm BFM-level proof that asserted `prog_we` stalls architectural state while a future instruction patch is staged. |
 | `run-asm-corpus` | `scripts/check_asm_corpus.py` + wrappers | Manifest-driven assembler regression corpus; checks bytes, final state, and coverage signatures. |
+| `test_asm_unit` | `tb/test_asm_unit.py` | Pytest checks for assembler labels, `.org`, raw bytes, rejection paths, manifest completeness, and generated corpus docs. |
+| `generate-asm-corpus-docs` | `scripts/asm_corpus_report.py` + wrappers | Generates and checks `docs/assembler-regressions.md` from the corpus manifest and reference model. |
 | `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants across the core, APB, Wishbone, AXI-Lite, and wait-state shells, then confirms the native benches kill them. |
 | `run-formal --mode cover` | `scripts/run-formal.*` + `formal/*cover*` | Generates witness traces for representative core/MMIO reachable scenarios. |
 | `run-equiv` | `scripts/run-equiv.*` + `equiv/simple_cpu.eqy` | Proves the current core matches the tracked golden RTL snapshot. |
@@ -333,39 +337,40 @@ Implementation note:
 9. `tb/simple_cpu_mmio_wait_assertions.sv` is the parallel wait-state checker for delayed `bus_ready`, request capture, stable pending transaction fields, and the shared wrapper invariants from the common checker library.
 10. `tb/simple_cpu_apb_assertions.sv` is the parallel APB checker for setup/access sequencing, `PREADY` gating, and the shared wrapper invariants from the common checker library.
 11. `tb/simple_cpu_axi_lite_assertions.sv` is the parallel AXI-Lite checker for coupled write-channel acceptance, response hold/clear, read-response behavior, and the shared wrapper invariants from the common checker library.
-11. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the MMIO wrapper coverage report without opening JSON manually.
-12. `scripts/show-mmio-wait-coverage.ps1` / `scripts/show-mmio-wait-coverage.sh` summarize the wait-state MMIO wrapper coverage report without opening JSON manually.
-13. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
-14. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
-15. `scripts/show-wishbone-fault-coverage.ps1` / `scripts/show-wishbone-fault-coverage.sh` summarize the Wishbone fault-injection coverage report without opening JSON manually.
-15. `scripts/show-axi-lite-fault-coverage.ps1` / `scripts/show-axi-lite-fault-coverage.sh` summarize the AXI-Lite fault-injection coverage report without opening JSON manually.
-15. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
-16. CI workflow is in `.github/workflows/ci.yml` and is split into python-model, native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `python-model` job checks the executable reference spec before longer simulator jobs, the `native-sim` job runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, Wishbone fault, and AXI-Lite fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
-17. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
-18. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, AXI-Lite, AXI-Lite-fault, and cover targets.
-19. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_fault_coverage`, `axi_lite_cocotb`, and `axi_lite_pyuvm`.
-20. `tb/protocol_conformance.py` is the shared scenario library that replays the same smoke, logic, loop, branch-stress, and randomized programs across the direct core, MMIO, APB, Wishbone, and AXI-Lite buses.
-21. `tb/core_bus.py`, `tb/mmio_bus.py`, `tb/apb_bus.py`, `tb/wishbone_bus.py`, and `tb/axi_lite_bus.py` expose the same high-level load/start/sample interface so the shared conformance suite can verify wrapper parity instead of only per-wrapper local tests.
-22. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
-23. `formal/simple_cpu_mmio_wait.sby` swaps in an abstract `simple_cpu_mmio` stub so the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through instead of re-proving MMIO internals.
-24. `formal/simple_cpu_mmio_wait_faults.sby` keeps a separate wait-state fault proof focused on captured-request integrity under later external bus glitches and on forbidding early `bus_ready` responses.
-25. `formal/simple_cpu_apb.sby` swaps in an abstract `simple_cpu_mmio` stub so the APB proof focuses on setup/access handshake behavior and MMIO read-data pass-through instead of re-proving MMIO internals.
-26. `formal/simple_cpu_apb_faults.sby` keeps APB fault proofs separate from the baseline APB shell contract by driving deterministic setup/glitch/reload sequences through a small stateful MMIO stub.
-27. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
-28. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
-29. `scripts/linux/oss-cad-suite.sh` centralizes Linux OSS CAD Suite release selection, retrying GitHub release queries/downloads and honoring `OSS_CAD_SUITE_RELEASE_TAG` for reproducible CI runs.
-30. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
-31. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
-32. `formal/simple_cpu_wishbone.sby` swaps in an abstract `simple_cpu_mmio` stub so the Wishbone proof focuses on `CYC/STB/ACK` translation and MMIO read-data pass-through instead of re-proving MMIO internals.
-33. `formal/simple_cpu_wishbone_faults.sby` keeps Wishbone fault proofs separate from the baseline Wishbone shell contract by driving deterministic `CYC`-only, `STB`-without-`CYC`, and reload sequences through a small stateful MMIO stub.
-34. `formal/simple_cpu_axi_lite.sby` swaps in an abstract `simple_cpu_mmio` stub so the AXI-Lite proof focuses on coupled-channel write acceptance, response hold/clear, partial-write rejection, and registered read-data capture.
-35. `formal/simple_cpu_axi_lite_faults.sby` keeps AXI-Lite fault proofs separate from the baseline AXI-Lite shell contract by driving deterministic `AWVALID`-only, `WVALID`-only, split-channel, pending-response, and reload sequences through a small stateful MMIO stub.
-36. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
-37. `tb/cpu_lib.py` exposes disassembly and cycle-by-cycle trace helpers so the Python reference model can be used as both a scoreboard oracle and a human-readable debug tool.
-38. `docs/isa.md` is generated by `scripts/isa_report.py` and checked in CI so opcode metadata remains aligned across the assembler and Python reference model.
-33. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
-34. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
-35. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
+12. `scripts/show-mmio-coverage.ps1` / `scripts/show-mmio-coverage.sh` summarize the MMIO wrapper coverage report without opening JSON manually.
+13. `scripts/show-mmio-wait-coverage.ps1` / `scripts/show-mmio-wait-coverage.sh` summarize the wait-state MMIO wrapper coverage report without opening JSON manually.
+14. `scripts/show-apb-coverage.ps1` / `scripts/show-apb-coverage.sh` summarize the APB wrapper coverage report without opening JSON manually.
+15. `scripts/show-apb-fault-coverage.ps1` / `scripts/show-apb-fault-coverage.sh` summarize the APB fault-injection coverage report without opening JSON manually.
+16. `scripts/show-wishbone-fault-coverage.ps1` / `scripts/show-wishbone-fault-coverage.sh` summarize the Wishbone fault-injection coverage report without opening JSON manually.
+17. `scripts/show-axi-lite-fault-coverage.ps1` / `scripts/show-axi-lite-fault-coverage.sh` summarize the AXI-Lite fault-injection coverage report without opening JSON manually.
+18. `scripts/coverage_history.py` plus wrapper commands track core/MMIO/MMIO-wait/APB coverage snapshots in `docs/coverage-history.json` and render ASCII trend output.
+19. CI workflow is in `.github/workflows/ci.yml` and is split into python-model, native-sim, lint, formal, cocotb-verilator, equivalence, pyuvm, mutations, and summary jobs; the `python-model` job checks the executable reference spec before longer simulator jobs, the `native-sim` job runs the direct core, MMIO, MMIO wait-state, APB, Wishbone, AXI-Lite, APB fault, Wishbone fault, and AXI-Lite fault native lanes plus corpus replay through APB, Wishbone, AXI-Lite, and MMIO wait-state, while the `pyuvm` job runs the direct pyuvm, MMIO pyuvm, MMIO cocotb, MMIO wait-state cocotb, MMIO wait-state pyuvm, APB cocotb, APB pyuvm, Wishbone cocotb, Wishbone pyuvm, AXI-Lite cocotb, and AXI-Lite pyuvm regressions.
+20. Baseline comparisons are run through `scripts/check-coverage-delta.ps1` and `scripts/check-coverage-delta.sh`.
+21. `scripts/show-formal-status.ps1` / `scripts/show-formal-status.sh` summarize formal target health and solver/runtime metadata across core, MMIO, MMIO wait-state, MMIO wait-state fault, APB, APB-fault, Wishbone, Wishbone-fault, AXI-Lite, AXI-Lite-fault, and cover targets.
+22. `scripts/export-status.ps1` / `scripts/export-status.sh` export repo-tracked verification status Markdown/JSON plus badge endpoint payloads, including optional suite summaries such as `mmio_wait_coverage`, `pyuvm_coverage`, `cocotb_verilator`, `mmio_cocotb`, `mmio_pyuvm`, `mmio_wait_cocotb`, `mmio_wait_pyuvm`, `apb_coverage`, `apb_fault_coverage`, `apb_cocotb`, `apb_pyuvm`, `wishbone_coverage`, `wishbone_fault_coverage`, `wishbone_cocotb`, `wishbone_pyuvm`, `axi_lite_coverage`, `axi_lite_fault_coverage`, `axi_lite_cocotb`, and `axi_lite_pyuvm`.
+23. `tb/protocol_conformance.py` is the shared scenario library that replays the same smoke, logic, loop, branch-stress, and randomized programs across the direct core, MMIO, APB, Wishbone, and AXI-Lite buses.
+24. `tb/core_bus.py`, `tb/mmio_bus.py`, `tb/apb_bus.py`, `tb/wishbone_bus.py`, and `tb/axi_lite_bus.py` expose the same high-level load/start/sample interface so the shared conformance suite can verify wrapper parity instead of only per-wrapper local tests.
+25. `formal/simple_cpu_mmio.sby` swaps in an abstract `simple_cpu` stub so the wrapper proof focuses on MMIO control/address behavior instead of re-proving CPU internals.
+26. `formal/simple_cpu_mmio_wait.sby` swaps in an abstract `simple_cpu_mmio` stub so the wait-state proof focuses on request latching, fixed-cycle delay, and delayed read-data pass-through instead of re-proving MMIO internals.
+27. `formal/simple_cpu_mmio_wait_faults.sby` keeps a separate wait-state fault proof focused on captured-request integrity under later external bus glitches and on forbidding early `bus_ready` responses.
+28. `formal/simple_cpu_apb.sby` swaps in an abstract `simple_cpu_mmio` stub so the APB proof focuses on setup/access handshake behavior and MMIO read-data pass-through instead of re-proving MMIO internals.
+29. `formal/simple_cpu_apb_faults.sby` keeps APB fault proofs separate from the baseline APB shell contract by driving deterministic setup/glitch/reload sequences through a small stateful MMIO stub.
+30. The dedicated `formal/*cover_formal.sv` harnesses keep `sby cover` focused on one witness goal per target so trace generation stays fast.
+31. `scripts/run-cocotb-verilator.sh` auto-uses a cached Linux OSS CAD Suite Verilator when the distro package is too old for cocotb.
+32. `scripts/linux/oss-cad-suite.sh` centralizes Linux OSS CAD Suite release selection, retrying GitHub release queries/downloads and honoring `OSS_CAD_SUITE_RELEASE_TAG` for reproducible CI runs.
+33. `scripts/static_analysis.py` is the single entry point behind `lint`, `show-static-analysis`, and `format-sv`.
+34. `equiv/simple_cpu_golden.sv` is the tracked golden snapshot; refresh it intentionally with `scripts/update-equivalence-golden.*` only when the new RTL behavior is meant to become the baseline.
+35. `formal/simple_cpu_wishbone.sby` swaps in an abstract `simple_cpu_mmio` stub so the Wishbone proof focuses on `CYC/STB/ACK` translation and MMIO read-data pass-through instead of re-proving MMIO internals.
+36. `formal/simple_cpu_wishbone_faults.sby` keeps Wishbone fault proofs separate from the baseline Wishbone shell contract by driving deterministic `CYC`-only, `STB`-without-`CYC`, and reload sequences through a small stateful MMIO stub.
+37. `formal/simple_cpu_axi_lite.sby` swaps in an abstract `simple_cpu_mmio` stub so the AXI-Lite proof focuses on coupled-channel write acceptance, response hold/clear, partial-write rejection, and registered read-data capture.
+38. `formal/simple_cpu_axi_lite_faults.sby` keeps AXI-Lite fault proofs separate from the baseline AXI-Lite shell contract by driving deterministic `AWVALID`-only, `WVALID`-only, split-channel, pending-response, and reload sequences through a small stateful MMIO stub.
+39. Verible intentionally excludes `rtl/simple_cpu_mmio.sv`, `rtl/simple_cpu_mmio_wait.sv`, `rtl/simple_cpu_apb.sv`, `rtl/simple_cpu_wishbone.sv`, and `rtl/simple_cpu_axi_lite.sv`; those files remain covered by Verilator lint and svlint.
+40. `tb/cpu_lib.py` exposes disassembly and cycle-by-cycle trace helpers so the Python reference model can be used as both a scoreboard oracle and a human-readable debug tool.
+41. `docs/isa.md` is generated by `scripts/isa_report.py` and checked in CI so opcode metadata remains aligned across the assembler and Python reference model.
+42. `docs/assembler-regressions.md` is generated by `scripts/asm_corpus_report.py` and checked in CI so the tracked assembly corpus has a readable, non-stale summary.
+43. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
+44. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
+45. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
 
 Formal properties currently checked:
 

@@ -113,7 +113,7 @@ $env:PYTHONPATH = (Get-Location).Path + $(if ($env:PYTHONPATH) { ";$env:PYTHONPA
 
 $pytestArgs = @()
 $pytestArgs += $pythonCmd.Arguments
-$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py")
+$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py")
 & $pythonCmd.Executable @pytestArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -123,6 +123,14 @@ $isaArgs = @()
 $isaArgs += $pythonCmd.Arguments
 $isaArgs += @("scripts/isa_report.py", "--check")
 & $pythonCmd.Executable @isaArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$asmCorpusDocArgs = @()
+$asmCorpusDocArgs += $pythonCmd.Arguments
+$asmCorpusDocArgs += @("scripts/asm_corpus_report.py", "--check")
+& $pythonCmd.Executable @asmCorpusDocArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
