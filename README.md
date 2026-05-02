@@ -164,6 +164,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- asm.py
 |  |- asm_corpus_report.py
 |  |- isa_report.py
+|  |- mutation_catalog.py
 |  |- README.md
 |  |- check_asm_corpus.py
 |  |- export_status.py
@@ -272,6 +273,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
+|  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
 |  |- run-cocotb-verilator.ps1 / run-cocotb-verilator.sh (wrappers)
@@ -306,6 +308,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- assembler-regressions.md
 |  |- coverage-baseline.json
 |  |- isa.md
+|  |- mutation-catalog.md
 |  |- status/
 |  |  |- status.json
 |  |  |- status.md
@@ -372,6 +375,18 @@ Regenerate it after intentional corpus edits:
 
 ```bash
 bash scripts/generate-asm-corpus-docs.sh
+```
+
+The mutation catalog is generated and tracked in `docs/mutation-catalog.md`. It is checked by the Python reference-model CI lane so mutation names, bench scopes, target paths, and replacement snippets cannot drift silently.
+
+Regenerate it after intentional mutation edits:
+
+```powershell
+.\scripts\generate-mutation-catalog.ps1
+```
+
+```bash
+bash scripts/generate-mutation-catalog.sh
 ```
 
 ## Quick start (recommended path)
@@ -1467,6 +1482,8 @@ Artifacts:
 
 The project includes an optional mutation campaign that compiles temporary broken RTL variants and confirms the regressions fail.
 
+The generated mutation catalog is tracked in `docs/mutation-catalog.md`; it is the source to read for the current mutant list, categories, target files, and bench scope. The Python-model lane checks that the catalog is fresh and that every mutation definition still references valid files, valid benches, and an applicable RTL snippet.
+
 Run it from PowerShell:
 
 ```powershell
@@ -1489,34 +1506,15 @@ Readable summary commands:
 bash scripts/show-mutations.sh
 ```
 
-Current mutants:
+Regenerate the tracked catalog after intentional mutation edits:
 
-1. inverted `JZ` branch condition
-2. disabled `STA` writes
-3. broken `SHL` carry-out
-4. illegal-opcode path that no longer halts
-5. `ADD` driven from the subtraction datapath
-6. `SUB` driven from the addition datapath
-7. `JMP` forced to fall through
-8. `CMP` incorrectly clobbers `ACC`
-9. `HLT` no longer stops execution
-10. APB setup phase incorrectly driving the inner MMIO bus
-11. APB `PREADY` incorrectly ignoring the valid phase
-12. APB readback forced low
-13. APB write polarity inverted before the MMIO shell
-14. MMIO-wait zero-delay handshake
-15. MMIO-wait `bus_ready` asserted one cycle too early
-16. MMIO-wait readback forced low
-17. MMIO-wait write data dropped before the inner MMIO shell
-18. Wishbone `CYC` incorrectly acting like a complete `CYC/STB` request
-19. Wishbone `ACK` incorrectly ignoring the valid phase
-20. Wishbone readback forced low
-21. Wishbone write polarity inverted before the MMIO shell
-22. AXI-Lite write accepted with only `AWVALID`
-23. AXI-Lite write response forced low
-24. AXI-Lite readback forced low
-25. AXI-Lite pending `BVALID` incorrectly allowing a second write
-26. AXI-Lite write polarity inverted before the MMIO shell
+```powershell
+.\scripts\generate-mutation-catalog.ps1
+```
+
+```bash
+bash scripts/generate-mutation-catalog.sh
+```
 
 Artifacts:
 

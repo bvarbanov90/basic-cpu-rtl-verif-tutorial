@@ -101,13 +101,15 @@
 88. `bash scripts/generate-isa-docs.sh --check` (WSL Ubuntu): PASS
 89. `.\scripts\generate-asm-corpus-docs.ps1 --check`: PASS
 90. `bash scripts/generate-asm-corpus-docs.sh --check` (WSL Ubuntu): PASS
-91. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
-92. `.\scripts\show-formal-status.ps1`: PASS
-93. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
-94. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
-95. `bash scripts/export-status.sh --label tutorial-regression`: PASS
-96. Target-only `formal/simple_cpu_wishbone_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
-97. Target-only `formal/simple_cpu_axi_lite_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
+91. `.\scripts\generate-mutation-catalog.ps1 --check`: PASS
+92. `bash scripts/generate-mutation-catalog.sh --check` (WSL Ubuntu): PASS
+93. `bash scripts/show-mutations.sh` (WSL Ubuntu): PASS
+94. `.\scripts\show-formal-status.ps1`: PASS
+95. `.\scripts\export-status.ps1 -Label tutorial-regression`: PASS
+96. `bash scripts/show-formal-status.sh` (WSL Ubuntu): PASS
+97. `bash scripts/export-status.sh --label tutorial-regression`: PASS
+98. Target-only `formal/simple_cpu_wishbone_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
+99. Target-only `formal/simple_cpu_axi_lite_faults.sby` run with a `cvc5` solver override: PASS (1 second on Windows)
 
 ## Test strategy
 
@@ -268,6 +270,8 @@
 | `run-asm-corpus` | `scripts/check_asm_corpus.py` + wrappers | Manifest-driven assembler regression corpus; checks bytes, final state, and coverage signatures. |
 | `test_asm_unit` | `tb/test_asm_unit.py` | Pytest checks for assembler labels, `.org`, raw bytes, rejection paths, manifest completeness, and generated corpus docs. |
 | `generate-asm-corpus-docs` | `scripts/asm_corpus_report.py` + wrappers | Generates and checks `docs/assembler-regressions.md` from the corpus manifest and reference model. |
+| `test_mutation_unit` | `tb/test_mutation_unit.py` | Pytest checks for mutation definition validity, applicable RTL snippets, and generated mutation catalog freshness. |
+| `generate-mutation-catalog` | `scripts/mutation_catalog.py` + wrappers | Generates and checks `docs/mutation-catalog.md` from mutation definitions and bench scopes. |
 | `run-mutations` | `scripts/run_mutation_campaign.py` + wrappers | Builds temporary broken RTL variants across the core, APB, Wishbone, AXI-Lite, and wait-state shells, then confirms the native benches kill them. |
 | `run-formal --mode cover` | `scripts/run-formal.*` + `formal/*cover*` | Generates witness traces for representative core/MMIO reachable scenarios. |
 | `run-equiv` | `scripts/run-equiv.*` + `equiv/simple_cpu.eqy` | Proves the current core matches the tracked golden RTL snapshot. |
@@ -304,25 +308,26 @@ Coverage artifacts:
 15. `sim_build/apb_fault_coverage.json` / `sim_build/apb_fault_coverage.csv` (APB fault-injection coverage)
 16. `sim_build/wishbone_fault_coverage.json` / `sim_build/wishbone_fault_coverage.csv` (Wishbone fault-injection coverage)
 17. `sim_build/axi_lite_fault_coverage.json` / `sim_build/axi_lite_fault_coverage.csv` (AXI-Lite fault-injection coverage)
-16. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
-15. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
-16. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
-17. `sim_build/mmio_cocotb_results.xml` (MMIO cocotb regression results)
-18. `sim_build/mmio_uvm_results.xml` (MMIO pyuvm regression results)
-19. `sim_build/mmio_wait_cocotb_results.xml` (MMIO wait-state cocotb regression results)
-20. `sim_build/mmio_wait_uvm_results.xml` (MMIO wait-state pyuvm regression results)
-21. `sim_build/verilator_results.xml` (core cocotb-Verilator JUnit results)
-22. `sim_build/apb_cocotb_results.xml` (APB cocotb regression results)
-23. `sim_build/apb_uvm_results.xml` (APB pyuvm regression results)
-24. `sim_build/wishbone_cocotb_results.xml` (Wishbone cocotb regression results)
-25. `sim_build/wishbone_uvm_results.xml` (Wishbone pyuvm regression results)
-26. `sim_build/axi_lite_cocotb_results.xml` (AXI-Lite cocotb regression results)
-27. `sim_build/axi_lite_uvm_results.xml` (AXI-Lite pyuvm regression results)
-24. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
+18. `sim_build/verilator_coverage/summary.json` / `sim_build/verilator_coverage/summary.md` (Verilator structural coverage summary)
+19. `sim_build/verilator_coverage/annotated/` (annotated source view for uncovered points)
+20. `sim_build/static_analysis/summary.json` / `sim_build/static_analysis/summary.md` (static-analysis aggregate summary)
+21. `sim_build/mmio_cocotb_results.xml` (MMIO cocotb regression results)
+22. `sim_build/mmio_uvm_results.xml` (MMIO pyuvm regression results)
+23. `sim_build/mmio_wait_cocotb_results.xml` (MMIO wait-state cocotb regression results)
+24. `sim_build/mmio_wait_uvm_results.xml` (MMIO wait-state pyuvm regression results)
+25. `sim_build/verilator_results.xml` (core cocotb-Verilator JUnit results)
+26. `sim_build/apb_cocotb_results.xml` (APB cocotb regression results)
+27. `sim_build/apb_uvm_results.xml` (APB pyuvm regression results)
+28. `sim_build/wishbone_cocotb_results.xml` (Wishbone cocotb regression results)
+29. `sim_build/wishbone_uvm_results.xml` (Wishbone pyuvm regression results)
+30. `sim_build/axi_lite_cocotb_results.xml` (AXI-Lite cocotb regression results)
+31. `sim_build/axi_lite_uvm_results.xml` (AXI-Lite pyuvm regression results)
+32. `equiv/simple_cpu_eqy/` (EQY workdir and proof partitions)
 
 Additional outputs:
 
 1. `sim_build/program.hex` (from assembler flow)
+2. `docs/mutation-catalog.md` (generated mutation definition and bench-scope catalog)
 
 Implementation note:
 
@@ -368,9 +373,10 @@ Implementation note:
 40. `tb/cpu_lib.py` exposes disassembly and cycle-by-cycle trace helpers so the Python reference model can be used as both a scoreboard oracle and a human-readable debug tool.
 41. `docs/isa.md` is generated by `scripts/isa_report.py` and checked in CI so opcode metadata remains aligned across the assembler and Python reference model.
 42. `docs/assembler-regressions.md` is generated by `scripts/asm_corpus_report.py` and checked in CI so the tracked assembly corpus has a readable, non-stale summary.
-43. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
-44. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
-45. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
+43. `docs/mutation-catalog.md` is generated by `scripts/mutation_catalog.py` and checked in CI so mutation definitions, bench scopes, and RTL replacement snippets remain reviewable and valid.
+44. `tb/mmio_bus.py` factors the cocotb MMIO reset/read/write/control helpers into a reusable Python bus-functional layer and now waits for delayed `bus_ready`, so the same helper can drive both the always-ready and wait-state wrappers.
+45. `tb/apb_bus.py` is the parallel reusable Python bus-functional layer for the APB shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real setup/access handshake.
+46. `tb/wishbone_bus.py` is the parallel reusable Python bus-functional layer for the Wishbone shell, keeping the higher-level control/status semantics aligned with MMIO while checking a real `CYC/STB/ACK` handshake.
 
 Formal properties currently checked:
 

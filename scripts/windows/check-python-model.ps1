@@ -113,7 +113,7 @@ $env:PYTHONPATH = (Get-Location).Path + $(if ($env:PYTHONPATH) { ";$env:PYTHONPA
 
 $pytestArgs = @()
 $pytestArgs += $pythonCmd.Arguments
-$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py")
+$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py")
 & $pythonCmd.Executable @pytestArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -131,6 +131,14 @@ $asmCorpusDocArgs = @()
 $asmCorpusDocArgs += $pythonCmd.Arguments
 $asmCorpusDocArgs += @("scripts/asm_corpus_report.py", "--check")
 & $pythonCmd.Executable @asmCorpusDocArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$mutationCatalogArgs = @()
+$mutationCatalogArgs += $pythonCmd.Arguments
+$mutationCatalogArgs += @("scripts/mutation_catalog.py", "--check")
+& $pythonCmd.Executable @mutationCatalogArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
