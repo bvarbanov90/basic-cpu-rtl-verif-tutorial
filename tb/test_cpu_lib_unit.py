@@ -4,6 +4,7 @@ from dataclasses import asdict
 
 import pytest
 
+from scripts.asm import OPCODES
 from tb.cpu_lib import (
     MEM_SIZE,
     OPC_ADD,
@@ -12,6 +13,10 @@ from tb.cpu_lib import (
     OPC_LDI,
     OPC_SHL,
     OPC_STA,
+    OPCODE_NAMES,
+    OPCODES_WITH_DMEM_READ,
+    OPCODES_WITH_DMEM_WRITE,
+    OPCODES_WITH_OPERANDS,
     ReferenceCPU,
     build_add_carry_program,
     build_branch_stress_program,
@@ -29,6 +34,17 @@ from tb.cpu_lib import (
     ins,
     opcode_name,
 )
+
+
+def test_assembler_opcode_table_matches_reference_model_metadata() -> None:
+    asm_by_opcode = {opcode: (mnemonic, mode) for mnemonic, (opcode, mode) in OPCODES.items()}
+
+    assert set(asm_by_opcode) == set(OPCODE_NAMES)
+    for opcode, mnemonic in OPCODE_NAMES.items():
+        asm_mnemonic, asm_mode = asm_by_opcode[opcode]
+        assert asm_mnemonic == mnemonic
+        assert (asm_mode == "nibble") == (opcode in OPCODES_WITH_OPERANDS)
+        assert not (opcode in OPCODES_WITH_DMEM_READ and opcode in OPCODES_WITH_DMEM_WRITE)
 
 
 def run_program(program: list[int], max_cycles: int = 128) -> tuple[ReferenceCPU, list]:

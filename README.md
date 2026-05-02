@@ -162,6 +162,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- test_simple_cpu_pyuvm.py
 |- scripts/
 |  |- asm.py
+|  |- isa_report.py
 |  |- README.md
 |  |- check_asm_corpus.py
 |  |- export_status.py
@@ -302,6 +303,7 @@ basic-cpu-rlt--verif-tutorial/
 |- docs/
 |  |- assembler-regressions.json
 |  |- coverage-baseline.json
+|  |- isa.md
 |  |- status/
 |  |  |- status.json
 |  |  |- status.md
@@ -345,6 +347,18 @@ Script organization note:
 | `0xD` | `SHR` | `ACC = ACC >> 1` |
 | `0xE` | `CMP addr4` | update flags from `ACC - DMEM[addr4]` (no write to `ACC`) |
 | `0xF` | `ILLEGAL` | default trap-to-halt behavior |
+
+The detailed generated ISA reference is tracked in `docs/isa.md`. It is checked by the Python reference-model CI lane so the assembler opcode table and executable reference model cannot drift silently.
+
+Regenerate it after intentional ISA edits:
+
+```powershell
+.\scripts\generate-isa-docs.ps1
+```
+
+```bash
+bash scripts/generate-isa-docs.sh
+```
 
 ## Quick start (recommended path)
 

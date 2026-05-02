@@ -119,6 +119,14 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+$isaArgs = @()
+$isaArgs += $pythonCmd.Arguments
+$isaArgs += @("scripts/isa_report.py", "--check")
+& $pythonCmd.Executable @isaArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
 New-Item -ItemType Directory -Force -Path "sim_build/model_trace" | Out-Null
 
 $traceArgs = @()
