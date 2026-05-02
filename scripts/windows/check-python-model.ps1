@@ -113,7 +113,7 @@ $env:PYTHONPATH = (Get-Location).Path + $(if ($env:PYTHONPATH) { ";$env:PYTHONPA
 
 $pytestArgs = @()
 $pytestArgs += $pythonCmd.Arguments
-$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py")
+$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py")
 & $pythonCmd.Executable @pytestArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -155,6 +155,14 @@ $scriptCatalogArgs = @()
 $scriptCatalogArgs += $pythonCmd.Arguments
 $scriptCatalogArgs += @("scripts/script_catalog.py", "--check")
 & $pythonCmd.Executable @scriptCatalogArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$ciCatalogArgs = @()
+$ciCatalogArgs += $pythonCmd.Arguments
+$ciCatalogArgs += @("scripts/ci_catalog.py", "--check")
+& $pythonCmd.Executable @ciCatalogArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

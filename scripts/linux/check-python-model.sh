@@ -52,12 +52,13 @@ fi
 
 export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 
-"${PYTHON_BIN}" -m pytest -q tb/test_cpu_lib_unit.py tb/test_asm_unit.py tb/test_mutation_unit.py tb/test_formal_catalog_unit.py tb/test_script_catalog_unit.py
+"${PYTHON_BIN}" -m pytest -q tb/test_cpu_lib_unit.py tb/test_asm_unit.py tb/test_mutation_unit.py tb/test_formal_catalog_unit.py tb/test_script_catalog_unit.py tb/test_ci_catalog_unit.py
 "${PYTHON_BIN}" scripts/isa_report.py --check
 "${PYTHON_BIN}" scripts/asm_corpus_report.py --check
 "${PYTHON_BIN}" scripts/mutation_catalog.py --check
 "${PYTHON_BIN}" scripts/formal_catalog.py --check
 "${PYTHON_BIN}" scripts/script_catalog.py --check
+"${PYTHON_BIN}" scripts/ci_catalog.py --check
 
 mkdir -p sim_build/model_trace
 "${PYTHON_BIN}" scripts/model_trace.py --builtin smoke --format table --output sim_build/model_trace/smoke.txt
