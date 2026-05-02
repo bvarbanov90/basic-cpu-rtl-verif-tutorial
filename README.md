@@ -167,6 +167,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- isa_report.py
 |  |- mutation_catalog.py
 |  |- README.md
+|  |- script_catalog.py
 |  |- check_asm_corpus.py
 |  |- export_status.py
 |  |- run_mutation_campaign.py
@@ -276,6 +277,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
+|  |- generate-script-catalog.ps1 / generate-script-catalog.sh (wrappers)
 |  |- run-uvm.ps1 / run-uvm.sh (wrappers)
 |  |- run-mmio-uvm.ps1 / run-mmio-uvm.sh (wrappers)
 |  |- run-cocotb-verilator.ps1 / run-cocotb-verilator.sh (wrappers)
@@ -312,6 +314,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- formal-targets.md
 |  |- isa.md
 |  |- mutation-catalog.md
+|  |- script-catalog.md
 |  |- status/
 |  |  |- status.json
 |  |  |- status.md
@@ -390,6 +393,18 @@ Regenerate it after intentional formal-target edits:
 
 ```bash
 bash scripts/generate-formal-catalog.sh
+```
+
+The script catalog is generated and tracked in `docs/script-catalog.md`. It is checked by the Python reference-model CI lane so top-level wrappers, platform implementations, and `scripts/README.md` common entrypoints cannot drift silently.
+
+Regenerate it after intentional script-layout edits:
+
+```powershell
+.\scripts\generate-script-catalog.ps1
+```
+
+```bash
+bash scripts/generate-script-catalog.sh
 ```
 
 The mutation catalog is generated and tracked in `docs/mutation-catalog.md`. It is checked by the Python reference-model CI lane so mutation names, bench scopes, target paths, and replacement snippets cannot drift silently.
