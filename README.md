@@ -443,6 +443,18 @@ Regenerate it after intentional verification-lane edits:
 bash scripts/generate-verification-matrix.sh
 ```
 
+The artifact catalog is generated and tracked in `docs/artifact-catalog.md`. It is checked by the Python reference-model CI lane so verification outputs, formal workdirs, CI upload paths, and `show-*` helper wrappers stay aligned.
+
+Regenerate it after intentional artifact or CI upload edits:
+
+```powershell
+.\scripts\generate-artifact-catalog.ps1
+```
+
+```bash
+bash scripts/generate-artifact-catalog.sh
+```
+
 The mutation catalog is generated and tracked in `docs/mutation-catalog.md`. It is checked by the Python reference-model CI lane so mutation names, bench scopes, target paths, and replacement snippets cannot drift silently.
 
 Regenerate it after intentional mutation edits:
@@ -1045,6 +1057,8 @@ The generated CI catalog in `docs/ci-catalog.md` is the quick review entry point
 The generated tooling catalog in `docs/tooling-catalog.md` is the quick review entry point for Python packages, Ubuntu/WSL apt profiles, Windows tool roots, GitHub release sources, and the CI OSS CAD Suite pin.
 
 The generated verification matrix in `docs/verification-matrix.md` is the quick review entry point for lane coverage across native SV, cocotb, pyuvm, formal, assertions, artifacts, and mutation benches.
+
+The generated artifact catalog in `docs/artifact-catalog.md` is the quick review entry point for result files, coverage reports, formal workdirs, CI upload names, and matching `show-*` commands.
 
 Uploaded artifacts include:
 

@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 61
+- Cross-platform entrypoints: 62
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -20,6 +20,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `check-python-model` | `scripts/check-python-model.ps1` | `scripts/check-python-model.sh` | `scripts/windows/check-python-model.ps1` | `scripts/linux/check-python-model.sh` |  |
 | `export-status` | `scripts/export-status.ps1` | `scripts/export-status.sh` | `scripts/windows/export-status.ps1` | `scripts/linux/export-status.sh` |  |
 | `format-sv` | `scripts/format-sv.ps1` | `scripts/format-sv.sh` | `scripts/windows/format-sv.ps1` | `scripts/linux/format-sv.sh` |  |
+| `generate-artifact-catalog` | `scripts/generate-artifact-catalog.ps1` | `scripts/generate-artifact-catalog.sh` | `scripts/windows/generate-artifact-catalog.ps1` | `scripts/linux/generate-artifact-catalog.sh` |  |
 | `generate-asm-corpus-docs` | `scripts/generate-asm-corpus-docs.ps1` | `scripts/generate-asm-corpus-docs.sh` | `scripts/windows/generate-asm-corpus-docs.ps1` | `scripts/linux/generate-asm-corpus-docs.sh` |  |
 | `generate-ci-catalog` | `scripts/generate-ci-catalog.ps1` | `scripts/generate-ci-catalog.sh` | `scripts/windows/generate-ci-catalog.ps1` | `scripts/linux/generate-ci-catalog.sh` |  |
 | `generate-formal-catalog` | `scripts/generate-formal-catalog.ps1` | `scripts/generate-formal-catalog.sh` | `scripts/windows/generate-formal-catalog.ps1` | `scripts/linux/generate-formal-catalog.sh` |  |
