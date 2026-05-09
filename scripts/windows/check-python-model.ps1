@@ -113,7 +113,7 @@ $env:PYTHONPATH = (Get-Location).Path + $(if ($env:PYTHONPATH) { ";$env:PYTHONPA
 
 $pytestArgs = @()
 $pytestArgs += $pythonCmd.Arguments
-$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py", "tb/test_tooling_catalog_unit.py")
+$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py", "tb/test_tooling_catalog_unit.py", "tb/test_verification_matrix_unit.py")
 & $pythonCmd.Executable @pytestArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -171,6 +171,14 @@ $toolingCatalogArgs = @()
 $toolingCatalogArgs += $pythonCmd.Arguments
 $toolingCatalogArgs += @("scripts/tooling_catalog.py", "--check")
 & $pythonCmd.Executable @toolingCatalogArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$verificationMatrixArgs = @()
+$verificationMatrixArgs += $pythonCmd.Arguments
+$verificationMatrixArgs += @("scripts/verification_matrix.py", "--check")
+& $pythonCmd.Executable @verificationMatrixArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

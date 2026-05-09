@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 60
+- Cross-platform entrypoints: 61
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -27,6 +27,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `generate-mutation-catalog` | `scripts/generate-mutation-catalog.ps1` | `scripts/generate-mutation-catalog.sh` | `scripts/windows/generate-mutation-catalog.ps1` | `scripts/linux/generate-mutation-catalog.sh` |  |
 | `generate-script-catalog` | `scripts/generate-script-catalog.ps1` | `scripts/generate-script-catalog.sh` | `scripts/windows/generate-script-catalog.ps1` | `scripts/linux/generate-script-catalog.sh` |  |
 | `generate-tooling-catalog` | `scripts/generate-tooling-catalog.ps1` | `scripts/generate-tooling-catalog.sh` | `scripts/windows/generate-tooling-catalog.ps1` | `scripts/linux/generate-tooling-catalog.sh` |  |
+| `generate-verification-matrix` | `scripts/generate-verification-matrix.ps1` | `scripts/generate-verification-matrix.sh` | `scripts/windows/generate-verification-matrix.ps1` | `scripts/linux/generate-verification-matrix.sh` |  |
 | `install-tools` | `scripts/install-tools.ps1` | `scripts/install-tools-ubuntu.sh` | `scripts/windows/install-tools.ps1` | `scripts/linux/install-tools-ubuntu.sh` | Installer names differ by platform because the Linux implementation is Ubuntu-specific. |
 | `lint` | `scripts/lint.ps1` | `scripts/lint.sh` | `scripts/windows/lint.ps1` | `scripts/linux/lint.sh` |  |
 | `open-waves` | `scripts/open-waves.ps1` | `scripts/open-waves.sh` | `scripts/windows/open-waves.ps1` | `scripts/linux/open-waves.sh` | Also has `scripts/open-waves.cmd` and `scripts/windows/open-waves.cmd` convenience launchers. |
