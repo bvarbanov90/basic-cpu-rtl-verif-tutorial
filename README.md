@@ -455,6 +455,18 @@ Regenerate it after intentional artifact or CI upload edits:
 bash scripts/generate-artifact-catalog.sh
 ```
 
+The requirements traceability matrix is generated and tracked in `docs/requirements-traceability.md`. It is checked by the Python reference-model CI lane so tutorial verification claims stay connected to executable lanes, formal targets, mutation benches, and review artifacts.
+
+Regenerate it after intentional requirement or lane edits:
+
+```powershell
+.\scripts\generate-requirements-traceability.ps1
+```
+
+```bash
+bash scripts/generate-requirements-traceability.sh
+```
+
 The mutation catalog is generated and tracked in `docs/mutation-catalog.md`. It is checked by the Python reference-model CI lane so mutation names, bench scopes, target paths, and replacement snippets cannot drift silently.
 
 Regenerate it after intentional mutation edits:
@@ -1059,6 +1071,8 @@ The generated tooling catalog in `docs/tooling-catalog.md` is the quick review e
 The generated verification matrix in `docs/verification-matrix.md` is the quick review entry point for lane coverage across native SV, cocotb, pyuvm, formal, assertions, artifacts, and mutation benches.
 
 The generated artifact catalog in `docs/artifact-catalog.md` is the quick review entry point for result files, coverage reports, formal workdirs, CI upload names, and matching `show-*` commands.
+
+The generated requirements traceability matrix in `docs/requirements-traceability.md` is the quick review entry point for claims-to-evidence coverage across lanes, formal targets, mutation benches, and artifacts.
 
 Uploaded artifacts include:
 

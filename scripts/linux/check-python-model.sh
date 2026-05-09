@@ -52,7 +52,7 @@ fi
 
 export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 
-"${PYTHON_BIN}" -m pytest -q tb/test_cpu_lib_unit.py tb/test_asm_unit.py tb/test_mutation_unit.py tb/test_formal_catalog_unit.py tb/test_script_catalog_unit.py tb/test_ci_catalog_unit.py tb/test_tooling_catalog_unit.py tb/test_verification_matrix_unit.py tb/test_artifact_catalog_unit.py
+"${PYTHON_BIN}" -m pytest -q tb/test_cpu_lib_unit.py tb/test_asm_unit.py tb/test_mutation_unit.py tb/test_formal_catalog_unit.py tb/test_script_catalog_unit.py tb/test_ci_catalog_unit.py tb/test_tooling_catalog_unit.py tb/test_verification_matrix_unit.py tb/test_artifact_catalog_unit.py tb/test_requirements_traceability_unit.py
 "${PYTHON_BIN}" scripts/isa_report.py --check
 "${PYTHON_BIN}" scripts/asm_corpus_report.py --check
 "${PYTHON_BIN}" scripts/mutation_catalog.py --check
@@ -62,6 +62,7 @@ export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 "${PYTHON_BIN}" scripts/tooling_catalog.py --check
 "${PYTHON_BIN}" scripts/verification_matrix.py --check
 "${PYTHON_BIN}" scripts/artifact_catalog.py --check
+"${PYTHON_BIN}" scripts/requirements_traceability.py --check
 
 mkdir -p sim_build/model_trace
 "${PYTHON_BIN}" scripts/model_trace.py --builtin smoke --format table --output sim_build/model_trace/smoke.txt

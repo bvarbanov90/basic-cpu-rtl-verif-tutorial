@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 62
+- Cross-platform entrypoints: 63
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -26,6 +26,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `generate-formal-catalog` | `scripts/generate-formal-catalog.ps1` | `scripts/generate-formal-catalog.sh` | `scripts/windows/generate-formal-catalog.ps1` | `scripts/linux/generate-formal-catalog.sh` |  |
 | `generate-isa-docs` | `scripts/generate-isa-docs.ps1` | `scripts/generate-isa-docs.sh` | `scripts/windows/generate-isa-docs.ps1` | `scripts/linux/generate-isa-docs.sh` |  |
 | `generate-mutation-catalog` | `scripts/generate-mutation-catalog.ps1` | `scripts/generate-mutation-catalog.sh` | `scripts/windows/generate-mutation-catalog.ps1` | `scripts/linux/generate-mutation-catalog.sh` |  |
+| `generate-requirements-traceability` | `scripts/generate-requirements-traceability.ps1` | `scripts/generate-requirements-traceability.sh` | `scripts/windows/generate-requirements-traceability.ps1` | `scripts/linux/generate-requirements-traceability.sh` |  |
 | `generate-script-catalog` | `scripts/generate-script-catalog.ps1` | `scripts/generate-script-catalog.sh` | `scripts/windows/generate-script-catalog.ps1` | `scripts/linux/generate-script-catalog.sh` |  |
 | `generate-tooling-catalog` | `scripts/generate-tooling-catalog.ps1` | `scripts/generate-tooling-catalog.sh` | `scripts/windows/generate-tooling-catalog.ps1` | `scripts/linux/generate-tooling-catalog.sh` |  |
 | `generate-verification-matrix` | `scripts/generate-verification-matrix.ps1` | `scripts/generate-verification-matrix.sh` | `scripts/windows/generate-verification-matrix.ps1` | `scripts/linux/generate-verification-matrix.sh` |  |
