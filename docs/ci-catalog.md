@@ -10,6 +10,8 @@ This page is generated from `.github/workflows/ci.yml` and checked by the Python
 - Workflow file: `.github/workflows/ci.yml`
 - Trigger scope: pushes and pull requests targeting `main`
 - Pinned OSS CAD Suite release: `2026-04-26`
+- Concurrency group: `${{ github.workflow }}-${{ github.ref }}`
+- Cancel superseded in-progress runs: `true`
 - Jobs: 9
 - Artifact uploads: 8
 

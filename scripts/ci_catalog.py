@@ -60,6 +60,8 @@ class WorkflowInfo:
     name: str
     workflow_path: str
     oss_cad_suite_release_tag: str | None
+    concurrency_group: str | None
+    cancel_in_progress: str | None
     jobs: tuple[JobInfo, ...]
 
 
@@ -202,6 +204,8 @@ def parse_workflow() -> WorkflowInfo:
     lines = text.splitlines()
     name_match = re.search(r"^name:\s*(.+?)\s*$", text, re.M)
     release_match = re.search(r"^[ \t]+OSS_CAD_SUITE_RELEASE_TAG:[ \t]*\"?([^\"\n]+)\"?[ \t]*$", text, re.M)
+    concurrency_group_match = re.search(r"^  group:\s*(.+?)\s*$", text, re.M)
+    cancel_match = re.search(r"^  cancel-in-progress:\s*(.+?)\s*$", text, re.M)
 
     jobs = []
     for name, block in _extract_job_blocks(lines).items():
@@ -220,6 +224,8 @@ def parse_workflow() -> WorkflowInfo:
         name=name_match.group(1).strip() if name_match else "<unnamed>",
         workflow_path=rel(WORKFLOW_PATH),
         oss_cad_suite_release_tag=release_match.group(1).strip() if release_match else None,
+        concurrency_group=concurrency_group_match.group(1).strip() if concurrency_group_match else None,
+        cancel_in_progress=cancel_match.group(1).strip() if cancel_match else None,
         jobs=tuple(jobs),
     )
 
@@ -265,6 +271,12 @@ def validate_workflow() -> list[str]:
 
     if not workflow.oss_cad_suite_release_tag:
         failures.append("CI workflow must pin OSS_CAD_SUITE_RELEASE_TAG")
+    if not workflow.concurrency_group:
+        failures.append("CI workflow must define concurrency group")
+    elif "${{ github.workflow }}" not in workflow.concurrency_group or "${{ github.ref }}" not in workflow.concurrency_group:
+        failures.append("CI concurrency group must include github.workflow and github.ref")
+    if workflow.cancel_in_progress != "true":
+        failures.append("CI workflow must cancel superseded in-progress runs")
 
     return failures
 
@@ -297,6 +309,8 @@ def render_markdown() -> str:
         f"- Workflow file: `{workflow.workflow_path}`",
         "- Trigger scope: pushes and pull requests targeting `main`",
         f"- Pinned OSS CAD Suite release: `{workflow.oss_cad_suite_release_tag}`",
+        f"- Concurrency group: `{workflow.concurrency_group}`",
+        f"- Cancel superseded in-progress runs: `{workflow.cancel_in_progress}`",
         f"- Jobs: {len(workflow.jobs)}",
         f"- Artifact uploads: {artifact_count}",
         "",

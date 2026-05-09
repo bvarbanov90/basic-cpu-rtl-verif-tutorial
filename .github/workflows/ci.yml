@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   # Keep CI reproducible; refresh intentionally after validating a newer daily OSS CAD Suite.
   OSS_CAD_SUITE_RELEASE_TAG: "2026-04-26"

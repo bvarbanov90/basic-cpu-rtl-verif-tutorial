@@ -17,6 +17,8 @@ def test_ci_workflow_has_expected_job_shape() -> None:
 
     assert workflow.name == "CI"
     assert workflow.oss_cad_suite_release_tag
+    assert workflow.concurrency_group == "${{ github.workflow }}-${{ github.ref }}"
+    assert workflow.cancel_in_progress == "true"
     assert {
         "python-model",
         "native-sim",
