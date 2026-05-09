@@ -272,6 +272,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run.sh (wrapper)
 |  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
 |  |- check-native.ps1 / check-native.sh (wrappers)
+|  |- check-generated-docs.ps1 / check-generated-docs.sh (wrappers)
 |  |- run-mmio.ps1 / run-mmio.sh (wrappers)
 |  |- run-mmio-wait.ps1 / run-mmio-wait.sh (wrappers)
 |  |- run-apb.ps1 / run-apb.sh (wrappers)
@@ -1144,6 +1145,16 @@ The generated register map in `docs/register-map.md` is the quick review entry p
 The generated protocol conformance catalog in `docs/protocol-conformance.md` is the quick review entry point for shared scenario programs, expected final states, and adapter test coverage.
 
 The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
+
+To check every generated Markdown catalog without running pytest or simulator flows:
+
+```powershell
+.\scripts\check-generated-docs.ps1
+```
+
+```bash
+bash scripts/check-generated-docs.sh
+```
 
 Uploaded artifacts include:
 

@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 68
+- Cross-platform entrypoints: 69
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -16,6 +16,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 |---|---|---|---|---|---|
 | `check-all` | `scripts/check-all.ps1` | `scripts/check-all.sh` | `scripts/windows/check-all.ps1` | `scripts/linux/check-all.sh` |  |
 | `check-coverage-delta` | `scripts/check-coverage-delta.ps1` | `scripts/check-coverage-delta.sh` | `scripts/windows/check-coverage-delta.ps1` | `scripts/linux/check-coverage-delta.sh` |  |
+| `check-generated-docs` | `scripts/check-generated-docs.ps1` | `scripts/check-generated-docs.sh` | `scripts/windows/check-generated-docs.ps1` | `scripts/linux/check-generated-docs.sh` |  |
 | `check-native` | `scripts/check-native.ps1` | `scripts/check-native.sh` | `scripts/windows/check-native.ps1` | `scripts/linux/check-native.sh` |  |
 | `check-python-model` | `scripts/check-python-model.ps1` | `scripts/check-python-model.sh` | `scripts/windows/check-python-model.ps1` | `scripts/linux/check-python-model.sh` |  |
 | `export-status` | `scripts/export-status.ps1` | `scripts/export-status.sh` | `scripts/windows/export-status.ps1` | `scripts/linux/export-status.sh` |  |

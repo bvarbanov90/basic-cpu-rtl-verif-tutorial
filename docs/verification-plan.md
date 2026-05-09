@@ -216,6 +216,7 @@
 | `program_write_stalls_and_retargets_execution` | `tb/test_simple_cpu.py` | Holds `prog_we` across consecutive cycles, proves architectural state stalls, and confirms a future instruction patch is honored once execution resumes. |
 | `test_cpu_lib_unit` | `tb/test_cpu_lib_unit.py` | Pytest self-checks for the Python reference model, disassembler, trace rows, deterministic program builders, and representative flag behavior. |
 | `check-python-model` | `scripts/check-python-model.*` | Fast reference-model lane that runs pytest and emits example model traces without requiring an RTL simulator. |
+| `check-generated-docs` | `scripts/check-generated-docs.*` | Fast generated-doc freshness lane that runs every catalog `--check` without pytest or simulator flows. |
 | `show-model-trace` | `scripts/model_trace.py` + wrappers | Disassembles and traces built-in, assembly, or raw-byte programs through the Python reference model for scoreboard/debug walkthroughs. |
 | `generate-isa-docs` | `scripts/isa_report.py` + wrappers | Generates and checks `docs/isa.md` from assembler/reference-model metadata, catching ISA-table drift in the Python-model lane. |
 | `mmio_program_matches_reference_model` | `tb/test_simple_cpu_mmio.py` | Optional cocotb MMIO wrapper replay against the same `ReferenceCPU` used by the native bench. |
