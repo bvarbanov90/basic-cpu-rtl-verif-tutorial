@@ -23,6 +23,7 @@ def test_coverage_goal_catalog_covers_native_report_families() -> None:
 
     assert {
         "core",
+        "pyuvm-core",
         "mmio",
         "mmio-wait",
         "apb",

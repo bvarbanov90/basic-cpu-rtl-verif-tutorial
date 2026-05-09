@@ -14,6 +14,7 @@ from scripts.verification_matrix import LANES
 
 SHOW_HELPERS = {
     "sim_build/coverage.json": "show-coverage",
+    "sim_build/pyuvm_coverage.json": "show-pyuvm-coverage",
     "sim_build/mmio_coverage.json": "show-mmio-coverage",
     "sim_build/mmio_wait_coverage.json": "show-mmio-wait-coverage",
     "sim_build/apb_coverage.json": "show-apb-coverage",
@@ -29,6 +30,7 @@ SHOW_HELPERS = {
 
 EXTRA_ARTIFACTS = (
     ("Mutation campaign workdir", "sim_build/mutations", "mutations", "Representative broken-RTL campaign results."),
+    ("pyuvm coverage report", "sim_build/pyuvm_coverage.json", "pyuvm", "Core pyuvm subscriber coverage report."),
     ("Status export", "docs/status/status.json", "status", "Repo-tracked verification status export."),
     ("Coverage history", "docs/coverage-history.json", "status", "Repo-tracked coverage trend history."),
 )

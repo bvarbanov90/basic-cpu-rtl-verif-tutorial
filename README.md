@@ -221,6 +221,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-verilator-coverage.ps1
 |  |  |- show-formal-status.ps1
 |  |  |- show-static-analysis.ps1
+|  |  |- show-pyuvm-coverage.ps1
 |  |- linux/
 |  |  |- install-tools-ubuntu.sh
 |  |  |- run.sh
@@ -264,6 +265,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |  |- show-verilator-coverage.sh
 |  |  |- show-formal-status.sh
 |  |  |- show-static-analysis.sh
+|  |  |- show-pyuvm-coverage.sh
 |  |- run.ps1 (wrapper)
 |  |- run.sh (wrapper)
 |  |- run-asm-corpus.ps1 / run-asm-corpus.sh (wrappers)
@@ -302,6 +304,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- check-all.ps1 / check-all.sh (wrappers)
 |  |- export-status.ps1 / export-status.sh (wrappers)
 |  |- show-apb-coverage.ps1 / show-apb-coverage.sh (wrappers)
+|  |- show-pyuvm-coverage.ps1 / show-pyuvm-coverage.sh (wrappers)
 |  |- show-wishbone-coverage.ps1 / show-wishbone-coverage.sh (wrappers)
 |  |- show-axi-lite-coverage.ps1 / show-axi-lite-coverage.sh (wrappers)
 |  |- show-axi-lite-fault-coverage.ps1 / show-axi-lite-fault-coverage.sh (wrappers)
@@ -1255,6 +1258,16 @@ The cocotb layer now also includes an assembler-corpus regression in `tb/test_si
 2. deterministic corner-case sequences for `ADD/SUB/SHL/CMP` coverage closure,
 3. a subscriber-based coverage collector that writes `sim_build/pyuvm_coverage.json`,
 4. a program-port stall-and-retarget test that holds `prog_we` across multiple cycles, proves architectural state stops advancing, and confirms a future instruction patch is honored once execution resumes.
+
+Summarize the pyuvm coverage report:
+
+```powershell
+.\scripts\show-pyuvm-coverage.ps1
+```
+
+```bash
+bash scripts/show-pyuvm-coverage.sh
+```
 
 The same core cocotb module now also carries a shared protocol-conformance scenario library in `tb/protocol_conformance.py`. The direct-core adapter in `tb/core_bus.py` and the wrapper adapters in `tb/mmio_bus.py`, `tb/apb_bus.py`, `tb/wishbone_bus.py`, and `tb/axi_lite_bus.py` all run the same smoke, logic, loop, branch-stress, and randomized programs against the same `ReferenceCPU` end-state checks.
 

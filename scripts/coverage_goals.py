@@ -36,6 +36,15 @@ SUITES: tuple[CoverageSuite, ...] = (
         notes="Opcode, branch, flag, cross-bin, reachability, and minimum-run closure.",
     ),
     CoverageSuite(
+        suite_id="pyuvm-core",
+        title="Core pyuvm subscriber coverage",
+        source="tb/coverage_utils.py",
+        artifact="sim_build/pyuvm_coverage.json",
+        show_helper="show-pyuvm-coverage",
+        goal_source="python",
+        notes="Subscriber-based pyuvm coverage using the same Python `CoverageModel` as the core scoreboard.",
+    ),
+    CoverageSuite(
         suite_id="mmio",
         title="Always-ready MMIO wrapper coverage",
         source="tb/simple_cpu_mmio_tb.sv",

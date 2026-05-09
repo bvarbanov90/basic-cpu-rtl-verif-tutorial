@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 65
+- Cross-platform entrypoints: 66
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -73,6 +73,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `show-mmio-wait-coverage` | `scripts/show-mmio-wait-coverage.ps1` | `scripts/show-mmio-wait-coverage.sh` | `scripts/windows/show-mmio-wait-coverage.ps1` | `scripts/linux/show-mmio-wait-coverage.sh` |  |
 | `show-model-trace` | `scripts/show-model-trace.ps1` | `scripts/show-model-trace.sh` | `scripts/windows/show-model-trace.ps1` | `scripts/linux/show-model-trace.sh` |  |
 | `show-mutations` | `scripts/show-mutations.ps1` | `scripts/show-mutations.sh` | `scripts/windows/show-mutations.ps1` | `scripts/linux/show-mutations.sh` |  |
+| `show-pyuvm-coverage` | `scripts/show-pyuvm-coverage.ps1` | `scripts/show-pyuvm-coverage.sh` | `scripts/windows/show-pyuvm-coverage.ps1` | `scripts/linux/show-pyuvm-coverage.sh` |  |
 | `show-static-analysis` | `scripts/show-static-analysis.ps1` | `scripts/show-static-analysis.sh` | `scripts/windows/show-static-analysis.ps1` | `scripts/linux/show-static-analysis.sh` |  |
 | `show-verilator-coverage` | `scripts/show-verilator-coverage.ps1` | `scripts/show-verilator-coverage.sh` | `scripts/windows/show-verilator-coverage.ps1` | `scripts/linux/show-verilator-coverage.sh` |  |
 | `show-wishbone-coverage` | `scripts/show-wishbone-coverage.ps1` | `scripts/show-wishbone-coverage.sh` | `scripts/windows/show-wishbone-coverage.ps1` | `scripts/linux/show-wishbone-coverage.sh` |  |

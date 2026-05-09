@@ -6,8 +6,8 @@ This page is generated from the executable coverage goal definitions and checked
 
 ## Summary
 
-- Coverage suites: 9
-- Total explicit goals: 121
+- Coverage suites: 10
+- Total explicit goals: 145
 - Native SV suites are parsed from their `$fwrite(... coverage_goals ...)` report blocks.
 - The native core SV goals are checked against the Python `CoverageModel` used by cocotb/pyuvm.
 - Artifact and show-helper links are checked against `docs/artifact-catalog.md`.
@@ -17,6 +17,7 @@ This page is generated from the executable coverage goal definitions and checked
 | Suite | Source | Artifact | Show helper | Goals | Notes |
 |---|---|---|---|---:|---|
 | `core` Core native SV functional coverage | `tb/simple_cpu_tb.sv` | `sim_build/coverage.json` | `show-coverage` | 24 | Opcode, branch, flag, cross-bin, reachability, and minimum-run closure. |
+| `pyuvm-core` Core pyuvm subscriber coverage | `tb/coverage_utils.py` | `sim_build/pyuvm_coverage.json` | `show-pyuvm-coverage` | 24 | Subscriber-based pyuvm coverage using the same Python `CoverageModel` as the core scoreboard. |
 | `mmio` Always-ready MMIO wrapper coverage | `tb/simple_cpu_mmio_tb.sv` | `sim_build/mmio_coverage.json` | `show-mmio-coverage` | 12 | Shadow-window, status, state, control, and program-run coverage. |
 | `mmio-wait` Wait-state MMIO wrapper coverage | `tb/simple_cpu_mmio_wait_tb.sv` | `sim_build/mmio_wait_coverage.json` | `show-mmio-wait-coverage` | 15 | MMIO wrapper goals plus delayed-ready transaction and wait-cycle bins. |
 | `apb` APB wrapper coverage | `tb/simple_cpu_apb_tb.sv` | `sim_build/apb_coverage.json` | `show-apb-coverage` | 14 | APB setup/access accounting, transactions, wrapper state, and CPU-visible reads. |
@@ -33,6 +34,39 @@ This page is generated from the executable coverage goal definitions and checked
 - Source: `tb/simple_cpu_tb.sv`
 - Artifact: `sim_build/coverage.json`
 - Review helper: `show-coverage`
+
+| Goal | Threshold |
+|---|---:|
+| `add_x_carry0` | 1 |
+| `add_x_carry1` | 1 |
+| `carry_0` | 1 |
+| `carry_1` | 1 |
+| `cmp_x_neg1` | 1 |
+| `illegal_opcode_hit` | 1 |
+| `jz_not_taken` | 1 |
+| `jz_taken` | 1 |
+| `jz_x_zero0` | 1 |
+| `jz_x_zero1` | 1 |
+| `min_program_runs` | 10 |
+| `neg_0` | 1 |
+| `neg_1` | 1 |
+| `opcode_coverage` | 1 |
+| `overflow_0` | 1 |
+| `overflow_1` | 1 |
+| `reachability_annotations` | 1 |
+| `shl_x_overflow0` | 1 |
+| `shl_x_overflow1` | 1 |
+| `sub_x_carry0` | 1 |
+| `sub_x_carry1` | 1 |
+| `sub_x_neg1` | 1 |
+| `zero_transition_01` | 1 |
+| `zero_transition_10` | 1 |
+
+### `pyuvm-core`
+
+- Source: `tb/coverage_utils.py`
+- Artifact: `sim_build/pyuvm_coverage.json`
+- Review helper: `show-pyuvm-coverage`
 
 | Goal | Threshold |
 |---|---:|

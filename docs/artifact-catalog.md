@@ -6,7 +6,7 @@ This page is generated from `scripts/verification_matrix.py` and `.github/workfl
 
 ## Summary
 
-- Artifacts tracked: 50
+- Artifacts tracked: 51
 - Categories: `coverage`, `formal`, `mutations`, `results`, `status`
 - CI upload coverage is checked for generated `sim_build/` and `formal/` outputs.
 
@@ -29,6 +29,7 @@ This page is generated from `scripts/verification_matrix.py` and `.github/workfl
 | `sim_build/mmio_coverage.json` | `coverage` | `mmio` | `native-artifacts` | `show-mmio-coverage` | MMIO Wrapper |
 | `sim_build/mmio_wait_coverage.csv` | `coverage` | `mmio-wait` | `native-artifacts` | `show-mmio-wait-coverage` | MMIO Wait-State Wrapper |
 | `sim_build/mmio_wait_coverage.json` | `coverage` | `mmio-wait` | `native-artifacts` | `show-mmio-wait-coverage` | MMIO Wait-State Wrapper |
+| `sim_build/pyuvm_coverage.json` | `coverage` | `pyuvm` | `pyuvm-artifacts` | `show-pyuvm-coverage` | Core pyuvm subscriber coverage report. |
 | `sim_build/verilator_coverage/summary.json` | `coverage` | `core` | `verilator-artifacts` | `show-verilator-coverage` | Direct Core |
 | `sim_build/wishbone_coverage.csv` | `coverage` | `wishbone` | `native-artifacts` | `show-wishbone-coverage` | Wishbone Wrapper |
 | `sim_build/wishbone_coverage.json` | `coverage` | `wishbone` | `native-artifacts` | `show-wishbone-coverage` | Wishbone Wrapper |
