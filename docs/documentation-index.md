@@ -6,9 +6,9 @@ This page is generated from `scripts/documentation_index.py` and checked by the 
 
 ## Summary
 
-- Indexed paths: 22
+- Indexed paths: 23
 - Manual pages: 4
-- Generated checkable pages: 12
+- Generated checkable pages: 13
 - Exported report pages: 2
 - Machine-readable data docs: 4
 
@@ -40,6 +40,7 @@ This page is generated from `scripts/documentation_index.py` and checked by the 
 | `docs/artifact-catalog.md` | `generated` | `ci` | `generate-artifact-catalog` | `scripts/check-python-model.*` | `scripts/artifact_catalog.py`<br>`.github/workflows/ci.yml`<br>`scripts/verification_matrix.py` | Generated output, formal workdir, CI upload, and show-helper alignment table. |
 | `docs/requirements-traceability.md` | `generated` | `verification` | `generate-requirements-traceability` | `scripts/check-python-model.*` | `scripts/requirements_traceability.py`<br>`scripts/verification_matrix.py`<br>`scripts/artifact_catalog.py` | Requirements-to-evidence traceability across lanes, formal targets, mutation benches, and artifacts. |
 | `docs/coverage-goals.md` | `generated` | `coverage` | `generate-coverage-goals` | `scripts/check-python-model.*` | `scripts/coverage_goals.py`<br>`tb/*_tb.sv`<br>`tb/coverage_utils.py` | Functional coverage goals, thresholds, source testbenches, artifacts, and show-helper mappings. |
+| `docs/register-map.md` | `generated` | `wrappers` | `generate-register-map` | `scripts/check-python-model.*` | `scripts/register_map.py`<br>`rtl/simple_cpu_mmio.sv`<br>`tb/mmio_bus.py` | Shared wrapper address map with RTL/Python constant alignment checks. |
 | `docs/documentation-index.md` | `generated` | `docs` | `generate-documentation-index` | `scripts/check-python-model.*` | `scripts/documentation_index.py`<br>`README.md`<br>`docs/verification-plan.md` | Single index of tutorial docs, generated catalogs, source-of-truth files, and freshness checks. |
 | `docs/coverage-history.md` | `exported` | `coverage` | `record-coverage-history` | `scripts/check-coverage-delta.*` | `docs/coverage-history.json`<br>`sim_build/*coverage*.json` | Rendered coverage trend history generated from recorded coverage snapshots. |
 | `docs/status/status.md` | `exported` | `status` | `export-status` | `CI summary` | `docs/status/status.json`<br>`sim_build/`<br>`formal/` | Repo-tracked verification status snapshot used by README badges. |

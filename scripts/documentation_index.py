@@ -161,6 +161,15 @@ DOCUMENTATION: tuple[DocumentationEntry, ...] = (
         purpose="Functional coverage goals, thresholds, source testbenches, artifacts, and show-helper mappings.",
     ),
     DocumentationEntry(
+        path="docs/register-map.md",
+        kind="generated",
+        owner="wrappers",
+        generator="generate-register-map",
+        check="scripts/check-python-model.*",
+        sources=("scripts/register_map.py", "rtl/simple_cpu_mmio.sv", "tb/mmio_bus.py"),
+        purpose="Shared wrapper address map with RTL/Python constant alignment checks.",
+    ),
+    DocumentationEntry(
         path="docs/documentation-index.md",
         kind="generated",
         owner="docs",

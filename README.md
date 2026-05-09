@@ -173,6 +173,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- coverage_goals.py
 |  |- export_status.py
 |  |- run_mutation_campaign.py
+|  |- register_map.py
 |  |- show_formal_status.py
 |  |- static_analysis.py
 |  |- status_lib.py
@@ -280,6 +281,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- generate-coverage-goals.ps1 / generate-coverage-goals.sh (wrappers)
+|  |- generate-register-map.ps1 / generate-register-map.sh (wrappers)
 |  |- generate-documentation-index.ps1 / generate-documentation-index.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
@@ -323,6 +325,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- formal-targets.md
 |  |- isa.md
 |  |- mutation-catalog.md
+|  |- register-map.md
 |  |- script-catalog.md
 |  |- status/
 |  |  |- status.json
@@ -486,6 +489,18 @@ Regenerate it after intentional coverage-goal edits:
 
 ```bash
 bash scripts/generate-coverage-goals.sh
+```
+
+The wrapper register map is generated and tracked in `docs/register-map.md`. It is checked by the Python reference-model CI lane so RTL address constants and Python bus-functional models stay aligned across MMIO, APB, Wishbone, and AXI-Lite wrappers.
+
+Regenerate it after intentional register-map edits:
+
+```powershell
+.\scripts\generate-register-map.ps1
+```
+
+```bash
+bash scripts/generate-register-map.sh
 ```
 
 The documentation index is generated and tracked in `docs/documentation-index.md`. It is checked by the Python reference-model CI lane so README, plan, generated catalogs, exported reports, and machine-readable data docs stay discoverable.
@@ -1108,6 +1123,8 @@ The generated artifact catalog in `docs/artifact-catalog.md` is the quick review
 The generated requirements traceability matrix in `docs/requirements-traceability.md` is the quick review entry point for claims-to-evidence coverage across lanes, formal targets, mutation benches, and artifacts.
 
 The generated coverage goals catalog in `docs/coverage-goals.md` is the quick review entry point for explicit functional coverage goals, thresholds, source files, artifacts, and matching `show-*` helper commands.
+
+The generated register map in `docs/register-map.md` is the quick review entry point for shared wrapper address semantics and RTL/Python constant alignment.
 
 The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
 
