@@ -163,6 +163,7 @@ basic-cpu-rlt--verif-tutorial/
 |- scripts/
 |  |- asm.py
 |  |- asm_corpus_report.py
+|  |- documentation_index.py
 |  |- formal_catalog.py
 |  |- isa_report.py
 |  |- mutation_catalog.py
@@ -275,6 +276,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
+|  |- generate-documentation-index.ps1 / generate-documentation-index.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
 |  |- generate-script-catalog.ps1 / generate-script-catalog.sh (wrappers)
@@ -311,6 +313,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- assembler-regressions.json
 |  |- assembler-regressions.md
 |  |- coverage-baseline.json
+|  |- documentation-index.md
 |  |- formal-targets.md
 |  |- isa.md
 |  |- mutation-catalog.md
@@ -465,6 +468,18 @@ Regenerate it after intentional requirement or lane edits:
 
 ```bash
 bash scripts/generate-requirements-traceability.sh
+```
+
+The documentation index is generated and tracked in `docs/documentation-index.md`. It is checked by the Python reference-model CI lane so README, plan, generated catalogs, exported reports, and machine-readable data docs stay discoverable.
+
+Regenerate it after intentional documentation-map edits:
+
+```powershell
+.\scripts\generate-documentation-index.ps1
+```
+
+```bash
+bash scripts/generate-documentation-index.sh
 ```
 
 The mutation catalog is generated and tracked in `docs/mutation-catalog.md`. It is checked by the Python reference-model CI lane so mutation names, bench scopes, target paths, and replacement snippets cannot drift silently.
@@ -1073,6 +1088,8 @@ The generated verification matrix in `docs/verification-matrix.md` is the quick 
 The generated artifact catalog in `docs/artifact-catalog.md` is the quick review entry point for result files, coverage reports, formal workdirs, CI upload names, and matching `show-*` commands.
 
 The generated requirements traceability matrix in `docs/requirements-traceability.md` is the quick review entry point for claims-to-evidence coverage across lanes, formal targets, mutation benches, and artifacts.
+
+The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
 
 Uploaded artifacts include:
 
