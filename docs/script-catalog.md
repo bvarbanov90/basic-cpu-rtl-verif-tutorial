@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 67
+- Cross-platform entrypoints: 68
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -28,6 +28,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `generate-formal-catalog` | `scripts/generate-formal-catalog.ps1` | `scripts/generate-formal-catalog.sh` | `scripts/windows/generate-formal-catalog.ps1` | `scripts/linux/generate-formal-catalog.sh` |  |
 | `generate-isa-docs` | `scripts/generate-isa-docs.ps1` | `scripts/generate-isa-docs.sh` | `scripts/windows/generate-isa-docs.ps1` | `scripts/linux/generate-isa-docs.sh` |  |
 | `generate-mutation-catalog` | `scripts/generate-mutation-catalog.ps1` | `scripts/generate-mutation-catalog.sh` | `scripts/windows/generate-mutation-catalog.ps1` | `scripts/linux/generate-mutation-catalog.sh` |  |
+| `generate-protocol-catalog` | `scripts/generate-protocol-catalog.ps1` | `scripts/generate-protocol-catalog.sh` | `scripts/windows/generate-protocol-catalog.ps1` | `scripts/linux/generate-protocol-catalog.sh` |  |
 | `generate-register-map` | `scripts/generate-register-map.ps1` | `scripts/generate-register-map.sh` | `scripts/windows/generate-register-map.ps1` | `scripts/linux/generate-register-map.sh` |  |
 | `generate-requirements-traceability` | `scripts/generate-requirements-traceability.ps1` | `scripts/generate-requirements-traceability.sh` | `scripts/windows/generate-requirements-traceability.ps1` | `scripts/linux/generate-requirements-traceability.sh` |  |
 | `generate-script-catalog` | `scripts/generate-script-catalog.ps1` | `scripts/generate-script-catalog.sh` | `scripts/windows/generate-script-catalog.ps1` | `scripts/linux/generate-script-catalog.sh` |  |

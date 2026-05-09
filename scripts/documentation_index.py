@@ -170,6 +170,15 @@ DOCUMENTATION: tuple[DocumentationEntry, ...] = (
         purpose="Shared wrapper address map with RTL/Python constant alignment checks.",
     ),
     DocumentationEntry(
+        path="docs/protocol-conformance.md",
+        kind="generated",
+        owner="wrappers",
+        generator="generate-protocol-catalog",
+        check="scripts/check-python-model.*",
+        sources=("scripts/protocol_catalog.py", "tb/protocol_conformance.py", "tb/test_simple_cpu*.py"),
+        purpose="Shared protocol conformance scenarios, expected final states, and adapter test coverage.",
+    ),
+    DocumentationEntry(
         path="docs/documentation-index.md",
         kind="generated",
         owner="docs",

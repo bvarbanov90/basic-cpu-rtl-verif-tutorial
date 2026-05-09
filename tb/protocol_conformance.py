@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from tb.cpu_lib import (
     ReferenceCPU,
@@ -10,7 +11,9 @@ from tb.cpu_lib import (
     build_random_dataflow_program,
     build_smoke_program,
 )
-from tb.mmio_bus import MmioSnapshot
+
+if TYPE_CHECKING:
+    from tb.mmio_bus import MmioSnapshot
 
 
 @dataclass(frozen=True)

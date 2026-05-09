@@ -167,6 +167,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- formal_catalog.py
 |  |- isa_report.py
 |  |- mutation_catalog.py
+|  |- protocol_catalog.py
 |  |- README.md
 |  |- script_catalog.py
 |  |- check_asm_corpus.py
@@ -282,6 +283,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
 |  |- generate-coverage-goals.ps1 / generate-coverage-goals.sh (wrappers)
 |  |- generate-register-map.ps1 / generate-register-map.sh (wrappers)
+|  |- generate-protocol-catalog.ps1 / generate-protocol-catalog.sh (wrappers)
 |  |- generate-documentation-index.ps1 / generate-documentation-index.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
@@ -325,6 +327,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- formal-targets.md
 |  |- isa.md
 |  |- mutation-catalog.md
+|  |- protocol-conformance.md
 |  |- register-map.md
 |  |- script-catalog.md
 |  |- status/
@@ -501,6 +504,18 @@ Regenerate it after intentional register-map edits:
 
 ```bash
 bash scripts/generate-register-map.sh
+```
+
+The protocol conformance catalog is generated and tracked in `docs/protocol-conformance.md`. It is checked by the Python reference-model CI lane so every shared scenario, expected reference-model end state, and adapter test file stays reviewable.
+
+Regenerate it after intentional conformance-scenario edits:
+
+```powershell
+.\scripts\generate-protocol-catalog.ps1
+```
+
+```bash
+bash scripts/generate-protocol-catalog.sh
 ```
 
 The documentation index is generated and tracked in `docs/documentation-index.md`. It is checked by the Python reference-model CI lane so README, plan, generated catalogs, exported reports, and machine-readable data docs stay discoverable.
@@ -1125,6 +1140,8 @@ The generated requirements traceability matrix in `docs/requirements-traceabilit
 The generated coverage goals catalog in `docs/coverage-goals.md` is the quick review entry point for explicit functional coverage goals, thresholds, source files, artifacts, and matching `show-*` helper commands.
 
 The generated register map in `docs/register-map.md` is the quick review entry point for shared wrapper address semantics and RTL/Python constant alignment.
+
+The generated protocol conformance catalog in `docs/protocol-conformance.md` is the quick review entry point for shared scenario programs, expected final states, and adapter test coverage.
 
 The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
 
