@@ -170,6 +170,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- README.md
 |  |- script_catalog.py
 |  |- check_asm_corpus.py
+|  |- coverage_goals.py
 |  |- export_status.py
 |  |- run_mutation_campaign.py
 |  |- show_formal_status.py
@@ -276,6 +277,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- run-apb-fault.ps1 / run-apb-fault.sh (wrappers)
 |  |- run-wishbone-fault.ps1 / run-wishbone-fault.sh (wrappers)
 |  |- run-mutations.ps1 / run-mutations.sh (wrappers)
+|  |- generate-coverage-goals.ps1 / generate-coverage-goals.sh (wrappers)
 |  |- generate-documentation-index.ps1 / generate-documentation-index.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
@@ -313,6 +315,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- assembler-regressions.json
 |  |- assembler-regressions.md
 |  |- coverage-baseline.json
+|  |- coverage-goals.md
 |  |- documentation-index.md
 |  |- formal-targets.md
 |  |- isa.md
@@ -468,6 +471,18 @@ Regenerate it after intentional requirement or lane edits:
 
 ```bash
 bash scripts/generate-requirements-traceability.sh
+```
+
+The coverage goals catalog is generated and tracked in `docs/coverage-goals.md`. It is checked by the Python reference-model CI lane so SV coverage report goals, Python coverage-model goals, artifact paths, and `show-*` helpers stay aligned.
+
+Regenerate it after intentional coverage-goal edits:
+
+```powershell
+.\scripts\generate-coverage-goals.ps1
+```
+
+```bash
+bash scripts/generate-coverage-goals.sh
 ```
 
 The documentation index is generated and tracked in `docs/documentation-index.md`. It is checked by the Python reference-model CI lane so README, plan, generated catalogs, exported reports, and machine-readable data docs stay discoverable.
@@ -1088,6 +1103,8 @@ The generated verification matrix in `docs/verification-matrix.md` is the quick 
 The generated artifact catalog in `docs/artifact-catalog.md` is the quick review entry point for result files, coverage reports, formal workdirs, CI upload names, and matching `show-*` commands.
 
 The generated requirements traceability matrix in `docs/requirements-traceability.md` is the quick review entry point for claims-to-evidence coverage across lanes, formal targets, mutation benches, and artifacts.
+
+The generated coverage goals catalog in `docs/coverage-goals.md` is the quick review entry point for explicit functional coverage goals, thresholds, source files, artifacts, and matching `show-*` helper commands.
 
 The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
 

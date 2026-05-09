@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 64
+- Cross-platform entrypoints: 65
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -23,6 +23,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `generate-artifact-catalog` | `scripts/generate-artifact-catalog.ps1` | `scripts/generate-artifact-catalog.sh` | `scripts/windows/generate-artifact-catalog.ps1` | `scripts/linux/generate-artifact-catalog.sh` |  |
 | `generate-asm-corpus-docs` | `scripts/generate-asm-corpus-docs.ps1` | `scripts/generate-asm-corpus-docs.sh` | `scripts/windows/generate-asm-corpus-docs.ps1` | `scripts/linux/generate-asm-corpus-docs.sh` |  |
 | `generate-ci-catalog` | `scripts/generate-ci-catalog.ps1` | `scripts/generate-ci-catalog.sh` | `scripts/windows/generate-ci-catalog.ps1` | `scripts/linux/generate-ci-catalog.sh` |  |
+| `generate-coverage-goals` | `scripts/generate-coverage-goals.ps1` | `scripts/generate-coverage-goals.sh` | `scripts/windows/generate-coverage-goals.ps1` | `scripts/linux/generate-coverage-goals.sh` |  |
 | `generate-documentation-index` | `scripts/generate-documentation-index.ps1` | `scripts/generate-documentation-index.sh` | `scripts/windows/generate-documentation-index.ps1` | `scripts/linux/generate-documentation-index.sh` |  |
 | `generate-formal-catalog` | `scripts/generate-formal-catalog.ps1` | `scripts/generate-formal-catalog.sh` | `scripts/windows/generate-formal-catalog.ps1` | `scripts/linux/generate-formal-catalog.sh` |  |
 | `generate-isa-docs` | `scripts/generate-isa-docs.ps1` | `scripts/generate-isa-docs.sh` | `scripts/windows/generate-isa-docs.ps1` | `scripts/linux/generate-isa-docs.sh` |  |

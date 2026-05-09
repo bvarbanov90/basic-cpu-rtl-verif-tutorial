@@ -152,6 +152,15 @@ DOCUMENTATION: tuple[DocumentationEntry, ...] = (
         purpose="Requirements-to-evidence traceability across lanes, formal targets, mutation benches, and artifacts.",
     ),
     DocumentationEntry(
+        path="docs/coverage-goals.md",
+        kind="generated",
+        owner="coverage",
+        generator="generate-coverage-goals",
+        check="scripts/check-python-model.*",
+        sources=("scripts/coverage_goals.py", "tb/*_tb.sv", "tb/coverage_utils.py"),
+        purpose="Functional coverage goals, thresholds, source testbenches, artifacts, and show-helper mappings.",
+    ),
+    DocumentationEntry(
         path="docs/documentation-index.md",
         kind="generated",
         owner="docs",

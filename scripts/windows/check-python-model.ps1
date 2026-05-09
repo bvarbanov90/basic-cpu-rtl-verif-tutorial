@@ -113,7 +113,7 @@ $env:PYTHONPATH = (Get-Location).Path + $(if ($env:PYTHONPATH) { ";$env:PYTHONPA
 
 $pytestArgs = @()
 $pytestArgs += $pythonCmd.Arguments
-$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py", "tb/test_tooling_catalog_unit.py", "tb/test_verification_matrix_unit.py", "tb/test_artifact_catalog_unit.py", "tb/test_requirements_traceability_unit.py", "tb/test_documentation_index_unit.py")
+$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py", "tb/test_tooling_catalog_unit.py", "tb/test_verification_matrix_unit.py", "tb/test_artifact_catalog_unit.py", "tb/test_requirements_traceability_unit.py", "tb/test_documentation_index_unit.py", "tb/test_coverage_goals_unit.py")
 & $pythonCmd.Executable @pytestArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -203,6 +203,14 @@ $documentationIndexArgs = @()
 $documentationIndexArgs += $pythonCmd.Arguments
 $documentationIndexArgs += @("scripts/documentation_index.py", "--check")
 & $pythonCmd.Executable @documentationIndexArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$coverageGoalsArgs = @()
+$coverageGoalsArgs += $pythonCmd.Arguments
+$coverageGoalsArgs += @("scripts/coverage_goals.py", "--check")
+& $pythonCmd.Executable @coverageGoalsArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
