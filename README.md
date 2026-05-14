@@ -161,6 +161,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- test_simple_cpu_axi_lite_pyuvm.py
 |  |- test_simple_cpu_pyuvm.py
 |  |- test_adapter_contract_unit.py
+|  |- test_reference_regression_unit.py
 |- scripts/
 |  |- adapter_contract.py
 |  |- asm.py
@@ -170,6 +171,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- isa_report.py
 |  |- mutation_catalog.py
 |  |- protocol_catalog.py
+|  |- reference_regression_catalog.py
 |  |- README.md
 |  |- script_catalog.py
 |  |- check_asm_corpus.py
@@ -288,6 +290,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- generate-register-map.ps1 / generate-register-map.sh (wrappers)
 |  |- generate-protocol-catalog.ps1 / generate-protocol-catalog.sh (wrappers)
 |  |- generate-adapter-contract.ps1 / generate-adapter-contract.sh (wrappers)
+|  |- generate-reference-regression.ps1 / generate-reference-regression.sh (wrappers)
 |  |- generate-documentation-index.ps1 / generate-documentation-index.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
@@ -333,6 +336,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- isa.md
 |  |- mutation-catalog.md
 |  |- protocol-conformance.md
+|  |- reference-regression.md
 |  |- register-map.md
 |  |- script-catalog.md
 |  |- status/
@@ -533,6 +537,18 @@ Regenerate it after intentional adapter API edits:
 
 ```bash
 bash scripts/generate-adapter-contract.sh
+```
+
+The reference regression catalog is generated and tracked in `docs/reference-regression.md`. It is checked by the Python reference-model CI lane so deterministic directed and seeded random programs keep ISA, branch, illegal-opcode, and flag coverage closure reviewable.
+
+Regenerate it after intentional reference-regression edits:
+
+```powershell
+.\scripts\generate-reference-regression.ps1
+```
+
+```bash
+bash scripts/generate-reference-regression.sh
 ```
 
 The documentation index is generated and tracked in `docs/documentation-index.md`. It is checked by the Python reference-model CI lane so README, plan, generated catalogs, exported reports, and machine-readable data docs stay discoverable.
@@ -1162,6 +1178,8 @@ The generated protocol conformance catalog in `docs/protocol-conformance.md` is 
 
 The generated adapter contract catalog in `docs/adapter-contract.md` is the quick review entry point for Python bus-functional method surfaces across direct-core, MMIO, APB, Wishbone, and AXI-Lite adapters.
 
+The generated reference regression catalog in `docs/reference-regression.md` is the quick review entry point for deterministic Python ISA stress programs, seeded random cases, final states, and combined coverage closure.
+
 The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
 
 To check every generated Markdown catalog without running pytest or simulator flows:
@@ -1335,6 +1353,8 @@ bash scripts/show-pyuvm-coverage.sh
 The same core cocotb module now also carries a shared protocol-conformance scenario library in `tb/protocol_conformance.py`. The direct-core adapter in `tb/core_bus.py` and the wrapper adapters in `tb/mmio_bus.py`, `tb/apb_bus.py`, `tb/wishbone_bus.py`, and `tb/axi_lite_bus.py` all run the same smoke, logic, loop, branch-stress, and randomized programs against the same `ReferenceCPU` end-state checks.
 
 The generated adapter contract in `docs/adapter-contract.md` statically checks those Python adapter classes for the required `reset`, load, execution, state-sampling, register-wrapper, and protocol-specific helper methods before cocotb is involved.
+
+The generated reference regression catalog in `docs/reference-regression.md` records the deterministic Python programs used to close the reference coverage model, including seeded dataflow and branch-stress cases.
 
 The MMIO pyuvm layer in `tb/test_simple_cpu_mmio_pyuvm.py` adds:
 

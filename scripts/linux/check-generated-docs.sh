@@ -28,6 +28,7 @@ checks=(
     scripts/register_map.py
     scripts/protocol_catalog.py
     scripts/adapter_contract.py
+    scripts/reference_regression_catalog.py
 )
 
 for check in "${checks[@]}"; do

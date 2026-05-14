@@ -161,6 +161,15 @@ DOCUMENTATION: tuple[DocumentationEntry, ...] = (
         purpose="Functional coverage goals, thresholds, source testbenches, artifacts, and show-helper mappings.",
     ),
     DocumentationEntry(
+        path="docs/reference-regression.md",
+        kind="generated",
+        owner="verification",
+        generator="generate-reference-regression",
+        check="scripts/check-python-model.*",
+        sources=("scripts/reference_regression_catalog.py", "tb/cpu_lib.py", "tb/coverage_utils.py"),
+        purpose="Deterministic directed and seeded-random Python reference regression cases with coverage closure.",
+    ),
+    DocumentationEntry(
         path="docs/register-map.md",
         kind="generated",
         owner="wrappers",
