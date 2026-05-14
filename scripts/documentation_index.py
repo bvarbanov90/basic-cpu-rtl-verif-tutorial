@@ -179,6 +179,15 @@ DOCUMENTATION: tuple[DocumentationEntry, ...] = (
         purpose="Shared protocol conformance scenarios, expected final states, and adapter test coverage.",
     ),
     DocumentationEntry(
+        path="docs/adapter-contract.md",
+        kind="generated",
+        owner="wrappers",
+        generator="generate-adapter-contract",
+        check="scripts/check-python-model.*",
+        sources=("scripts/adapter_contract.py", "tb/*_bus.py", "tb/protocol_conformance.py"),
+        purpose="Python bus-adapter method contract for shared conformance, directed cocotb, and pyuvm tests.",
+    ),
+    DocumentationEntry(
         path="docs/documentation-index.md",
         kind="generated",
         owner="docs",

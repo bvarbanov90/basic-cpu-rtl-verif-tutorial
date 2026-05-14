@@ -6,9 +6,9 @@ This page is generated from `scripts/documentation_index.py` and checked by the 
 
 ## Summary
 
-- Indexed paths: 24
+- Indexed paths: 25
 - Manual pages: 4
-- Generated checkable pages: 14
+- Generated checkable pages: 15
 - Exported report pages: 2
 - Machine-readable data docs: 4
 
@@ -42,6 +42,7 @@ This page is generated from `scripts/documentation_index.py` and checked by the 
 | `docs/coverage-goals.md` | `generated` | `coverage` | `generate-coverage-goals` | `scripts/check-python-model.*` | `scripts/coverage_goals.py`<br>`tb/*_tb.sv`<br>`tb/coverage_utils.py` | Functional coverage goals, thresholds, source testbenches, artifacts, and show-helper mappings. |
 | `docs/register-map.md` | `generated` | `wrappers` | `generate-register-map` | `scripts/check-python-model.*` | `scripts/register_map.py`<br>`rtl/simple_cpu_mmio.sv`<br>`tb/mmio_bus.py` | Shared wrapper address map with RTL/Python constant alignment checks. |
 | `docs/protocol-conformance.md` | `generated` | `wrappers` | `generate-protocol-catalog` | `scripts/check-python-model.*` | `scripts/protocol_catalog.py`<br>`tb/protocol_conformance.py`<br>`tb/test_simple_cpu*.py` | Shared protocol conformance scenarios, expected final states, and adapter test coverage. |
+| `docs/adapter-contract.md` | `generated` | `wrappers` | `generate-adapter-contract` | `scripts/check-python-model.*` | `scripts/adapter_contract.py`<br>`tb/*_bus.py`<br>`tb/protocol_conformance.py` | Python bus-adapter method contract for shared conformance, directed cocotb, and pyuvm tests. |
 | `docs/documentation-index.md` | `generated` | `docs` | `generate-documentation-index` | `scripts/check-python-model.*` | `scripts/documentation_index.py`<br>`README.md`<br>`docs/verification-plan.md` | Single index of tutorial docs, generated catalogs, source-of-truth files, and freshness checks. |
 | `docs/coverage-history.md` | `exported` | `coverage` | `record-coverage-history` | `scripts/check-coverage-delta.*` | `docs/coverage-history.json`<br>`sim_build/*coverage*.json` | Rendered coverage trend history generated from recorded coverage snapshots. |
 | `docs/status/status.md` | `exported` | `status` | `export-status` | `CI summary` | `docs/status/status.json`<br>`sim_build/`<br>`formal/` | Repo-tracked verification status snapshot used by README badges. |

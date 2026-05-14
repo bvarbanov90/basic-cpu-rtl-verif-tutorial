@@ -27,6 +27,7 @@ checks=(
     scripts/coverage_goals.py
     scripts/register_map.py
     scripts/protocol_catalog.py
+    scripts/adapter_contract.py
 )
 
 for check in "${checks[@]}"; do

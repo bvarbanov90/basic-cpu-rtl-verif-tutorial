@@ -29,7 +29,8 @@ $checks = @(
     "scripts/documentation_index.py",
     "scripts/coverage_goals.py",
     "scripts/register_map.py",
-    "scripts/protocol_catalog.py"
+    "scripts/protocol_catalog.py",
+    "scripts/adapter_contract.py"
 )
 
 foreach ($check in $checks) {
