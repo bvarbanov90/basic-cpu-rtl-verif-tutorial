@@ -6,9 +6,9 @@ This page is generated from `scripts/documentation_index.py` and checked by the 
 
 ## Summary
 
-- Indexed paths: 26
+- Indexed paths: 27
 - Manual pages: 4
-- Generated checkable pages: 16
+- Generated checkable pages: 17
 - Exported report pages: 2
 - Machine-readable data docs: 4
 
@@ -41,6 +41,7 @@ This page is generated from `scripts/documentation_index.py` and checked by the 
 | `docs/requirements-traceability.md` | `generated` | `verification` | `generate-requirements-traceability` | `scripts/check-python-model.*` | `scripts/requirements_traceability.py`<br>`scripts/verification_matrix.py`<br>`scripts/artifact_catalog.py` | Requirements-to-evidence traceability across lanes, formal targets, mutation benches, and artifacts. |
 | `docs/coverage-goals.md` | `generated` | `coverage` | `generate-coverage-goals` | `scripts/check-python-model.*` | `scripts/coverage_goals.py`<br>`tb/*_tb.sv`<br>`tb/coverage_utils.py` | Functional coverage goals, thresholds, source testbenches, artifacts, and show-helper mappings. |
 | `docs/reference-regression.md` | `generated` | `verification` | `generate-reference-regression` | `scripts/check-python-model.*` | `scripts/reference_regression_catalog.py`<br>`tb/cpu_lib.py`<br>`tb/coverage_utils.py` | Deterministic directed and seeded-random Python reference regression cases with coverage closure. |
+| `docs/semantic-vectors.md` | `generated` | `verification` | `generate-semantic-vectors` | `scripts/check-python-model.*` | `scripts/semantic_vectors.py`<br>`tb/cpu_lib.py` | Single-instruction semantic vectors for opcode-level pre-state/post-state checking. |
 | `docs/register-map.md` | `generated` | `wrappers` | `generate-register-map` | `scripts/check-python-model.*` | `scripts/register_map.py`<br>`rtl/simple_cpu_mmio.sv`<br>`tb/mmio_bus.py` | Shared wrapper address map with RTL/Python constant alignment checks. |
 | `docs/protocol-conformance.md` | `generated` | `wrappers` | `generate-protocol-catalog` | `scripts/check-python-model.*` | `scripts/protocol_catalog.py`<br>`tb/protocol_conformance.py`<br>`tb/test_simple_cpu*.py` | Shared protocol conformance scenarios, expected final states, and adapter test coverage. |
 | `docs/adapter-contract.md` | `generated` | `wrappers` | `generate-adapter-contract` | `scripts/check-python-model.*` | `scripts/adapter_contract.py`<br>`tb/*_bus.py`<br>`tb/protocol_conformance.py` | Python bus-adapter method contract for shared conformance, directed cocotb, and pyuvm tests. |

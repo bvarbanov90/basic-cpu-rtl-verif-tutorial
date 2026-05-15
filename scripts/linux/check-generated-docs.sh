@@ -29,6 +29,7 @@ checks=(
     scripts/protocol_catalog.py
     scripts/adapter_contract.py
     scripts/reference_regression_catalog.py
+    scripts/semantic_vectors.py
 )
 
 for check in "${checks[@]}"; do

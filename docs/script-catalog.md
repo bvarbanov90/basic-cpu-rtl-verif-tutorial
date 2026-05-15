@@ -6,7 +6,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 
 ## Summary
 
-- Cross-platform entrypoints: 71
+- Cross-platform entrypoints: 72
 - Platform implementations: `scripts/windows/*` and `scripts/linux/*`
 - Compatibility wrappers: top-level `scripts/*.ps1` and `scripts/*.sh`
 
@@ -35,6 +35,7 @@ This page is generated from the cross-platform wrapper layout under `scripts/` a
 | `generate-register-map` | `scripts/generate-register-map.ps1` | `scripts/generate-register-map.sh` | `scripts/windows/generate-register-map.ps1` | `scripts/linux/generate-register-map.sh` |  |
 | `generate-requirements-traceability` | `scripts/generate-requirements-traceability.ps1` | `scripts/generate-requirements-traceability.sh` | `scripts/windows/generate-requirements-traceability.ps1` | `scripts/linux/generate-requirements-traceability.sh` |  |
 | `generate-script-catalog` | `scripts/generate-script-catalog.ps1` | `scripts/generate-script-catalog.sh` | `scripts/windows/generate-script-catalog.ps1` | `scripts/linux/generate-script-catalog.sh` |  |
+| `generate-semantic-vectors` | `scripts/generate-semantic-vectors.ps1` | `scripts/generate-semantic-vectors.sh` | `scripts/windows/generate-semantic-vectors.ps1` | `scripts/linux/generate-semantic-vectors.sh` |  |
 | `generate-tooling-catalog` | `scripts/generate-tooling-catalog.ps1` | `scripts/generate-tooling-catalog.sh` | `scripts/windows/generate-tooling-catalog.ps1` | `scripts/linux/generate-tooling-catalog.sh` |  |
 | `generate-verification-matrix` | `scripts/generate-verification-matrix.ps1` | `scripts/generate-verification-matrix.sh` | `scripts/windows/generate-verification-matrix.ps1` | `scripts/linux/generate-verification-matrix.sh` |  |
 | `install-tools` | `scripts/install-tools.ps1` | `scripts/install-tools-ubuntu.sh` | `scripts/windows/install-tools.ps1` | `scripts/linux/install-tools-ubuntu.sh` | Installer names differ by platform because the Linux implementation is Ubuntu-specific. |

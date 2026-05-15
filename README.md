@@ -162,6 +162,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- test_simple_cpu_pyuvm.py
 |  |- test_adapter_contract_unit.py
 |  |- test_reference_regression_unit.py
+|  |- test_semantic_vectors_unit.py
 |- scripts/
 |  |- adapter_contract.py
 |  |- asm.py
@@ -174,6 +175,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- reference_regression_catalog.py
 |  |- README.md
 |  |- script_catalog.py
+|  |- semantic_vectors.py
 |  |- check_asm_corpus.py
 |  |- coverage_goals.py
 |  |- export_status.py
@@ -291,6 +293,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- generate-protocol-catalog.ps1 / generate-protocol-catalog.sh (wrappers)
 |  |- generate-adapter-contract.ps1 / generate-adapter-contract.sh (wrappers)
 |  |- generate-reference-regression.ps1 / generate-reference-regression.sh (wrappers)
+|  |- generate-semantic-vectors.ps1 / generate-semantic-vectors.sh (wrappers)
 |  |- generate-documentation-index.ps1 / generate-documentation-index.sh (wrappers)
 |  |- generate-formal-catalog.ps1 / generate-formal-catalog.sh (wrappers)
 |  |- generate-mutation-catalog.ps1 / generate-mutation-catalog.sh (wrappers)
@@ -338,6 +341,7 @@ basic-cpu-rlt--verif-tutorial/
 |  |- protocol-conformance.md
 |  |- reference-regression.md
 |  |- register-map.md
+|  |- semantic-vectors.md
 |  |- script-catalog.md
 |  |- status/
 |  |  |- status.json
@@ -549,6 +553,18 @@ Regenerate it after intentional reference-regression edits:
 
 ```bash
 bash scripts/generate-reference-regression.sh
+```
+
+The semantic vector catalog is generated and tracked in `docs/semantic-vectors.md`. It is checked by the Python reference-model CI lane so each opcode has at least one single-instruction pre-state/post-state check, with additional flag edge cases for carry, borrow, signed overflow, branches, stores, and illegal opcodes.
+
+Regenerate it after intentional semantic-vector edits:
+
+```powershell
+.\scripts\generate-semantic-vectors.ps1
+```
+
+```bash
+bash scripts/generate-semantic-vectors.sh
 ```
 
 The documentation index is generated and tracked in `docs/documentation-index.md`. It is checked by the Python reference-model CI lane so README, plan, generated catalogs, exported reports, and machine-readable data docs stay discoverable.
@@ -1180,6 +1196,8 @@ The generated adapter contract catalog in `docs/adapter-contract.md` is the quic
 
 The generated reference regression catalog in `docs/reference-regression.md` is the quick review entry point for deterministic Python ISA stress programs, seeded random cases, final states, and combined coverage closure.
 
+The generated semantic vector catalog in `docs/semantic-vectors.md` is the quick review entry point for single-instruction pre-state/post-state checks across opcodes, flags, branches, memory, and illegal opcodes.
+
 The generated documentation index in `docs/documentation-index.md` is the quick review entry point for all tutorial docs, generated catalogs, exported reports, data files, source-of-truth inputs, and freshness checks.
 
 To check every generated Markdown catalog without running pytest or simulator flows:
@@ -1355,6 +1373,8 @@ The same core cocotb module now also carries a shared protocol-conformance scena
 The generated adapter contract in `docs/adapter-contract.md` statically checks those Python adapter classes for the required `reset`, load, execution, state-sampling, register-wrapper, and protocol-specific helper methods before cocotb is involved.
 
 The generated reference regression catalog in `docs/reference-regression.md` records the deterministic Python programs used to close the reference coverage model, including seeded dataflow and branch-stress cases.
+
+The generated semantic vector catalog in `docs/semantic-vectors.md` drills into single-instruction behavior so opcode-level regressions can be diagnosed before longer program-level tests fail.
 
 The MMIO pyuvm layer in `tb/test_simple_cpu_mmio_pyuvm.py` adds:
 

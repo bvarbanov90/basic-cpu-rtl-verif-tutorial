@@ -31,7 +31,8 @@ $checks = @(
     "scripts/register_map.py",
     "scripts/protocol_catalog.py",
     "scripts/adapter_contract.py",
-    "scripts/reference_regression_catalog.py"
+    "scripts/reference_regression_catalog.py",
+    "scripts/semantic_vectors.py"
 )
 
 foreach ($check in $checks) {

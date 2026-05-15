@@ -170,6 +170,15 @@ DOCUMENTATION: tuple[DocumentationEntry, ...] = (
         purpose="Deterministic directed and seeded-random Python reference regression cases with coverage closure.",
     ),
     DocumentationEntry(
+        path="docs/semantic-vectors.md",
+        kind="generated",
+        owner="verification",
+        generator="generate-semantic-vectors",
+        check="scripts/check-python-model.*",
+        sources=("scripts/semantic_vectors.py", "tb/cpu_lib.py"),
+        purpose="Single-instruction semantic vectors for opcode-level pre-state/post-state checking.",
+    ),
+    DocumentationEntry(
         path="docs/register-map.md",
         kind="generated",
         owner="wrappers",

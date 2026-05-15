@@ -78,6 +78,7 @@ Common entrypoints:
 68. `show-formal-status` (`show-formal-status.ps1` / `show-formal-status.sh`)
 69. `export-status` (`export-status.ps1` / `export-status.sh`)
 70. `generate-reference-regression` (`generate-reference-regression.ps1` / `generate-reference-regression.sh`)
+71. `generate-semantic-vectors` (`generate-semantic-vectors.ps1` / `generate-semantic-vectors.sh`)
 
 When adding a new automation flow:
 
@@ -103,7 +104,7 @@ Adapter contract note:
 
 Reference-model note:
 
-1. `scripts/check-python-model.*` runs `tb/test_cpu_lib_unit.py`, `tb/test_asm_unit.py`, `tb/test_mutation_unit.py`, `tb/test_formal_catalog_unit.py`, `tb/test_script_catalog_unit.py`, `tb/test_ci_catalog_unit.py`, `tb/test_tooling_catalog_unit.py`, `tb/test_verification_matrix_unit.py`, `tb/test_artifact_catalog_unit.py`, `tb/test_requirements_traceability_unit.py`, `tb/test_documentation_index_unit.py`, `tb/test_coverage_goals_unit.py`, `tb/test_register_map_unit.py`, `tb/test_protocol_catalog_unit.py`, `tb/test_adapter_contract_unit.py`, and `tb/test_reference_regression_unit.py`, checks generated ISA, assembler-corpus, mutation-catalog, formal-target, script-catalog, CI-catalog, tooling-catalog, verification-matrix, artifact-catalog, requirements-traceability, documentation-index, coverage-goals, register-map, protocol-conformance, adapter-contract, and reference-regression docs, and emits example traces under `sim_build/model_trace`; `check-generated-docs` runs only the generated documentation freshness subset; `scripts/show-model-trace.*` is the interactive wrapper around the same disassembly/trace utility.
+1. `scripts/check-python-model.*` runs `tb/test_cpu_lib_unit.py`, `tb/test_asm_unit.py`, `tb/test_mutation_unit.py`, `tb/test_formal_catalog_unit.py`, `tb/test_script_catalog_unit.py`, `tb/test_ci_catalog_unit.py`, `tb/test_tooling_catalog_unit.py`, `tb/test_verification_matrix_unit.py`, `tb/test_artifact_catalog_unit.py`, `tb/test_requirements_traceability_unit.py`, `tb/test_documentation_index_unit.py`, `tb/test_coverage_goals_unit.py`, `tb/test_register_map_unit.py`, `tb/test_protocol_catalog_unit.py`, `tb/test_adapter_contract_unit.py`, `tb/test_reference_regression_unit.py`, and `tb/test_semantic_vectors_unit.py`, checks generated ISA, assembler-corpus, mutation-catalog, formal-target, script-catalog, CI-catalog, tooling-catalog, verification-matrix, artifact-catalog, requirements-traceability, documentation-index, coverage-goals, register-map, protocol-conformance, adapter-contract, reference-regression, and semantic-vector docs, and emits example traces under `sim_build/model_trace`; `check-generated-docs` runs only the generated documentation freshness subset; `scripts/show-model-trace.*` is the interactive wrapper around the same disassembly/trace utility.
 
 Mutation note:
 

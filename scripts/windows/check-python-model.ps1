@@ -113,7 +113,7 @@ $env:PYTHONPATH = (Get-Location).Path + $(if ($env:PYTHONPATH) { ";$env:PYTHONPA
 
 $pytestArgs = @()
 $pytestArgs += $pythonCmd.Arguments
-$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py", "tb/test_tooling_catalog_unit.py", "tb/test_verification_matrix_unit.py", "tb/test_artifact_catalog_unit.py", "tb/test_requirements_traceability_unit.py", "tb/test_documentation_index_unit.py", "tb/test_coverage_goals_unit.py", "tb/test_register_map_unit.py", "tb/test_protocol_catalog_unit.py", "tb/test_adapter_contract_unit.py", "tb/test_reference_regression_unit.py")
+$pytestArgs += @("-m", "pytest", "-q", "tb/test_cpu_lib_unit.py", "tb/test_asm_unit.py", "tb/test_mutation_unit.py", "tb/test_formal_catalog_unit.py", "tb/test_script_catalog_unit.py", "tb/test_ci_catalog_unit.py", "tb/test_tooling_catalog_unit.py", "tb/test_verification_matrix_unit.py", "tb/test_artifact_catalog_unit.py", "tb/test_requirements_traceability_unit.py", "tb/test_documentation_index_unit.py", "tb/test_coverage_goals_unit.py", "tb/test_register_map_unit.py", "tb/test_protocol_catalog_unit.py", "tb/test_adapter_contract_unit.py", "tb/test_reference_regression_unit.py", "tb/test_semantic_vectors_unit.py")
 & $pythonCmd.Executable @pytestArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
@@ -243,6 +243,14 @@ $referenceRegressionArgs = @()
 $referenceRegressionArgs += $pythonCmd.Arguments
 $referenceRegressionArgs += @("scripts/reference_regression_catalog.py", "--check")
 & $pythonCmd.Executable @referenceRegressionArgs
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+$semanticVectorArgs = @()
+$semanticVectorArgs += $pythonCmd.Arguments
+$semanticVectorArgs += @("scripts/semantic_vectors.py", "--check")
+& $pythonCmd.Executable @semanticVectorArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
